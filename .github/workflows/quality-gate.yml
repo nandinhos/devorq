@@ -1,0 +1,82 @@
+name: DEVORQ Quality Gate
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main]
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Detect Stack
+        id: stack
+        run: |
+          if [ -f "composer.json" ] && grep -q "laravel" composer.json; then
+            echo "stack=laravel" >> $GITHUB_OUTPUT
+          elif [ -f "package.json" ]; then
+            echo "stack=node" >> $GITHUB_OUTPUT
+          elif [ -f "requirements.txt" ]; then
+            echo "stack=python" >> $GITHUB_OUTPUT
+          else
+            echo "stack=generic" >> $GITHUB_OUTPUT
+          fi
+          echo "Detected: ${{ steps.stack.outputs.stack }}"
+
+  quality-laravel:
+    needs: detect
+    if: needs.detect.outputs.stack == 'laravel'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, pdo_pgsql
+      
+      - name: Install Dependencies
+        run: composer install --no-interaction
+      
+      - name: Run Pint (Linter)
+        run: ./vendor/bin/pint --test
+      
+      - name: Run PHPStan (Type Check)
+        run: ./vendor/bin/phpstan analyse --level=6
+      
+      - name: Run Pest (Tests)
+        run: ./vendor/bin/pest --coverage
+
+  quality-python:
+    needs: detect
+    if: needs.detect.outputs.stack == 'python'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run MyPy
+        run: mypy src/
+      
+      - name: Run Pytest
+        run: pytest tests/ --cov
+
+  quality-generic:
+    needs: detect
+    if: needs.detect.outputs.stack == 'generic'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No specific quality gates for generic stack
+        run: echo "Generic stack - no specific gates defined"
