@@ -7,6 +7,12 @@
 # =====================================================
 
 detect_llm() {
+    # OpenCode detection
+    if [[ "$OPENCODE" == "1" ]] || [[ "$OPENCODE" == "true" ]]; then
+        echo "opencode"
+        return
+    fi
+    
     if [[ "$PROMPT" == *"Antigravity"* ]] || [[ "$ANTIGRAVITY" == "true" ]]; then
         echo "antigravity"
         return
