@@ -1,0 +1,79 @@
+# AI Dev Superpowers V3 - Gitignore
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test output
+/tmp/
+/coverage/
+
+# Environment
+.env
+.env.local
+
+# Node modules (if any tooling is added later)
+node_modules/
+
+# Build artifacts
+/dist/
+/build/
+
+# Backup files
+*.bak
+*.backup
+
+# AI Dev - Arquivos temporarios e cache (mas versiona estrutura principal)
+# O .aidev/ contem a governanca completa do projeto e deve ser versionado
+.aidev/.cache/
+.aidev/state/session.json
+.aidev/state/skills.json
+.aidev/state/agents.json
+.aidev/state/validations.json
+.aidev/state/confidence.json
+.aidev/state/unified.json
+.aidev/state/kb_failures.log
+.aidev/state/error-log.json
+.aidev/backups/
+.aidev/analysis/
+.aidev/state/sprints/
+
+# Memorias locais (geradas em runtime, nao versionadas)
+.aidev/memories/
+.aidev/memory/kb/*.md
+!.aidev/memory/kb/index.json
+.aidev/memory/kb/checkpoints/
+
+# Cache de ativacao (gerado em runtime a cada sessao)
+.aidev/state/activation_snapshot.json
+
+# MCP Laravel - artefatos de runtime (gerados por aidev mcp laravel)
+.aidev/mcp/laravel/config/
+.aidev/mcp/laravel/state/
+.aidev/mcp/laravel/backups/
+.aidev/mcp/laravel/projects/
+
+# Serena (configuracao local)
+.serena/
+
+# AI Instructions gerado
+AI_INSTRUCTIONS.md
+
+# Environment
+.env
+state/
+tests/.aidev/
+
+# IDE e editores
+.claude/
