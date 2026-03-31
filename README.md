@@ -17,6 +17,18 @@ DEVORQ é um sistema de workflow que transforma qualquer LLM em um desenvolvedor
 
 ---
 
+## Stacks Suportadas
+
+| Stack | Agente | Regras |
+|-------|--------|--------|
+| **Laravel (TALL)** | `.devorq/agents/laravel/` | `.devorq/rules/stack/laravel-tall.md` |
+| **Filament** | `.devorq/agents/filament/` | Herda do Laravel |
+| **PHP Puro** | `.devorq/agents/php/` | `.devorq/rules/stack/php.md` |
+| **Python** | `.devorq/agents/python/` | `.devorq/rules/stack/python.md` |
+| **General** | `.devorq/agents/general/` | Orquestrador |
+
+---
+
 ## Skills DEVORQ
 
 | Skill | Propósito | Quando Usar |
@@ -28,7 +40,6 @@ DEVORQ é um sistema de workflow que transforma qualquer LLM em um desenvolvedor
 | `/quality-gate` | Checklist pré-commit | Após qualquer implementação |
 | `/session-audit` | Classificar eficiência da sessão | Final de toda sessão |
 | `/spec-export` | Exportar contexto para handoff | Quando muda de LLM |
-| `brainstorming` | Explorar ideias antes do plano | Novas features |
 | `tdd` | RED → GREEN → REFACTOR | Implementação de código |
 | `systematic-debugging` | Investigar bugs com processo | Quando algo não funciona |
 | `code-review` | Revisão de qualidade | Antes de PR |
@@ -39,19 +50,13 @@ DEVORQ é um sistema de workflow que transforma qualquer LLM em um desenvolvedor
 
 ```
 Nova Sessão:
-  /env-context → Detectar stack/ambiente
+  devorq init → Detectar stack, tipo, LLM
 
-Antes de Codar:
-  /scope-guard → /pre-flight → /schema-validate
+Task:
+  devorq flow "implementar feature X"
 
-Durante Implementação:
-  tdd (RED → GREEN → REFACTOR)
-
-Antes de Commit:
-  /quality-gate → APROVADO?
-
-Encerramento:
-  /spec-export → /session-audit → checkpoint
+Durante:
+  /env-context → /scope-guard → /pre-flight → tdd → /quality-gate → /session-audit
 ```
 
 ---
@@ -59,15 +64,22 @@ Encerramento:
 ## Instalação
 
 ```bash
-# Copiar para seu projeto
-cp -r .aidev/ /seu-projeto/
+# Clone
+git clone https://github.com/nandinhos/devorq.git
+
+# Copie para seu projeto
+cp -r .devorq/ /seu-projeto/
+cp -r bin/ /seu-projeto/
+cp lib/detect.sh /seu-projeto/lib/
 ```
+
+Consulte `INSTALL.md` para métodos completos de instalação.
 
 ---
 
 ## Configuração MCP
 
-Editar `.mcp.json` com as chaves das ferramentas:
+Para validação de documentação oficial:
 
 ```json
 {
@@ -82,7 +94,19 @@ Editar `.mcp.json` com as chaves das ferramentas:
 
 ---
 
-## Credits
+## Comandos CLI
 
-- Base: aidev-superpowers-v3 (fork com limpeza)
-- Customização: DEVORQ based on developer profile
+| Comando | Descrição |
+|---------|-----------|
+| `devorq init` | Inicializar projeto |
+| `devorq flow "task"` | Executar fluxo completo |
+| `devorq agent` | Modo agente |
+| `devorq context` | Ver contexto atual |
+| `devorq checkpoint` | Criar checkpoint |
+
+---
+
+## Documentação
+
+- [INSTALL.md](INSTALL.md) - Instalação completa
+- [FLUXO_DESENVOLVIMENTO.md](FLUXO_DESENVOLVIMENTO.md) - Fluxo detalhado
