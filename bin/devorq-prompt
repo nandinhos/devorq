@@ -1,0 +1,115 @@
+#!/bin/bash
+# DEVORQ - Generate LLM Activation Prompts
+
+set -eEo pipefail
+
+DEVORQ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+log() { echo -e "${CYAN}[DEVORQ]${NC} $1"; }
+
+# =====================================================
+# Generate prompts for different LLMs
+# =====================================================
+
+generate_prompts() {
+    log "Generating LLM activation prompts..."
+    
+    # Claude Code
+    cat > "$DEVORQ_ROOT/prompts/claude.md" << 'EOF'
+# DEVORQ - Claude Code Activation
+
+## Ativar
+Use `/devorq` ou cole este prompt no início da conversa.
+
+## Fluxo
+1. Detect stack (auto)
+2. /scope-guard (obrigatório)
+3. /pre-flight
+4. TDD (RED→GREEN→REFACTOR)
+5. /quality-gate (obrigatório)
+6. /session-audit (obrigatório)
+
+## Rules
+- SEMPRE /scope-guard antes de código
+- SEMPRE /quality-gate antes de commit
+- SEMPRE /session-audit no fim
+EOF
+
+    # Gemini
+    cat > "$DEVORQ_ROOT/prompts/gemini.md" << 'EOF'
+# DEVORQ - Gemini CLI Activation
+
+## Ativar
+Digite: `devorq [task]` ou cole este prompt.
+
+## Fluxo
+1. /env-context (auto)
+2. /scope-guard (obrigatório)
+3. /pre-flight
+4. TDD
+5. /quality-gate (obrigatório)
+6. /session-audit (obrigatório)
+
+## Stack
+Laravel, Filament, Python, Shell
+EOF
+
+    # OpenCode
+    cat > "$DEVORQ_ROOT/prompts/opencode.md" << 'EOF'
+# DEVORQ - OpenCode Activation
+
+## Ativar
+Cole este prompt no início da conversa.
+
+## Fluxo Completo
+1. /env-context → detecta stack
+2. /scope-guard → contrato
+3. /pre-flight → valida tipos
+4. tdd → RED→GREEN→REFACTOR
+5. /quality-gate → checklist
+6. /session-audit → métricas
+
+## Obrogatório
+- Contrato antes de código
+- Quality gate antes de commit
+EOF
+
+    # Antigravity
+    cat > "$DEVORQ_ROOT/prompts/antigravity.md" << 'EOF'
+# DEVORQ - Antigravity Activation
+
+## Ativar
+Prompt de ativação automática.
+
+## Workflow
+1. Context: /env-context (auto-detect)
+2. Contract: /scope-guard
+3. Validate: /pre-flight → /schema-validate
+4. Build: tdd (RED→GREEN→REFACTOR)
+5. Gate: /quality-gate
+6. Audit: /session-audit
+
+## Stack Targets
+- PHP/Laravel (TALL Stack)
+- Python (data analysis)
+- Shell (automation)
+EOF
+
+    log "Prompts generated in prompts/"
+    ls -la "$DEVORQ_ROOT/prompts/"
+}
+
+# Main
+case "${1:-all}" in
+    all) generate_prompts ;;
+    claude) cat "$DEVORQ_ROOT/prompts/claude.md" ;;
+    gemini) cat "$DEVORQ_ROOT/prompts/gemini.md" ;;
+    opencode) cat "$DEVORQ_ROOT/prompts/opencode.md" ;;
+    antigravity) cat "$DEVORQ_ROOT/prompts/antigravity.md" ;;
+    *) echo "Usage: $0 [all|claude|gemini|opencode|antigravity]" ;;
+esac
