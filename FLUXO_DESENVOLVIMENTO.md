@@ -399,29 +399,37 @@ Inclui:
 | checkpoint | ✅ | Continuidade se rate limit |
 | CLI minimal | ✅ | Comandos essenciais |
 
+### ✅ RESOLVIDO EM v2.0
+
+| Capability | Status | Descrição |
+|------------|--------|-----------|
+| /learned-lesson | ✅ | Integrada ao fluxo obrigatório pós session-audit |
+| /handoff | ✅ | Skill criada + comandos CLI (generate/status/list) |
+| /constraint-loader | ✅ | Skill criada, integrada ao /pre-flight |
+| integrity-guardian | ✅ | Skill criada, integrada ao /quality-gate para TALL |
+| Versionamento de skills | ✅ | SKILL.md + CHANGELOG.md + VERSIONS/ com semver |
+| Pipeline auto-aprendizado | ✅ | Gates 5-7 + lessons list/validate/apply |
+| skill rollback | ✅ | Comando `devorq skill rollback <nome> <versao>` |
+| Prompts multi-LLM | ✅ | claude.md, gemini.md, antigravity.md atualizados |
+
 ### ⚠️ PARCIAL/FALTANDO
 
 | Capability | Status | Descrição |
 |------------|--------|-----------|
-| /learned-lesson | ⚠️ | Skill existe mas não integrada em workflow |
 | systematic-debugging | ⚠️ | Skill existe mas não integrada em workflow |
 | code-review | ⚠️ | Skill existe mas não integrada em workflow |
-| MCP config | ⚠️ | Existe mas não está no fluxo automático |
-| Agentes | ❌ | Removidos (precisam ser recriados?) |
-| Rules | ❌ | Removidos (precisam ser recriados?) |
+| MCP Context7 automático | ⚠️ | Presente no pipeline mas requer chamada manual |
 
-### ❌ NÃO IMPLEMENTADO
+### ❌ NÃO IMPLEMENTADO (fora do escopo v2.0)
 
 | Capability | Descrição |
 |------------|-----------|
-| /handoff | Repassar estado entre LLMs automaticamente |
-| /constraint-loader | Carregar artefatos por tipo de task |
-| the-integrity-guardian | Validar Livewire (wire:key, x-show) |
 | the-logic-extractor | Extrair lógica para Actions/Services |
 | the-preflight-physician | Saúde Docker: permissões, links |
 | Gate automático no git hooks | Pint/pre-commit antes de commit |
 | CI/CD pipeline | GitHub Actions automático |
 | Dashboard de métricas | Visualização de efficiency |
+| Hub VPS de memória global | Repositório semântico externo (sistema separado) |
 
 ---
 
