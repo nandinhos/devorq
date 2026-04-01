@@ -23,6 +23,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Carregar módulos
 source "$DEVORQ_ROOT/lib/detect.sh"
+source "$DEVORQ_ROOT/lib/lessons.sh"
+source "$DEVORQ_ROOT/lib/handoff.sh"
 
 # =====================================================
 # COMANDOS
@@ -216,35 +218,168 @@ EOF
 }
 
 cmd_skills() {
-    echo "Skills DEVORQ:"
-    ls -1 "$DEVORQ_DIR/skills/" 2>/dev/null | sed 's|/||g' | while read skill; do
-        echo "  - $skill"
+    echo "Skills DEVORQ ($(ls -1 "$DEVORQ_DIR/skills/" 2>/dev/null | wc -l | tr -d ' ') skills):"
+    for skill_dir in "$DEVORQ_DIR/skills"/*/; do
+        local skill
+        skill=$(basename "$skill_dir")
+        local version=""
+        if [ -f "$skill_dir/CHANGELOG.md" ]; then
+            version=$(grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' "$skill_dir/CHANGELOG.md" 2>/dev/null | head -1)
+        fi
+        echo "  - $skill ${version:-v?}"
     done
+}
+
+# =====================================================
+# LIÇÕES
+# =====================================================
+
+cmd_lessons() {
+    local subcmd="${2:-list}"
+    case "$subcmd" in
+        list)
+            lessons_list "$DEVORQ_DIR"
+            ;;
+        validate)
+            lessons_validate "$DEVORQ_DIR"
+            ;;
+        apply)
+            lessons_apply "$DEVORQ_DIR" "${3:-}"
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq lessons <list|validate|apply> [nome]"
+            exit 1
+            ;;
+    esac
+}
+
+# =====================================================
+# HANDOFF
+# =====================================================
+
+cmd_handoff() {
+    local subcmd="${2:-status}"
+    case "$subcmd" in
+        generate)
+            log "Gerando handoff file..."
+            local handoff_file
+            handoff_file=$(generate_handoff "$DEVORQ_DIR" "$DEVORQ_ROOT")
+            log_success "Handoff gerado: $handoff_file"
+            echo ""
+            echo "[Gate 4] Revisar o handoff antes de passar para o próximo LLM:"
+            echo ""
+            cat "$handoff_file"
+            echo ""
+            echo "Arquivo: $handoff_file"
+            ;;
+        status)
+            handoff_status "$DEVORQ_DIR"
+            ;;
+        list)
+            handoff_list "$DEVORQ_DIR"
+            ;;
+        update)
+            handoff_update_status "$DEVORQ_DIR" "${3:-em_andamento}"
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq handoff <generate|status|list|update>"
+            exit 1
+            ;;
+    esac
+}
+
+# =====================================================
+# SKILL (versioning e rollback)
+# =====================================================
+
+cmd_skill() {
+    local subcmd="${2:-list}"
+    case "$subcmd" in
+        rollback)
+            local skill_name="${3:-}"
+            local target_version="${4:-}"
+            if [ -z "$skill_name" ] || [ -z "$target_version" ]; then
+                echo "Uso: devorq skill rollback <nome_skill> <versao>"
+                echo "Exemplo: devorq skill rollback scope-guard v1.0.0"
+                exit 1
+            fi
+            skill_rollback "$DEVORQ_DIR/skills" "$skill_name" "$target_version"
+            ;;
+        version)
+            local skill_name="${3:-}"
+            local bump_type="${4:-minor}"
+            if [ -z "$skill_name" ]; then
+                echo "Uso: devorq skill version <nome_skill> <patch|minor|major>"
+                exit 1
+            fi
+            version_skill "$DEVORQ_DIR/skills" "$skill_name" "$bump_type"
+            ;;
+        versions)
+            local skill_name="${3:-}"
+            if [ -z "$skill_name" ]; then
+                echo "Uso: devorq skill versions <nome_skill>"
+                exit 1
+            fi
+            local versions_dir="$DEVORQ_DIR/skills/$skill_name/VERSIONS"
+            if [ -d "$versions_dir" ]; then
+                echo "Versões disponíveis para $skill_name:"
+                ls -1 "$versions_dir" | sed 's/.md$//' | sed 's/^/  /'
+            else
+                echo "Nenhuma versão encontrada para $skill_name"
+            fi
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq skill <rollback|version|versions>"
+            exit 1
+            ;;
+    esac
 }
 
 cmd_help() {
     cat << EOF
-DEVORQ - Desenvolvimento Orquestrador
+DEVORQ v2.0 — Orquestrador de Desenvolvimento Multi-LLM
 
-Uso: devorq <comando> [opções]
+Uso: devorq <comando> [opcoes]
 
-Comandos:
-  init              Inicializar projeto (detectar stack, tipo, regras)
-  flow <intent>     Executar fluxo completo para uma task
-  agent             Ativar modo agente
-  context           Mostrar contexto atual
-  checkpoint        Criar checkpoint
-  info              Mostrar info resumida
-  skills            Listar skills
-  help              Esta ajuda
+Comandos principais:
+  init                          Inicializar projeto (detectar stack, tipo, regras)
+  flow <intent>                 Executar fluxo completo para uma task
+  agent                         Mostrar modo de agente ativo
+  context                       Mostrar contexto detectado
+  checkpoint                    Criar checkpoint de continuidade
+  info                          Mostrar info resumida
+  skills                        Listar skills disponíveis com versões
 
-Fluxo:
-  devorq init                           → Configurar projeto
-  devorq flow "implementar autenticação" → Executar task completa
+Handoff multi-LLM:
+  handoff generate              Gerar spec padronizada para próximo LLM (Gate 4)
+  handoff status                Mostrar status do handoff atual
+  handoff list                  Listar histórico de handoffs
+  handoff update <status>       Atualizar status (em_andamento|aguardando_merge|concluido)
 
-Exemplo:
-  devorq init
-  devorq flow "criar sistema de login OAuth2"
+Pipeline de aprendizado:
+  lessons list                  Listar lições pendentes, validadas e aplicadas
+  lessons validate              Exibir lições para validação via Context7 (Gate 6)
+  lessons apply <nome>          Aplicar lição numa skill (Gate 7)
+
+Versionamento de skills:
+  skill rollback <skill> <v>    Reverter skill para versão anterior
+  skill version <skill> <bump>  Criar snapshot de nova versão (patch|minor|major)
+  skill versions <skill>        Listar versões disponíveis de uma skill
+
+Fluxo obrigatório (v2.0):
+  1. devorq init
+  2. /scope-guard            [Gate 1: aprovar contrato]
+  3. /pre-flight             [Gate 2: aprovar antes de implementar]
+  4. devorq handoff generate [Gate 4: aprovar antes de trocar LLM]
+  5. TDD RED->GREEN->REFACTOR
+  6. /quality-gate           [Gate 3: aprovar antes de commitar]
+  7. /session-audit
+  8. /learned-lesson         [Gate 5: salvar lições?]
+  9. devorq lessons validate [Gate 6: validação Context7]
+ 10. devorq lessons apply    [Gate 7: aplicar nas skills]
 EOF
 }
 
@@ -253,13 +388,16 @@ EOF
 # =====================================================
 
 case "${1:-help}" in
-    init)       cmd_init ;;
-    flow)      cmd_flow "$@" ;;
-    agent)     cmd_agent ;;
-    context)   cmd_context ;;
-    checkpoint) cmd_checkpoint ;;
-    info)      cmd_info ;;
-    skills)    cmd_skills ;;
+    init)        cmd_init ;;
+    flow)        cmd_flow "$@" ;;
+    agent)       cmd_agent ;;
+    context)     cmd_context ;;
+    checkpoint)  cmd_checkpoint ;;
+    info)        cmd_info ;;
+    skills)      cmd_skills ;;
+    lessons)     cmd_lessons "$@" ;;
+    handoff)     cmd_handoff "$@" ;;
+    skill)       cmd_skill "$@" ;;
     help|--help|-h) cmd_help ;;
-    *)         log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
+    *)           log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
 esac
