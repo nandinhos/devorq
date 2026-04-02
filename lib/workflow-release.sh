@@ -4,8 +4,8 @@
 
 AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
-# Detectar se AIDEV_ROOT aponta para .aidev ou para root
-if [[ "$AIDEV_ROOT" == *".aidev" ]]; then
+# Detectar se AIDEV_ROOT aponta para .devorq ou para root
+if [[ "$AIDEV_ROOT" == *".devorq" ]]; then
     PROJECT_ROOT="$(dirname "$AIDEV_ROOT")"
 else
     PROJECT_ROOT="$AIDEV_ROOT"

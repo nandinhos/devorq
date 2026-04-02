@@ -251,7 +251,7 @@ set_state_value() {
     local key="$1"
     local value="$2"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local state_file="$install_path/.aidev/state/session.json"
+    local state_file="$install_path/.devorq/state/session.json"
     
     mkdir -p "$(dirname "$state_file")"
     
@@ -291,7 +291,7 @@ get_state_value() {
     local key="$1"
     local default="${2:-}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local state_file="$install_path/.aidev/state/session.json"
+    local state_file="$install_path/.devorq/state/session.json"
     
     if [ ! -f "$state_file" ]; then
         echo "$default"

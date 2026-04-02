@@ -1,4 +1,7 @@
-# AI Dev Superpowers V3 - Gitignore
+# DEVORQ - Gitignore
+
+# Worktrees isolados
+.worktrees/
 
 # Temporary files
 *.tmp
@@ -34,46 +37,33 @@ node_modules/
 *.bak
 *.backup
 
-# AI Dev - Arquivos temporarios e cache (mas versiona estrutura principal)
-# O .aidev/ contem a governanca completa do projeto e deve ser versionado
-.aidev/.cache/
-.aidev/state/session.json
-.aidev/state/skills.json
-.aidev/state/agents.json
-.aidev/state/validations.json
-.aidev/state/confidence.json
-.aidev/state/unified.json
-.aidev/state/kb_failures.log
-.aidev/state/error-log.json
-.aidev/backups/
-.aidev/analysis/
-.aidev/state/sprints/
-
-# Memorias locais (geradas em runtime, nao versionadas)
-.aidev/memories/
-.aidev/memory/kb/*.md
-!.aidev/memory/kb/index.json
-.aidev/memory/kb/checkpoints/
-
-# Cache de ativacao (gerado em runtime a cada sessao)
-.aidev/state/activation_snapshot.json
-
-# MCP Laravel - artefatos de runtime (gerados por aidev mcp laravel)
-.aidev/mcp/laravel/config/
-.aidev/mcp/laravel/state/
-.aidev/mcp/laravel/backups/
-.aidev/mcp/laravel/projects/
+# DEVORQ - Arquivos de estado em runtime (nao versionados)
+.devorq/state/session.json
+.devorq/state/skills.json
+.devorq/state/agents.json
+.devorq/state/validations.json
+.devorq/state/confidence.json
+.devorq/state/unified.json
+.devorq/state/kb_failures.log
+.devorq/state/error-log.json
+.devorq/state/activation_snapshot.json
+.devorq/backups/
+.devorq/analysis/
+.devorq/state/sprints/
+.devorq/state/tasklist/
+.devorq/state/lessons-pending/
+.devorq/state/lessons-learned/
+.devorq/state/contracts/
+.devorq/state/checkpoints/
+.devorq/state/specs/
+.devorq/state/session-audits/
+.devorq/.cache/
 
 # Serena (configuracao local)
 .serena/
 
 # AI Instructions gerado
 AI_INSTRUCTIONS.md
-
-# Environment
-.env
-state/
-tests/.aidev/
 
 # IDE e editores
 .claude/

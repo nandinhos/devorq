@@ -395,18 +395,18 @@ detect_project_context() {
 # Detecção de Módulos Existentes
 # ============================================================================
 
-# Verifica se projeto já tem aidev instalado
-# Uso: has_aidev_installed "/path/to/project"
-has_aidev_installed() {
+# Verifica se projeto já tem devorq instalado
+# Uso: has_devorq_installed "/path/to/project"
+has_devorq_installed() {
     local path="${1:-.}"
-    [ -d "$path/.aidev" ]
+    [ -d "$path/.devorq" ]
 }
 
 # Lista agentes instalados
 # Uso: list_installed_agents "/path/to/project"
 list_installed_agents() {
     local path="${1:-.}"
-    local agents_dir="$path/.aidev/agents"
+    local agents_dir="$path/.devorq/agents"
     
     if [ -d "$agents_dir" ]; then
         find "$agents_dir" -name "*.md" -exec basename {} .md \;
@@ -417,7 +417,7 @@ list_installed_agents() {
 # Uso: list_installed_skills "/path/to/project"
 list_installed_skills() {
     local path="${1:-.}"
-    local skills_dir="$path/.aidev/skills"
+    local skills_dir="$path/.devorq/skills"
     
     if [ -d "$skills_dir" ]; then
         find "$skills_dir" -name "SKILL.md" -exec dirname {} \; | xargs -I{} basename {}

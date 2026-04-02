@@ -7,7 +7,7 @@
 # Se MCP não responde → fallback automático sem erro
 # ============================================================================
 
-_MCP_FALLBACK_STATE_FILE="${MCP_FALLBACK_STATE_FILE:-.aidev/state/mcp-fallback-status.json}"
+_MCP_FALLBACK_STATE_FILE="${MCP_FALLBACK_STATE_FILE:-.devorq/state/mcp-fallback-status.json}"
 _MCP_MAX_RETRIES=3
 _MCP_RETRY_DELAY=1
 
@@ -23,8 +23,8 @@ _mcp_fallback_log() {
     
     echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >&2
     
-    mkdir -p .aidev/logs 2>/dev/null || true
-    echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >> .aidev/logs/mcp-fallback.log 2>/dev/null || true
+    mkdir -p .devorq/logs 2>/dev/null || true
+    echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >> .devorq/logs/mcp-fallback.log 2>/dev/null || true
 }
 
 _mcp_fallback_update_status() {
@@ -33,7 +33,7 @@ _mcp_fallback_update_status() {
     local message="$3"
     local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
-    mkdir -p .aidev/state 2>/dev/null || true
+    mkdir -p .devorq/state 2>/dev/null || true
     
     local temp_file
     temp_file=$(mktemp)
@@ -135,7 +135,7 @@ mcp_fallback_get_fallback_command() {
     
     case "$mcp_name" in
         basic-memory)
-            echo "cat .aidev/memory/kb/"
+            echo "cat .devorq/memory/kb/"
             ;;
         context7|context7-mcp)
             echo "rg --hidden"
@@ -165,8 +165,8 @@ mcp_fallback_log() {
     echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >&2
     
     # Also log to file
-    mkdir -p .aidev/logs
-    echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >> .aidev/logs/mcp-fallback.log
+    mkdir -p .devorq/logs
+    echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >> .devorq/logs/mcp-fallback.log
 }
 
 # ============================================================================
@@ -179,7 +179,7 @@ mcp_fallback_update_status() {
     local message="$3"
     local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
-    mkdir -p .aidev/state
+    mkdir -p .devorq/state
     
     # Create or update JSON
     local temp_file

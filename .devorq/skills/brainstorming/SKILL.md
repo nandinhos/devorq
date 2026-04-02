@@ -20,7 +20,7 @@ Quando usuário apresenta ideia/solicitação nova que precisa ser explorada ant
 2. **Explorar alternativas**: 2-3 abordagens possíveis
 3. **Identificar riscos**: O que pode dar errado?
 4. **Decisão preliminar**: Qual caminho seguir?
-5. **Documentar**: Criar registro em `.aidev/plans/brainstorm/`
+5. **Documentar**: Criar registro em `.devorq/plans/brainstorm/`
 
 ## Estrutura
 

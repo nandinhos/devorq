@@ -47,7 +47,7 @@ globs:
 ```
 
 ## Organização
-Salvar em: `.aidev/state/lessons-learned/YYYY-MM-[titulo].md`
+Salvar em: `.devorq/state/lessons-learned/YYYY-MM-[titulo].md`
 
 ---
 

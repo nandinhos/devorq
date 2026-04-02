@@ -8,7 +8,7 @@
 # ============================================================================
 
 _MCP_HEALTH_TIMEOUT=5
-_MCP_HEALTH_REGISTRY="${MCP_HEALTH_REGISTRY:-.aidev/config/mcp-registry.yaml}"
+_MCP_HEALTH_REGISTRY="${MCP_HEALTH_REGISTRY:-.devorq/config/mcp-registry.yaml}"
 
 # ============================================================================
 # mcp_health_check
@@ -186,8 +186,8 @@ mcp_health_all() {
     
     # Detecta stack primeiro (para saber se Laravel é aplicável)
     local current_stack="generic"
-    if [ -f ".aidev/lib/stack-detector.sh" ]; then
-        source ".aidev/lib/stack-detector.sh"
+    if [ -f ".devorq/lib/stack-detector.sh" ]; then
+        source ".devorq/lib/stack-detector.sh"
         current_stack=$(stack_detect "." 2>/dev/null || echo "generic")
     fi
     

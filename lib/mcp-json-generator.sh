@@ -7,7 +7,7 @@
 # Suporta merge com configuração existente
 # ============================================================================
 
-_MCP_GENERATOR_REGISTRY="${MCP_GENERATOR_REGISTRY:-.aidev/config/mcp-registry.yaml}"
+_MCP_GENERATOR_REGISTRY="${MCP_GENERATOR_REGISTRY:-.devorq/config/mcp-registry.yaml}"
 _MCP_GENERATOR_OUTPUT="${MCP_GENERATOR_OUTPUT:-.mcp.json}"
 
 # Carrega stack-detector se não estiver disponível

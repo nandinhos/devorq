@@ -141,9 +141,9 @@ validate_conformity() {
     
     # 1. Verificar snapshot
     if is_snapshot_valid; then
-        echo "✅ Snapshot válido em .aidev/state/"
+        echo "✅ Snapshot válido em .devorq/state/"
     else
-        echo "❌ Snapshot inválido ou ausente em .aidev/state/"
+        echo "❌ Snapshot inválido ou ausente em .devorq/state/"
         ((issues++))
     fi
     

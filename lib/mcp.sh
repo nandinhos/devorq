@@ -141,7 +141,7 @@ EOF
 # Gera configuração MCP para Antigravity
 generate_antigravity_mcp_config() {
     local project_path="$1"
-    local config_dir="$project_path/.aidev/mcp"
+    local config_dir="$project_path/.devorq/mcp"
     
     ensure_dir "$config_dir"
     
@@ -199,7 +199,7 @@ EOF
 generate_generic_mcp_config() {
     local project_path="$1"
     local platform="$2"
-    local config_dir="$project_path/.aidev/mcp"
+    local config_dir="$project_path/.devorq/mcp"
 
     ensure_dir "$config_dir"
 
@@ -264,7 +264,7 @@ configure_mcp_server() {
     local project_path="${2:-.}"
     local enabled="${3:-true}"
     
-    local servers_file="$project_path/.aidev/mcp/servers.yaml"
+    local servers_file="$project_path/.devorq/mcp/servers.yaml"
     
     ensure_dir "$(dirname "$servers_file")"
     
@@ -294,7 +294,7 @@ has_mcp_config() {
     [ -f "$project_path/.mcp.json" ] && return 0
     
     # Gemini/outros
-    [ -d "$project_path/.aidev/mcp" ] && return 0
+    [ -d "$project_path/.devorq/mcp" ] && return 0
     
     return 1
 }
@@ -345,8 +345,8 @@ setup_mcp_engine() {
     generate_mcp_config "$platform" "$project_path"
     
     # Cria estrutura de diretórios MCP
-    ensure_dir "$project_path/.aidev/mcp/servers"
-    ensure_dir "$project_path/.aidev/mcp/memory"
+    ensure_dir "$project_path/.devorq/mcp/servers"
+    ensure_dir "$project_path/.devorq/mcp/memory"
     
     # Gera arquivos auxiliares
     generate_mcp_readme "$project_path"
@@ -357,7 +357,7 @@ setup_mcp_engine() {
 # Gera README explicativo para MCP
 generate_mcp_readme() {
     local project_path="$1"
-    local readme_file="$project_path/.aidev/mcp/README.md"
+    local readme_file="$project_path/.devorq/mcp/README.md"
     
     if should_write_file "$readme_file"; then
         cat > "$readme_file" << 'EOF'

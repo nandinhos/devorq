@@ -26,9 +26,9 @@ ckpt_create() {
     local hypothesis="${5:-}"
     local mental_model="${6:-}"
     local observations="${7:-}"
-    local ckpt_dir="$install_path/.aidev/state/sprints/current/checkpoints"
-    local unified_file="$install_path/.aidev/state/unified.json"
-    local sprint_file="$install_path/.aidev/state/sprints/current/sprint-status.json"
+    local ckpt_dir="$install_path/.devorq/state/sprints/current/checkpoints"
+    local unified_file="$install_path/.devorq/state/unified.json"
+    local sprint_file="$install_path/.devorq/state/sprints/current/sprint-status.json"
 
     mkdir -p "$ckpt_dir"
 
@@ -152,7 +152,7 @@ ckpt_create() {
 # Retorna: lista de checkpoint IDs (um por linha)
 ckpt_list() {
     local install_path="${1:-${CLI_INSTALL_PATH:-.}}"
-    local ckpt_dir="$install_path/.aidev/state/sprints/current/checkpoints"
+    local ckpt_dir="$install_path/.devorq/state/sprints/current/checkpoints"
 
     if [ ! -d "$ckpt_dir" ]; then
         echo ""
@@ -179,7 +179,7 @@ ckpt_list() {
 # Retorna: checkpoint ID ou vazio
 ckpt_get_latest() {
     local install_path="${1:-${CLI_INSTALL_PATH:-.}}"
-    local ckpt_dir="$install_path/.aidev/state/sprints/current/checkpoints"
+    local ckpt_dir="$install_path/.devorq/state/sprints/current/checkpoints"
 
     if [ ! -d "$ckpt_dir" ]; then
         return 0
@@ -429,7 +429,7 @@ EOF
 
 # Sincroniza um checkpoint para o Basic Memory de forma graceful.
 # Se BM disponível: usa mcp__basic-memory__write_note.
-# Se indisponível: fallback para arquivo local em .aidev/memory/kb/checkpoints/.
+# Se indisponível: fallback para arquivo local em .devorq/memory/kb/checkpoints/.
 # Nunca bloqueia o fluxo principal — sempre retorna 0.
 #
 # Uso: ckpt_sync_to_basic_memory <checkpoint_file>
@@ -441,7 +441,7 @@ ckpt_sync_to_basic_memory() {
 
     # Carrega detecção unificada se disponível
     local _lib_dir
-    _lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.aidev/lib" 2>/dev/null && pwd)" || true
+    _lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.devorq/lib" 2>/dev/null && pwd)" || true
     if [ -f "$_lib_dir/mcp-detect.sh" ] && ! type mcp_detect_basic_memory &>/dev/null; then
         source "$_lib_dir/mcp-detect.sh" 2>/dev/null || true
     fi
@@ -455,7 +455,7 @@ ckpt_sync_to_basic_memory() {
     [ -z "$note_content" ] && note_content=$(cat "$ckpt_file" 2>/dev/null) || true
 
     # Caminho do fallback local
-    local fallback_dir=".aidev/memory/kb/checkpoints"
+    local fallback_dir=".devorq/memory/kb/checkpoints"
 
     # Tenta via MCP se disponível
     if type mcp_detect_basic_memory &>/dev/null && mcp_detect_basic_memory 2>/dev/null; then
@@ -476,11 +476,11 @@ ckpt_sync_to_basic_memory() {
     return 0
 }
 
-# Salva nota de checkpoint localmente em .aidev/memory/kb/checkpoints/
+# Salva nota de checkpoint localmente em .devorq/memory/kb/checkpoints/
 _ckpt_sync_local_fallback() {
     local ckpt_id="$1"
     local content="$2"
-    local dest_dir="${3:-.aidev/memory/kb/checkpoints}"
+    local dest_dir="${3:-.devorq/memory/kb/checkpoints}"
 
     mkdir -p "$dest_dir" 2>/dev/null || return 0
     printf '%s\n' "$content" > "$dest_dir/${ckpt_id}.md" 2>/dev/null || true
@@ -527,7 +527,7 @@ ckpt_sync_status() {
 # Uso: ckpt_sync_all <install_path>
 ckpt_sync_all() {
     local install_path="${1:-${CLI_INSTALL_PATH:-.}}"
-    local ckpt_dir="$install_path/.aidev/state/sprints/current/checkpoints"
+    local ckpt_dir="$install_path/.devorq/state/sprints/current/checkpoints"
     
     if [ ! -d "$ckpt_dir" ]; then
         echo "❌ Diretorio de checkpoints nao encontrado"

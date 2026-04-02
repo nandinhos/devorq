@@ -7,7 +7,7 @@ _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
 
 # Detectar diretório do projeto
-if [[ "$AIDEV_ROOT" == *".aidev" ]]; then
+if [[ "$AIDEV_ROOT" == *".devorq" ]]; then
     PROJECT_ROOT="$(dirname "$AIDEV_ROOT")"
     cd "$PROJECT_ROOT"
 else

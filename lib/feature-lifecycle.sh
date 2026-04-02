@@ -10,13 +10,13 @@
 _SCRIPT_DIR_FLC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Diretórios (relativos ao CWD do projeto)
-_FLC_BACKLOG_DIR="${FLC_BACKLOG_DIR:-.aidev/plans/backlog}"
-_FLC_BRAINSTORM_DIR="${FLC_BRAINSTORM_DIR:-.aidev/plans/brainstorm}"
-_FLC_FEATURES_DIR="${FLC_FEATURES_DIR:-.aidev/plans/features}"
-_FLC_CURRENT_DIR="${FLC_CURRENT_DIR:-.aidev/plans/current}"
-_FLC_HISTORY_DIR="${FLC_HISTORY_DIR:-.aidev/plans/history}"
-_FLC_ROADMAP="${FLC_ROADMAP:-.aidev/plans/ROADMAP.md}"
-_FLC_CHECKPOINTS_DIR="${FLC_CHECKPOINTS_DIR:-.aidev/state/sprints/current/checkpoints}"
+_FLC_BACKLOG_DIR="${FLC_BACKLOG_DIR:-.devorq/plans/backlog}"
+_FLC_BRAINSTORM_DIR="${FLC_BRAINSTORM_DIR:-.devorq/plans/brainstorm}"
+_FLC_FEATURES_DIR="${FLC_FEATURES_DIR:-.devorq/plans/features}"
+_FLC_CURRENT_DIR="${FLC_CURRENT_DIR:-.devorq/plans/current}"
+_FLC_HISTORY_DIR="${FLC_HISTORY_DIR:-.devorq/plans/history}"
+_FLC_ROADMAP="${FLC_ROADMAP:-.devorq/plans/ROADMAP.md}"
+_FLC_CHECKPOINTS_DIR="${FLC_CHECKPOINTS_DIR:-.devorq/state/sprints/current/checkpoints}"
 _FLC_CHECKPOINTS_MAX="${FLC_CHECKPOINTS_MAX:-5}"
 
 # ============================================================================

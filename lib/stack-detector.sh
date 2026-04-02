@@ -7,7 +7,7 @@
 # Usado para ativar MCPs condicionais automaticamente
 # ============================================================================
 
-_STACK_DETECTOR_REGISTRY="${_STACK_DETECTOR_REGISTRY:-.aidev/config/mcp-registry.yaml}"
+_STACK_DETECTOR_REGISTRY="${_STACK_DETECTOR_REGISTRY:-.devorq/config/mcp-registry.yaml}"
 
 # ============================================================================
 # stack_detect

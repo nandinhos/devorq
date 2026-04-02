@@ -8,10 +8,10 @@
 # ============================================================================
 
 # Diretório de KB de erros
-readonly ERROR_KB_DIR="${ERROR_KB_DIR:-.aidev/memory/error-patterns}"
+readonly ERROR_KB_DIR="${ERROR_KB_DIR:-.devorq/memory/error-patterns}"
 
 # Arquivo de log de erros
-readonly ERROR_LOG_FILE="${ERROR_LOG_FILE:-.aidev/state/error-log.json}"
+readonly ERROR_LOG_FILE="${ERROR_LOG_FILE:-.devorq/state/error-log.json}"
 
 # ============================================================================
 # BANCO DE PADRÕES DE ERRO (Embedded KB)
@@ -63,7 +63,7 @@ declare -A ERROR_PATTERNS=(
     # Erros de AI Dev específicos
     ["AIDEV_GLOBAL_DIR"]='Configuração de diretório global|Problema com AIDEV_GLOBAL_DIR.|Exporte AIDEV_GLOBAL_DIR=$HOME/.aidev-superpowers'
     ["deploy_sync"]='Erro de sincronização|Falha na sincronização com instalação global.|Execute: aidev system sync'
-    ["checkpoint"]='Erro de checkpoint|Falha ao criar checkpoint.|Verifique permissões em .aidev/state/'
+    ["checkpoint"]='Erro de checkpoint|Falha ao criar checkpoint.|Verifique permissões em .devorq/state/'
     ["version"]='Erro de versão|Problema com versionamento.|Verifique o arquivo VERSION: cat VERSION'
     
     # Erros jq/json
@@ -220,7 +220,7 @@ error_recovery_auto() {
             ;;
         "No such file or directory"|"ENOENT")
             echo "🔧 Criando diretórios necessários..."
-            mkdir -p .aidev/state .aidev/backups .aidev/logs
+            mkdir -p .devorq/state .devorq/backups .devorq/logs
             echo "✅ Diretórios criados"
             ;;
         "command not found"|"not found")

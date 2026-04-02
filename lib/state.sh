@@ -10,7 +10,7 @@
 # ============================================================================
 
 # Arquivo de estado unificado
-STATE_FILE="${CLI_INSTALL_PATH:-.}/.aidev/state/unified.json"
+STATE_FILE="${CLI_INSTALL_PATH:-.}/.devorq/state/unified.json"
 
 # ============================================================================
 # ESTADO UNIFICADO - Estrutura
@@ -52,7 +52,7 @@ STATE_FILE="${CLI_INSTALL_PATH:-.}/.aidev/state/unified.json"
 # Uso: state_init
 state_init() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    STATE_FILE="$install_path/.aidev/state/unified.json"
+    STATE_FILE="$install_path/.devorq/state/unified.json"
     
     ensure_dir "$(dirname "$STATE_FILE")"
     
@@ -91,7 +91,7 @@ EOF
 # Uso: state_ensure
 state_ensure() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    STATE_FILE="$install_path/.aidev/state/unified.json"
+    STATE_FILE="$install_path/.devorq/state/unified.json"
     
     if [ ! -f "$STATE_FILE" ]; then
         state_init
@@ -382,7 +382,7 @@ state_validate() {
 # Uso: state_repair
 state_repair() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    STATE_FILE="$install_path/.aidev/state/unified.json"
+    STATE_FILE="$install_path/.devorq/state/unified.json"
     
     print_info "Tentando reparar estado..."
     
@@ -496,7 +496,7 @@ state_get_active_agent() {
 # Uso: state_migrate_legacy
 state_migrate_legacy() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local state_dir="$install_path/.aidev/state"
+    local state_dir="$install_path/.devorq/state"
     
     state_init
     
@@ -618,8 +618,8 @@ state_export() {
 # Mantem backward compatibility com codigo que ainda le session.json
 state_sync_legacy_session() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local unified_file="$install_path/.aidev/state/unified.json"
-    local session_file="$install_path/.aidev/state/session.json"
+    local unified_file="$install_path/.devorq/state/unified.json"
+    local session_file="$install_path/.devorq/state/session.json"
 
     # Se unified.json nao existe, nao faz nada
     if [ ! -f "$unified_file" ]; then

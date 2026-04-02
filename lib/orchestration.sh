@@ -7,8 +7,12 @@
 # sistema de confianca e validacao
 #
 # Uso: source lib/orchestration.sh
-# Dependencias: lib/core.sh, lib/file-ops.sh, lib/metrics.sh, lib/kb.sh
-source lib/metrics.sh
+# Dependencias: lib/core.sh, lib/file-ops.sh, lib/kb.sh (opcional)
+if [ -f "${CLI_INSTALL_PATH:-.}/lib/metrics.sh" ]; then
+    source "${CLI_INSTALL_PATH:-.}/lib/metrics.sh"
+elif [ -f "lib/metrics.sh" ]; then
+    source lib/metrics.sh
+fi
 
 # Carrega modulo de Knowledge Base para hooks automaticos de catalogacao
 if [ -f "${CLI_INSTALL_PATH:-.}/lib/kb.sh" ]; then
@@ -25,7 +29,7 @@ source lib/lessons.sh
 # Cada skill tem estados: idle -> active -> step_N -> completed/failed
 # Checkpoints permitem retomar de onde parou
 
-# Estrutura do estado de skill em .aidev/state/skills.json:
+# Estrutura do estado de skill em .devorq/state/skills.json:
 # {
 #   "active_skill": "brainstorming",
 #   "skill_states": {
@@ -45,7 +49,7 @@ source lib/lessons.sh
 skill_init() {
     local skill_name="$1"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     ensure_dir "$(dirname "$skills_file")"
 
@@ -86,7 +90,7 @@ skill_set_steps() {
     local skill_name="$1"
     local total_steps="$2"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         local tmp_file=$(mktemp)
@@ -102,7 +106,7 @@ skill_advance() {
     local skill_name="$1"
     local step_description="${2:-}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         local current_step=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].current_step // 0' "$skills_file")
@@ -129,7 +133,7 @@ skill_advance() {
 skill_validate_checkpoint() {
     local skill_name="$1"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         local tmp_file=$(mktemp)
@@ -146,7 +150,7 @@ skill_add_artifact() {
     local artifact_path="$2"
     local artifact_type="${3:-document}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         local timestamp=$(date -Iseconds)
@@ -168,7 +172,7 @@ skill_add_artifact() {
 skill_complete() {
     local skill_name="$1"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         local timestamp=$(date -Iseconds)
@@ -210,7 +214,7 @@ skill_fail() {
     local skill_name="$1"
     local reason="${2:-Falha nao especificada}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         local timestamp=$(date -Iseconds)
@@ -242,7 +246,7 @@ skill_fail() {
 # Uso: status=$(skill_get_status)
 skill_get_status() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         jq -r '.active_skill // "none"' "$skills_file"
@@ -256,7 +260,7 @@ skill_get_status() {
 skill_get_progress() {
     local skill_name="$1"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local skills_file="$install_path/.aidev/state/skills.json"
+    local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
         local current=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].current_step // 0' "$skills_file")
@@ -272,7 +276,7 @@ skill_get_progress() {
 # ============================================================================
 # Protocolo de comunicacao entre agentes via artefatos e handoffs
 
-# Estrutura do estado de agentes em .aidev/state/agents.json:
+# Estrutura do estado de agentes em .devorq/state/agents.json:
 # {
 #   "active_agent": "architect",
 #   "handoff_queue": [...],
@@ -285,7 +289,7 @@ agent_activate() {
     local agent_name="$1"
     local task_description="${2:-}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local agents_file="$install_path/.aidev/state/agents.json"
+    local agents_file="$install_path/.devorq/state/agents.json"
 
     ensure_dir "$(dirname "$agents_file")"
 
@@ -323,7 +327,7 @@ agent_output() {
     local output_path="$2"
     local output_type="${3:-artifact}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local agents_file="$install_path/.aidev/state/agents.json"
+    local agents_file="$install_path/.devorq/state/agents.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$agents_file" ]; then
         local timestamp=$(date -Iseconds)
@@ -346,7 +350,7 @@ agent_handoff() {
     local task_description="$3"
     local artifact_path="${4:-}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local agents_file="$install_path/.aidev/state/agents.json"
+    local agents_file="$install_path/.devorq/state/agents.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$agents_file" ]; then
         local timestamp=$(date -Iseconds)
@@ -374,7 +378,7 @@ agent_handoff() {
 # Uso: next_task=$(agent_process_handoff)
 agent_process_handoff() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local agents_file="$install_path/.aidev/state/agents.json"
+    local agents_file="$install_path/.devorq/state/agents.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$agents_file" ]; then
         # Pega o primeiro handoff nao processado
@@ -415,7 +419,7 @@ confidence_log() {
     local score="$2"
     local level="${3:-}"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local confidence_file="$install_path/.aidev/state/confidence.json"
+    local confidence_file="$install_path/.devorq/state/confidence.json"
 
     ensure_dir "$(dirname "$confidence_file")"
 
@@ -568,7 +572,7 @@ validation_log() {
     local target="$2"
     local result="$3"
     local install_path="${CLI_INSTALL_PATH:-.}"
-    local validation_file="$install_path/.aidev/state/validations.json"
+    local validation_file="$install_path/.devorq/state/validations.json"
 
     ensure_dir "$(dirname "$validation_file")"
 
