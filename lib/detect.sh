@@ -237,7 +237,7 @@ is_legacy() {
     local root="${1:-.}"
     
     if [ -d "$root/tests" ]; then
-        local test_count=$(find "$root/tests" -name "*.php" -o -name "*.js" 2>/dev/null | wc -l)
+        local test_count=$(find "$root/tests" \( -name "*.php" -o -name "*.js" \) 2>/dev/null | wc -l)
         if [ "$test_count" -eq 0 ]; then
             return 0
         fi
