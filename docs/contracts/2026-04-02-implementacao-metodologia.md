@@ -37,6 +37,13 @@ trabalho implementado e testado. Este contrato cobre a finalização.
 
 ### Bloco B — Correções de bugs (TDD obrigatório, novo arquivo tests/functional.bats)
 
+> **Protocolo por bug**: cada item (5, 6, 7, 8) deve ser corrigido individualmente:
+> 1. Escrever teste em `tests/functional.bats` → verificar falha (RED)
+> 2. Implementar correção → verificar passagem (GREEN)
+> 3. Rodar `bats tests/functional.bats` → todos os testes anteriores ainda passando
+> 4. Commit individual: `fix(<escopo>): <descrição>`
+> Não passar para o próximo bug sem commitar e verificar o atual.
+
 5. Corrigir `lib/mcp-json-generator.sh` — função `mcp_generator_create`
    - Refatorar para jq incremental (não concatenação de string JSON)
    - `_mcp_generator_add_laravel`, `_mcp_generator_add_nodejs`,

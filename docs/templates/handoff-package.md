@@ -17,6 +17,40 @@
 - **Branch**: [nome da branch]
 - **Worktree**: [caminho, se aplicável]
 - **Estimativa**: [N arquivos, N testes esperados]
+- **Tipo de handoff**: [execução única | execução iterativa | verificação]
+
+---
+
+## PROTOCOLO DE SESSÃO
+
+> O princípio fundamental: **contexto viaja no pacote, não no histórico do chat**.
+> Preencher conforme o tipo de handoff definido nos METADADOS.
+
+### Tipo: execução única
+> Usar quando a tarefa é autocontida e não há ciclo de lapidação em curso.
+```
+[Sessão Tier 1] → gera handoff → [Nova sessão Tier 2] → retorna RETORNO → fim
+```
+
+### Tipo: execução iterativa
+> Usar quando o resultado desta execução alimenta a próxima sessão do Tier 1.
+```
+[Sessão Tier 1 — planejamento]     → gera este handoff
+        ↓ handoff package
+[Nova sessão Tier 2 — execução]    → executa, commita, retorna RETORNO
+        ↓ relatório de retorno
+[Nova sessão Tier 1 — verificação] → lê handoff + RETORNO → decide próximo bloco
+```
+
+### Para o executor (Tier 2)
+- Abra uma **sessão nova** — sem contexto anterior
+- Leia apenas este arquivo — ele contém tudo que precisa
+- Ao concluir, preencha o bloco da Seção 7 e entregue ao arquiteto
+
+### Para o arquiteto (Tier 1) ao receber o retorno
+- Abra uma **sessão nova** no Claude Code
+- Leia este handoff + o relatório de avaliação em `docs/process-refinement/`
+- [arquiteto: descrever aqui o que fazer na próxima sessão Tier 1]
 
 ---
 
@@ -52,6 +86,18 @@
 
 ## 3. TASK BRIEF
 > Preenchido pelo arquiteto. Arquivo por arquivo. Sem "a implementar depois".
+
+### Step 0 — Verificação de divergência (SEMPRE PRIMEIRO)
+
+```bash
+git fetch origin
+git log --oneline origin/main..HEAD
+```
+
+Se houver commits não presentes em `origin/main`: **PARAR e reportar ao arquiteto**.
+Se limpo: prosseguir com as sub-tasks.
+
+---
 
 ### `caminho/arquivo1.ext`
 **Ação**: criar
