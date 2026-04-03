@@ -218,8 +218,19 @@ EOF
 }
 
 cmd_skills() {
-    echo "Skills DEVORQ ($(ls -1 "$DEVORQ_DIR/skills/" 2>/dev/null | wc -l | tr -d ' ') skills):"
-    for skill_dir in "$DEVORQ_DIR/skills"/*/; do
+    local skills_dir="$DEVORQ_DIR/skills"
+
+    if [ ! -d "$skills_dir" ]; then
+        echo "Skills DEVORQ (0 skills):"
+        return 0
+    fi
+
+    echo "Skills DEVORQ ($(ls -1 "$skills_dir/" 2>/dev/null | wc -l | tr -d ' ') skills):"
+
+    local found_any=false
+    for skill_dir in "$skills_dir"/*/; do
+        [ -d "$skill_dir" ] || continue
+        found_any=true
         local skill
         skill=$(basename "$skill_dir")
         local version=""
