@@ -28,18 +28,41 @@ DEVORQ_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
     rm -f "$tmpfile"
 }
 
-# --- Bug B6: stack_get_mcps — deve retornar MCPs para nodejs e python ---
+# --- Refatoração Bloco C: stack_get_mcps não deve emitir MCP base se não houver framework específico ---
 
-@test "stack_get_mcps com input nodejs retorna resultado não vazio" {
+@test "stack_get_mcps com input nodejs generico (sem nextjs) retorna resultado vazio" {
     source "$DEVORQ_ROOT/lib/stack-detector.sh"
 
-    # Sobrescreve stack_detect para retornar nodejs
     stack_detect() { echo "nodejs"; }
     export -f stack_detect
 
-    run stack_get_mcps "."
+    local tmpdir
+    tmpdir=$(mktemp -d /tmp/devorq-nodejs-test-XXXXXX)
+    # diretório vazio, logo sem next.config.js ou package.json além do detect mock
+
+    run stack_get_mcps "$tmpdir"
+    [ "$status" -eq 0 ]
+    [ -z "$output" ]
+
+    rm -rf "$tmpdir"
+}
+
+@test "stack_get_mcps com input nodejs e next.config.js retorna resultado não vazio com nextjs-mcp" {
+    source "$DEVORQ_ROOT/lib/stack-detector.sh"
+
+    stack_detect() { echo "nodejs"; }
+    export -f stack_detect
+
+    local tmpdir
+    tmpdir=$(mktemp -d /tmp/devorq-nextjs-test-XXXXXX)
+    touch "$tmpdir/next.config.js"
+
+    run stack_get_mcps "$tmpdir"
     [ "$status" -eq 0 ]
     [ -n "$output" ]
+    [[ "$output" == *"nextjs-mcp"* ]]
+
+    rm -rf "$tmpdir"
 }
 
 # --- Bug B7: is_legacy — find com agrupamento lógico correto ---

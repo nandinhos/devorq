@@ -137,13 +137,11 @@ stack_get_mcps() {
             mcps+=("laravel-boost")
             ;;
         nodejs)
-            mcps+=("nodejs-mcp")
             if [ -f "$project_dir/next.config.js" ] || [ -f "$project_dir/next.config.mjs" ]; then
                 mcps+=("nextjs-mcp")
             fi
             ;;
         python)
-            mcps+=("python-mcp")
             if grep -q "django" "$project_dir/requirements.txt" 2>/dev/null || \
                grep -q "django" "$project_dir/pyproject.toml" 2>/dev/null; then
                 mcps+=("django-mcp")
