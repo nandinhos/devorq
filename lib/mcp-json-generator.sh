@@ -23,58 +23,49 @@ fi
 mcp_generator_create() {
     local project_dir="${1:-.}"
     local output_file="${2:-$_MCP_GENERATOR_OUTPUT}"
-    local force="${3:-false}"  # true para sobrescrever
-    
-    # Verifica se já existe e não é forçado
+    local force="${3:-false}"
+
     if [ -f "$output_file" ] && [ "$force" != "true" ]; then
         echo "⚠️  $output_file já existe. Use --force para sobrescrever."
         return 1
     fi
-    
-    # Detecta stack
+
     local stack
     stack=$(stack_detect "$project_dir")
-    
+
     echo "🔧 Gerando .mcp.json para stack: $stack"
-    
-    # Inicia JSON
+
+    # Inicia JSON base com objeto mcpServers vazio
     local json_content
-    json_content='{"mcpServers":{'
-    
-    # Adiciona MCPs universais
-    local has_universal=false
-    
-    # Basic Memory
+    json_content='{"mcpServers":{}}'
+
+    # Adiciona MCPs universais via jq
     if _mcp_generator_has_tool "uvx"; then
-        json_content+='"basic-memory":{"command":"uvx","args":["basic-memory","mcp"]}'
-        has_universal=true
+        json_content=$(echo "$json_content" | jq \
+            '.mcpServers["basic-memory"] = {"command":"uvx","args":["basic-memory","mcp"]}')
     fi
-    
-    # Context7 (se tiver chave API)
+
     if [ -n "$CONTEXT7_API_KEY" ]; then
-        [ "$has_universal" = "true" ] && json_content+=','
-        json_content+='"context7-mcp":{"command":"npx","args":["-y","@upstash/context7-mcp@latest"],"env":{"CONTEXT7_API_KEY":"'"$CONTEXT7_API_KEY"'"}}'
-        has_universal=true
+        json_content=$(echo "$json_content" | jq \
+            --arg key "$CONTEXT7_API_KEY" \
+            '.mcpServers["context7-mcp"] = {"command":"npx","args":["-y","@upstash/context7-mcp@latest"],"env":{"CONTEXT7_API_KEY":$key}}')
     fi
-    
-    # Adiciona MCPs condicionais baseados na stack
+
+    # Adiciona MCPs condicionais — helpers recebem json e retornam json modificado
     case "$stack" in
         laravel)
-            _mcp_generator_add_laravel "$project_dir"
+            json_content=$(_mcp_generator_add_laravel "$project_dir" "$json_content")
             ;;
         nodejs)
-            _mcp_generator_add_nodejs "$project_dir"
+            json_content=$(_mcp_generator_add_nodejs "$project_dir" "$json_content")
             ;;
         python)
-            _mcp_generator_add_python "$project_dir"
+            json_content=$(_mcp_generator_add_python "$project_dir" "$json_content")
             ;;
     esac
-    
-    json_content+='}}'
-    
-    # Salva arquivo
+
     echo "$json_content" | jq '.' > "$output_file"
-    
+
     echo "✅ $output_file gerado com sucesso"
     return 0
 }
@@ -85,30 +76,37 @@ mcp_generator_create() {
 # ============================================================================
 _mcp_generator_add_laravel() {
     local project_dir="$1"
-    
-    # Verifica Docker
+    local json_content="$2"
+
     if ! command -v docker &>/dev/null; then
-        echo "  ⚠️  Docker não disponível, pulando Laravel Boost"
+        echo "  ⚠️  Docker não disponível, pulando Laravel Boost" >&2
+        echo "$json_content"
         return
     fi
-    
-    # Detecta container
+
     local container_name
     container_name=$(docker ps --format "{{.Names}}" 2>/dev/null | head -1)
-    
+
     if [ -z "$container_name" ]; then
-        echo "  ⚠️  Nenhum container Docker rodando, pulando Laravel Boost"
+        echo "  ⚠️  Nenhum container Docker rodando, pulando Laravel Boost" >&2
+        echo "$json_content"
         return
     fi
-    
-    # Detecta UID/GID
+
     local user_uid="${USER_UID:-$(id -u)}"
     local user_gid="${USER_GID:-$(id -g)}"
-    
-    # Adiciona ao JSON (manipulação de string simplificada)
-    # O JSON já foi criado, agora adicionamos o Laravel Boost
-    
-    echo "  ✅ Laravel Boost: $container_name"
+
+    echo "  ✅ Laravel Boost: $container_name" >&2
+
+    echo "$json_content" | jq \
+        --arg container "$container_name" \
+        --arg uid "$user_uid" \
+        --arg gid "$user_gid" \
+        '.mcpServers["laravel-boost"] = {
+            "command": "docker",
+            "args": ["compose","exec","-T","laravel.test","php","artisan","boost:mcp"],
+            "env": {"WWWUSER": $uid, "WWWGROUP": $gid}
+        }'
 }
 
 # ============================================================================
@@ -117,16 +115,37 @@ _mcp_generator_add_laravel() {
 # ============================================================================
 _mcp_generator_add_nodejs() {
     local project_dir="$1"
-    echo "  ℹ️  Node.js detectado - MCPs condicionais: none"
+    local json_content="$2"
+
+    echo "  ℹ️  Node.js detectado" >&2
+
+    # Detecta subframework Next.js
+    if [ -f "$project_dir/next.config.js" ] || [ -f "$project_dir/next.config.mjs" ]; then
+        echo "  ✅ Next.js detectado" >&2
+        echo "$json_content" | jq \
+            '.mcpServers["nextjs-mcp"] = {"command":"npx","args":["-y","@modelcontextprotocol/server-filesystem","./"]}'
+        return
+    fi
+
+    echo "$json_content"
 }
 
-# ============================================================================
-# _mcp_generator_add_python
-# Adiciona configuração Python
-# ============================================================================
 _mcp_generator_add_python() {
     local project_dir="$1"
-    echo "  ℹ️  Python detectado - MCPs condicionais: none"
+    local json_content="$2"
+
+    echo "  ℹ️  Python detectado" >&2
+
+    # Detecta subframework Django
+    if grep -q "django" "$project_dir/requirements.txt" 2>/dev/null || \
+       grep -q "django" "$project_dir/pyproject.toml" 2>/dev/null; then
+        echo "  ✅ Django detectado" >&2
+        echo "$json_content" | jq \
+            '.mcpServers["django-mcp"] = {"command":"uvx","args":["django-mcp"]}'
+        return
+    fi
+
+    echo "$json_content"
 }
 
 # ============================================================================
