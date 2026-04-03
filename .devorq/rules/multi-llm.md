@@ -68,6 +68,14 @@ O foco está em como o processo está estruturado e garantido.
    As lições são incorporadas ao DEVORQ via pipeline de aprendizado,
    independente de qual LLM as gerou.
 
+8. **Formato de commit obrigatório**
+   Todos os commits DEVORQ seguem:
+   - Tipo(em pt-BR): feat, fix, docs, refactor, test, chore
+   - Especialização em parênteses (ex: skills, lib, docs)
+   - Descrição detalhada no corpo, cada item em linha própria
+   - Sem emojis, sem Co-Authorship
+   - Exemplo: `feat(skills): adicionar /spec para projetos grandes`
+
 ---
 
 ## Geração do Handoff Package (Modelo Híbrido)

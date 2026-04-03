@@ -132,3 +132,22 @@ Ao concluir, retornar ao arquiteto:
 > Campo livre para contexto adicional que não se encaixa nas seções acima.
 
 [observações, riscos conhecidos, decisões de design que motivaram as escolhas]
+
+### REGRA GLOBAL DE COMMITS
+
+Todos os handoffs DEVORQ devem seguir esta estrutura de commit:
+
+- **Formato**: tipo(especialização): descrição detalhada
+- **Idioma**: português do Brasil
+- **Sem emojis**: usar texto puro
+- **Sem Co-Authorship**: remover linhas de co-authored-by
+- **Corpo detalhado**: cada item em linha própria, indentado com 2 espaços
+- **Exemplo**:
+  ```
+  feat(skills): adicionar /spec e /break para projetos grandes
+  
+  Adiciona novas skills e atualiza arquivos existentes:
+  - skill /spec: especificação formal antes de iniciar desenvolvimento
+  - skill /break: decomposição de spec em tasks (protótipo visual primeiro)
+  - constraint-loader: Step 0 de busca de código reutilizável
+  ```
