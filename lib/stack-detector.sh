@@ -131,20 +131,26 @@ stack_get_mcps() {
     local stack
     stack=$(stack_detect "$project_dir")
     local mcps=()
-    
+
     case "$stack" in
         laravel)
             mcps+=("laravel-boost")
             ;;
-        django)
-            mcps+=("django-mcp")
+        nodejs)
+            mcps+=("nodejs-mcp")
+            if [ -f "$project_dir/next.config.js" ] || [ -f "$project_dir/next.config.mjs" ]; then
+                mcps+=("nextjs-mcp")
+            fi
             ;;
-        nextjs)
-            mcps+=("nextjs-mcp")
+        python)
+            mcps+=("python-mcp")
+            if grep -q "django" "$project_dir/requirements.txt" 2>/dev/null || \
+               grep -q "django" "$project_dir/pyproject.toml" 2>/dev/null; then
+                mcps+=("django-mcp")
+            fi
             ;;
-        # Adicionar mais conforme necessário
     esac
-    
+
     if [ ${#mcps[@]} -eq 0 ]; then
         echo ""
     else
