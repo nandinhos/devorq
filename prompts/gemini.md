@@ -1,17 +1,10 @@
 # DEVORQ - Gemini CLI Activation
 
-## Ativar
-Digite: `devorq [task]` ou cole este prompt.
+## Intrínseco
 
-## Fluxo
-1. Ler handoff file em .devorq/state/handoffs/ (se existir — contém contexto completo)
-2. /env-context (auto — detecta stack e constraints)
-3. /scope-guard (obrigatório) → [Gate 1: aprovar contrato]
-4. /pre-flight → [Gate 2: aprovar relatório antes de implementar]
-5. TDD (RED→GREEN→REFACTOR)
-6. /quality-gate (obrigatório) → [Gate 3: aprovar antes de commitar]
-7. /session-audit (obrigatório)
-8. /learned-lesson (obrigatório) → [Gate 5: decidir quais lições salvar]
+ Gemini CLI usa tool calls nativas. Não invente wrappers.
 
-## Stack
-Laravel, Filament, Python, Shell
+## Auração
+- Ler `prompts/activation.md` para internalizar fundamentos do DEVORQ.
+- Respeitar gates de aprovação antes de executar.
+- Usar `/spec` + `/break` antes de sub-tarefas para camada subordinada.

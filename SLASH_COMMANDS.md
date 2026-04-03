@@ -150,6 +150,34 @@ Ao ativar qualquer comando, o fluxo segue:
 
 ---
 
+## Skills Disponíveis (17)
+
+| Comando | Descrição |
+|---------|-----------|
+| `/spec` | Gera contrato de escopo (FAZER/NÃO FAZER/ARQUIVOS) → Gate 1 |
+| `/break` | Decompõe tarefa complexa em subtarefas manejáveis |
+| `/pre-flight` | Valida tipos, enums e dependências → Gate 2 |
+| `/quality-gate` | Checklist pré-commit → Gate 3 |
+| `/learned-lesson` | Captura lições da sessão → Gate 5 |
+| `/session-audit` | Coleta métricas de eficiência |
+| `/env-context` | Detecta stack, runtime e banco |
+| `/tdd` | Ciclo RED → GREEN → REFACTOR |
+| `/systematic-debugging` | Investigação metódica de bugs |
+| `/code-review` | Revisão baseada em Clean Code |
+| `/schema-validate` | Valida integridade de schema |
+| `/integrity-guardian` | Valida padrões Livewire/Alpine |
+| `/brainstorming` | Fase de design e exploração |
+| `handoff generate` | Gera spec para próximo LLM → Gate 4 |
+| `/scope-guard` | Alias para /spec |
+| constraint-loader | Carrega artefatos por tipo |
+| verification | Verificação pré-completion |
+
+---
+
+> **Fluxo v2.1**: `/spec` seguido de `/break` é obrigatório antes de enviar sub-tarefas para camada subordinada.
+
+---
+
 ## Configuração por Plataforma
 
 ### Claude Code / Claude Desktop

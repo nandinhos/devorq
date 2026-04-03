@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Gerar spec padronizada para transferência de contexto entre LLMs sem perda de constraints
+description: Gerar spec padronizada para transferência de contexto entre LLMs sem perda de constraints. Compila blocos semânticos em 7 seções padronizadas.
 triggers:
   - "handoff"
   - "trocar LLM"

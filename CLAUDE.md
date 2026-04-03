@@ -86,7 +86,7 @@ prompts/       → Arquivos de ativação por LLM
 - `python/` → Análise de dados, type hints, pytest
 - `shell/` → Bash scripting com `set -eEo pipefail`
 
-**`skills/`** — 15 skills de workflow, cada uma em `<nome>/SKILL.md` + `CHANGELOG.md` + `VERSIONS/`:
+**`skills/`** — 17 skills de workflow, cada uma em `<nome>/SKILL.md` + `CHANGELOG.md` + `VERSIONS/`:
 - `scope-guard/` → Gera contratos FAZER/NÃO FAZER/ARQUIVOS/DONE_CRITERIA
 - `pre-flight/` → Valida tipos, enums e dependências antes de codar (chama constraint-loader)
 - `env-context/` → Detecta stack, LLM, runtime, banco de dados
@@ -102,6 +102,8 @@ prompts/       → Arquivos de ativação por LLM
 - `handoff/` → Gera spec padronizada para transferência entre LLMs (Gate 4)
 - `constraint-loader/` → Carrega artefatos por tipo de task antes de implementar
 - `integrity-guardian/` → Valida padrões Livewire/Alpine em Blade (integrado ao quality-gate)
+- `spec/` → Geração de especificação com contrato detalhado (deve preceder /break)
+- `break/` → Decompõe tarefas complexas em subtarefas manejáveis
 
 **`rules/stack/`** — Regras por stack:
 - `laravel-tall.md` → Proibições específicas (x-show em Livewire, eager loading obrigatório, etc.)
@@ -119,19 +121,22 @@ prompts/       → Arquivos de ativação por LLM
 
 O agente detectado pelo `general/SKILL.md` carrega automaticamente as skills relevantes para a stack. Skills são independentes de agente — podem ser chamadas diretamente como slash commands. O CLI `bin/devorq flow` executa o pipeline completo coordenado pelo `orchestration/flow.sh`.
 
-## Fluxo Obrigatório v2.0 (ao ativar qualquer `/devorq`)
+## Fluxo Obrigatório v2.1 (ao ativar qualquer `/devorq`)
 
 ```
 1. /env-context          → Detectar stack e constraints (automático)
-2. /scope-guard          → Contrato de escopo (OBRIGATÓRIO) → [Gate 1]
-3. /pre-flight           → Validar tipos, enums e schema → [Gate 2]
-4. handoff generate      → Spec para próximo LLM → [Gate 4] (se trocar LLM)
-5. tdd                   → RED → GREEN → REFACTOR
-6. /quality-gate         → Checklist pré-commit (OBRIGATÓRIO) → [Gate 3]
-7. /session-audit        → Métricas (OBRIGATÓRIO)
-8. /learned-lesson       → Capturar lições (OBRIGATÓRIO) → [Gate 5]
-9. checkpoint            → Para continuidade
+2. /spec                 → Gerar contrato detalhado → [Gate 1]
+3. /break                → Decompor se complexo → [opcional]
+4. /pre-flight           → Validar tipos, enums e schema → [Gate 2]
+5. handoff generate      → Spec para próximo LLM → [Gate 4] (se trocar LLM)
+6. tdd                   → RED → GREEN → REFACTOR
+7. /quality-gate         → Checklist pré-commit (OBRIGATÓRIO) → [Gate 3]
+8. /session-audit        → Métricas (OBRIGATÓRIO)
+9. /learned-lesson       → Capturar lições (OBRIGATÓRIO) → [Gate 5]
+10. checkpoint           → Para continuidade
 ```
+
+> **Regra v2.1**: Antes de enviar sub-tarefas ou pacotes de Handoff para camada subordinada, use **obrigatoriamente** `/spec` seguido de `/break`.
 
 **Os 5 Gates** — pausam o fluxo para aprovação explícita do usuário:
 - Gate 1: contrato de escopo | Gate 2: pre-flight | Gate 3: quality-gate
