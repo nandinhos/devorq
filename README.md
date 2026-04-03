@@ -1,98 +1,101 @@
-# 🚀 DEVORQ - Desenvolvimento Orquestrador (v1.3.0)
+# 🚀 DEVORQ - Automação de Engenharia Multi-LLM (v2.1)
 
-> **"Transformando LLMs em Desenvolvedores de Elite através de Disciplina Técnica e Orquestração de Contexto."**
-
-O **DEVORQ** é um framework de workflow avançado que impõe as melhores práticas de engenharia de software em qualquer LLM (Claude, Gemini, GPT-4). Ele orquestra o ciclo de vida do desenvolvimento, prevenindo débitos técnicos e garantindo que o código produzido seja modular, testado e aderente à stack do projeto.
-
----
-
-## 🛠 Os Três Pilares do DEVORQ
-
-O ecossistema DEVORQ é sustentado por três componentes fundamentais:
-
-### 1. Agentes Especializados (6 Agentes)
-Diferente de prompts genéricos, o DEVORQ utiliza agentes com contextos profundos em stacks específicas:
-- **`laravel`** - Expert em Laravel Ecosystem & TALL Stack (Tailwind, Alpine, Livewire).
-- **`filament`** - Especialista em construir painéis administrativos robustos com Filament PHP.
-- **`python`** - Focado em análise de dados, extração de informações e automação.
-- **`php`** - Desenvolvedor PHP moderno seguindo estritamente as normas PSR.
-- **`shell`** - Expert em Bash, automação de infraestrutura e scripting.
-- **`general`** - O orquestrador central que coordena a interação entre os demais agentes.
-
-### 2. Skills DEVORQ (11 Skills)
-Coleção de ferramentas e metodologias para manter a qualidade durante o desenvolvimento:
-- `/scope-guard`: **Obrigatório**. Bloqueia over-engineering e garante o cumprimento do contrato.
-- `/pre-flight`: Valida tipos, enums e estruturas antes de iniciar o código.
-- `/env-context`: Detecção automática e contínua da stack e do ambiente.
-- `/schema-validate`: Garante a integridade do banco de dados e constraints.
-- `/quality-gate`: Checklist técnico rigoroso executado antes de cada commit.
-- `/session-audit`: Auditoria de eficiência e identificação de gaps no workflow.
-- `/spec-export`: Gera handoffs técnicos perfeitos para troca de modelos AI.
-- `tdd`: Framework nativo para ciclo RED → GREEN → REFACTOR.
-- `systematic-debugging`: Metodologia de investigação profunda de bugs.
-- `code-review`: Revisão automática baseada em princípios de Clean Code.
-- `learned-lesson`: Documentação persistente de aprendizados para evitar erros futuros.
-
-### 3. Regras de Stack (Quality Gates)
-Localizadas em `.devorq/rules/stack/`, definem o "padrão ouro" para cada linguagem:
-- **Laravel-Tall**: Proíbe logic em views, exige uso de Actions/Services.
-- **Python**: Exige Type Hints, Docstrings e padrões de persistência.
-- **PHP**: Aplica padrões PSR e Tipagem Estrita (Strict Types).
+<div align="center">
+  <p><strong>Transformando IAs em Desenvolvedores de Elite através de Orquestração Thin Client, Contextualização Incremental e Padrões Estritos.</strong></p>
+</div>
 
 ---
 
-## ⚡ Guia de Início Rápido
+## 🎯 O que é o DEVORQ?
 
-### Instalação Profissional
+O **DEVORQ** (Desenvolvimento Orquestrador) é um framework avançado projetado para acoplar metodologias sólidas de Engenharia de Software às principais LLMs (Claude, Gemini, OpenCode, GPT). Ele atua como um sistema nervoso central que, através de injeção de contexto agnóstica e automação via MCPs (Model Context Protocol), blinda o projeto contra *hallucinations*, over-engineering e quebra de regras arquiteturais.
 
+Em sua versão **v2.1**, o DEVORQ adota formalmente a arquitetura **Thin Client vs Fat Server**, centralizando toda a "mente" do framework no arquivo pilar `activation.md` e tornando o prompt específico das IAs puramente estrutural.
+
+---
+
+## ⚙️ Arquitetura e Pilares da v2.1
+
+### 1. Modelo de Comunicação Agnóstica (Multi-LLM)
+O DEVORQ agora opera sobre a filosofia universal:
+- **`prompts/activation.md`**: O "Cérebro" único universal. Contém todas as metodologias de orquestração (como iterar, como quebrar tarefas, o modelo mental de planejamento e TDD).
+- **Adaptadores Finos (`gemini.md`, `claude.md`, etc)**: Interfaces mínimas exclusivas para o viés natural de cada modelo, focadas unicamente em engatilhar o protocolo primário.
+
+### 2. O Processo de Sub-Engenharia (`/spec` & `/break`)
+Nenhuma feature complexa é executada diretamente sob a abordagem de Big Bang. O fluxo impõe uma dissecção milimétrica:
+1. **`/spec`**: A Inteligência atua como *Arquiteta* (Tier 1), formulando os limites estritos e o design isolado do problema.
+2. **`/break`**: Quebra exata da arquitetura em pacotes subatômicos e testáveis.
+3. **`Handoff`**: Documento de contrato de estado gerado em 7 blocos estruturados, que servirá de *Task Brief* impecável para a sessão executora (Tier 2).
+
+### 3. As 17 Skills de Elite (Sistemas Interligados)
+Um arsenal de ferramentas modulares acopladas em `.devorq/skills/`, entre elas:
+- `handoff` - Geração do Pacote Padrão Ouro de sessão delegada.
+- `scope-guard` - Proteção rígida do escopo contra desvios de engenharia e complexidade acidental.
+- `quality-gate` - Pipeline analítico rigoroso pré-commit.
+- `tdd` - Ciclo nativo iterativo Red-Green-Refactor.
+- `learned-lesson` - Documentação persistente no repositório para evitar regressão das IAs (Zero-Shot optimization).
+
+### 4. Orquestração Direta e Automática (Motor CLI)
+A automação basal garante a adaptação ao ambiente real de build.
+O motor nativo Bash CLI avalia a árvore de arquivos, detecta dependências e subframeworks (Laravel, Next.js, Django) via heurística local e vincula dinamicamente servidores de contexto MCP (Ex: **Laravel Boost MCP** para ecossistemas PHP e **Context7** para genéricos).
+
+---
+
+## ⚡ Quick Start
+
+### 1. Clonagem e Acoplamento
 ```bash
-# 1. Clone o repositório
 git clone https://github.com/nandinhos/devorq.git
 
-# 2. Integre ao seu projeto existente
-cp -r .devorq/ /caminho/do/seu-projeto/
-cp -r bin/ /caminho/do/seu-projeto/
-cp lib/detect.sh /caminho/do/seu-projeto/lib/
-
-# 3. Dê permissão ao CLI
-chmod +x /caminho/do/seu-projeto/bin/devorq
+# Acople a orquestração no seu próprio projeto:
+cp -r devorq/.devorq/ /caminho/do/projeto/
+cp -r devorq/bin/ /caminho/do/projeto/
+cp devorq/SLASH_COMMANDS.md /caminho/do/projeto/
 ```
 
-### Comandos de Ativação (Slash Commands)
+### 2. Boot na Sessão de AI
+Ao inicializar um terminal assistido ou painel de Inteligência (Cursor, Claude CLI, Gemini), inicie injetando o contexto base:
+> *"Acesse e leia as diretrizes contidas em `prompts/activation.md`."*
 
-Você pode invocar o poder do DEVORQ diretamente no chat do seu LLM:
-- `/devorq-laravel [tarefa]` - Ativa o contexto Laravel TALL.
-- `/devorq-python [tarefa]` - Inicia processamento de dados Python.
-- `/devorq-flow [tarefa]` - Executa o ciclo completo desde o escopo até o commit.
+### 3. Chamando Ferramentas
+Invoque capacidades especializadas usando Slash Commands diretamente, exemplos:
+- `/spec [escopo]` - Desenhar o projeto e blindar os contornos de arquitetura.
+- `/break [escopo]` - Desengatilhar uma cadeia sequencial de testes e desenvolvimento.
 
 ---
 
-## 🏗 Estrutura do Projeto
+## 🏗 Estrutura Central (Tree)
 
 ```text
-devorq/
-├── .devorq/             # Core: Agentes, Skills e Regras
-├── bin/                 # CLI Executável (devorq)
-├── lib/                 # Bibliotecas de Orquestração e Validação
-├── prompts/             # Ativações otimizadas para Claude/Gemini/OpenCode
-├── docs/                # Documentação técnica detalhada
-└── SLASH_COMMANDS.md    # Referência rápida de comandos
+/
+├── .devorq/
+│   ├── rules/          # Quality Gates engessados por domínio da linguagem
+│   ├── skills/         # Catálogo das Skills operacionais do Workflow
+│   └── templates/      # Padrões Universais (ex: Metodologia de Handoff)
+├── bin/
+│   └── devorq          # CLI Engine nativo em Shell Script
+├── lib/
+│   ├── detect.sh             # Motor avaliador AST Local de Frameworks
+│   ├── mcp-json-generator.sh # Montador estrito de payload p/ MCPs
+│   └── ...
+├── prompts/
+│   ├── activation.md   # Mente universal do Sistema (LLM-Agnostic)
+│   └── *.md            # Adaptadores nativos para engines (Claude, etc)
+├── docs/               # ADRs, Especificações e Histórico Rígido
+└── SLASH_COMMANDS.md   # Índice Explicativo de Invocação Rápida
 ```
 
 ---
 
-## 📌 Documentação Complementar
+## 📍 Componentes Auxiliares
 
-- [**Guia de Instalação**](INSTALL.md) - Métodos avançados e Docker.
-- [**Fluxo de Desenvolvimento**](FLUXO_DESENVOLVIMENTO.md) - Explicando o ciclo de vida.
-- [**Quick Start**](QUICKSTART.md) - Templates de prompts de ativação.
-- [**Slash Commands**](SLASH_COMMANDS.md) - Tabela completa de atalhos.
+- [**SLASH COMMANDS**](SLASH_COMMANDS.md) - Manual instantâneo dos atalhos primários do sistema.
+- [**Handoff Package**](docs/templates/handoff-package.md) - Entenda o modelo T1/T2 adotado.
 
 ---
 
-## 🛡 Licença
+## 🛡 Filosofia
+O **DEVORQ** existe para garantir que a Inteligência Artificial não atue levianamente como uma rima livre de preencher código, mas sim sob o rigor de um *Engenheiro Sênior*, submetendo-se a restrições contratuais, testes obrigatórios e clareza de escopo desde o primeiro byte até o commit em `main`.
 
-Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
-
----
-*Criado por @nandinhos - Elevando o nível do desenvolvimento assistido por AI.*
+Distribuído sob a licença **MIT**. Veja o arquivo `LICENSE` para diretrizes legais.  
+**@nandinhos — Elevando a régua do desenvolvimento automatizado.**
