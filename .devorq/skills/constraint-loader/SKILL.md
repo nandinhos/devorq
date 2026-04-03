@@ -22,6 +22,31 @@ globs:
 Chamado automaticamente pelo `/pre-flight` antes de qualquer implementação.
 Pode ser chamado manualmente quando o tipo de task mudar durante a sessão.
 
+## Step 0: Buscar Código Reutilizável (SEMPRE PRIMEIRO)
+
+Antes de carregar qualquer artefato, pesquisar no projeto código que pode ser reusado ou adaptado:
+
+```bash
+# Buscar componentes/classes similares ao que será implementado
+grep -r "[conceito-chave]" app/ --include="*.php" -l
+find app/ -name "*[NomeSimilar]*"
+
+# Buscar padrão de implementação existente
+grep -r "[método ou padrão]" app/ --include="*.php" -n | head -20
+```
+
+Apresentar resultado ao LLM antes de prosseguir:
+```
+=== REUSE SCAN ===
+Encontrado: [X componente/classe/padrão] em [caminho]
+Recomendação: [reutilizar | adaptar | criar novo]
+=================
+```
+
+Se nada encontrado relevante: registrar "Nenhum código reutilizável identificado" e prosseguir.
+
+**Objetivo**: eliminar duplicação antes de começar. Código duplicado = dívida de manutenção.
+
 ## Tipos de Task e Artefatos
 
 ### Feature Livewire

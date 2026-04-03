@@ -57,6 +57,34 @@ Models/       → Representação de dados (NUNCA lógica)
 - Pre-commit hook com PHPStan (nível 6)
 - Conventional Commits (pt-BR)
 
+### 9. Thin Client, Fat Server (Segurança Obrigatória)
+
+**Princípio**: O frontend captura a intenção do usuário. O backend valida, processa e responde.
+
+**NUNCA fazer no frontend (JS/Alpine/Blade):**
+- Lógica de negócio (cálculos de preço, desconto, permissão)
+- Validação de autorização ("se o usuário é admin, mostrar X")
+- Queries ou acesso direto a dados sensíveis
+- Chaves de API ou secrets (nem em variáveis JS)
+
+**SEMPRE fazer no backend (Actions/Controllers/Services):**
+- Toda validação de regras de negócio
+- Verificação de permissões (Policies/Gates)
+- Cálculos que afetam integridade dos dados
+- Decisão sobre o que retornar ao frontend
+
+**Exemplo correto:**
+```php
+// ✅ Controller decide o que retornar
+return response()->json([
+    'pode_cancelar' => $policy->cancelar($user, $pedido),
+    'valor_liquido' => $pedido->calcularValorLiquido(),
+]);
+
+// ❌ NUNCA: Alpine.js decidindo lógica de negócio
+// x-show="user.role === 'admin' && pedido.valor > 1000"
+```
+
 ## Checklist Pré-Commit
 
 - [ ] Testes passando
