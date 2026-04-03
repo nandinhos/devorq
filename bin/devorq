@@ -338,6 +338,48 @@ cmd_skill() {
     esac
 }
 
+cmd_upgrade() {
+    local target="${2:-}"
+
+    if [ -z "$target" ]; then
+        log_error "Informe o caminho do projeto a atualizar."
+        echo "Uso: devorq upgrade <caminho_do_projeto>"
+        echo "Exemplo: devorq upgrade ~/projects/meu-projeto"
+        exit 1
+    fi
+
+    target="$(realpath "$target")"
+
+    if [ ! -d "$target" ]; then
+        log_error "Diretório não encontrado: $target"
+        exit 1
+    fi
+
+    log "Atualizando DEVORQ em: $target"
+
+    # Garantir que bin/ e lib/ existam no destino
+    mkdir -p "$target/bin" "$target/lib"
+
+    # Copiar CLI
+    cp "$DEVORQ_ROOT/bin/devorq" "$target/bin/devorq"
+    cp "$DEVORQ_ROOT/bin/devorq-prompt" "$target/bin/devorq-prompt" 2>/dev/null || true
+    chmod +x "$target/bin/devorq"
+
+    # Copiar apenas os módulos shell (não sobrescrever .py específicos do projeto)
+    for f in "$DEVORQ_ROOT/lib"/*.sh; do
+        cp "$f" "$target/lib/"
+    done
+
+    # Copiar subdiretório orchestration se existir
+    if [ -d "$DEVORQ_ROOT/lib/orchestration" ]; then
+        mkdir -p "$target/lib/orchestration"
+        cp "$DEVORQ_ROOT/lib/orchestration/"*.sh "$target/lib/orchestration/" 2>/dev/null || true
+    fi
+
+    log_success "DEVORQ atualizado em: $target"
+    log_info "Execute './bin/devorq init' no projeto para reinicializar o contexto."
+}
+
 cmd_help() {
     cat << EOF
 DEVORQ v2.0 — Orquestrador de Desenvolvimento Multi-LLM
@@ -352,6 +394,7 @@ Comandos principais:
   checkpoint                    Criar checkpoint de continuidade
   info                          Mostrar info resumida
   skills                        Listar skills disponíveis com versões
+  upgrade <path>                Atualizar DEVORQ instalado em outro projeto
 
 Handoff multi-LLM:
   handoff generate              Gerar spec padronizada para próximo LLM (Gate 4)
@@ -398,6 +441,7 @@ case "${1:-help}" in
     lessons)     cmd_lessons "$@" ;;
     handoff)     cmd_handoff "$@" ;;
     skill)       cmd_skill "$@" ;;
+    upgrade)     cmd_upgrade "$@" ;;
     help|--help|-h) cmd_help ;;
     *)           log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
 esac

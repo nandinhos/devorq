@@ -7,73 +7,100 @@
 # =====================================================
 
 detect_llm() {
-    # 1. Verificar variáveis de ambiente (primário)
+    # 1. Variáveis de ambiente primárias (mais confiáveis)
+    if [[ "$CLAUDECODE" == "1" ]] || [[ "$CLAUDE_CODE_ENTRYPOINT" != "" ]]; then
+        echo "claude-code"
+        return
+    fi
+
     if [[ "$OPENCODE" == "1" ]] || [[ "$OPENCODE" == "true" ]]; then
         echo "opencode"
         return
     fi
-    
-    if [[ "$PROMPT" == *"Antigravity"* ]] || [[ "$ANTIGRAVITY" == "true" ]]; then
+
+    if [[ "$ANTIGRAVITY" == "true" ]]; then
         echo "antigravity"
         return
     fi
-    
-    if [[ "$PROMPT" == *"Gemini"* ]] || [[ "$GEMINI" == "true" ]]; then
+
+    if [[ "$GEMINI" == "true" ]]; then
         echo "gemini"
         return
     fi
-    
-    if [[ "$PROMPT" == *"Claude"* ]] || [[ "$CLAUDE" == "true" ]]; then
+
+    if [[ "$CLAUDE" == "true" ]]; then
         echo "claude"
         return
     fi
-    
-    if [[ "$PROMPT" == *"MiniMax"* ]] || [[ "$MINIMAX" == "true" ]]; then
+
+    if [[ "$MINIMAX" == "true" ]]; then
         echo "minimax"
         return
     fi
-    
-    # 2. Verificar CLAUDE_TASK_ID (Claude Code)
+
+    # 2. Detecção por $PROMPT (fallback para LLMs sem env dedicada)
+    if [[ "$PROMPT" == *"Antigravity"* ]]; then
+        echo "antigravity"
+        return
+    fi
+
+    if [[ "$PROMPT" == *"Gemini"* ]]; then
+        echo "gemini"
+        return
+    fi
+
+    if [[ "$PROMPT" == *"Claude"* ]]; then
+        echo "claude"
+        return
+    fi
+
+    if [[ "$PROMPT" == *"MiniMax"* ]]; then
+        echo "minimax"
+        return
+    fi
+
+    # 3. Verificar CLAUDE_TASK_ID (Claude Code)
     if [ -n "$CLAUDE_TASK_ID" ]; then
         if [[ "$CLAUDE_TASK_ID" == *"antigravity"* ]]; then
             echo "antigravity"
             return
         fi
     fi
-    
-    # 3. Fallback: verificar context.json do DEVORQ (funciona no Docker)
+
+    # 3. Fallback: context.json persistido pelo devorq
     local devorq_context="${DEVORQ_DIR:-.devorq}/state/context.json"
     if [ -f "$devorq_context" ]; then
-        local llm_from_context=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_context" 2>/dev/null | cut -d'"' -f4)
+        local llm_from_context
+        llm_from_context=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_context" 2>/dev/null | cut -d'"' -f4)
         if [ -n "$llm_from_context" ] && [[ "$llm_from_context" != "unknown" ]]; then
             echo "$llm_from_context"
             return
         fi
     fi
-    
-    # 4. Detecção por arquivo de sessão
+
+    # 4. Fallback: session.json
     local devorq_session="${DEVORQ_DIR:-.devorq}/state/session.json"
     if [ -f "$devorq_session" ]; then
-        local llm_from_session=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_session" 2>/dev/null | head -1 | cut -d'"' -f4)
+        local llm_from_session
+        llm_from_session=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_session" 2>/dev/null | head -1 | cut -d'"' -f4)
         if [ -n "$llm_from_session" ] && [[ "$llm_from_session" != "unknown" ]]; then
             echo "$llm_from_session"
             return
         fi
     fi
-    
-    # 5. Detecção por nome do container/podman
+
+    # 5. Fallback: hostname do container (útil em Docker)
     if [ -f "/.dockerenv" ]; then
-        # Dentro do Docker, tentar detectar pelo hostname
         if hostname | grep -qi "opencode"; then
             echo "opencode"
             return
         fi
         if hostname | grep -qi "claude"; then
-            echo "claude"
+            echo "claude-code"
             return
         fi
     fi
-    
+
     echo "unknown"
 }
 
