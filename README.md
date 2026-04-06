@@ -1,101 +1,185 @@
-# 🚀 DEVORQ - Automação de Engenharia Multi-LLM (v2.1)
+# DEVORQ v2.1 - Meta-Framework de Orquestração Multi-LLM
 
 <div align="center">
-  <p><strong>Transformando IAs em Desenvolvedores de Elite através de Orquestração Thin Client, Contextualização Incremental e Padrões Estritos.</strong></p>
+  <p><strong>Automação de engenharia com contratos rigorosos, specs formalizadas e workflow validado.</strong></p>
 </div>
 
 ---
 
-## 🎯 O que é o DEVORQ?
+## O que é o DEVORQ?
 
-O **DEVORQ** (Desenvolvimento Orquestrador) é um framework avançado projetado para acoplar metodologias sólidas de Engenharia de Software às principais LLMs (Claude, Gemini, OpenCode, GPT). Ele atua como um sistema nervoso central que, através de injeção de contexto agnóstica e automação via MCPs (Model Context Protocol), blinda o projeto contra *hallucinations*, over-engineering e quebra de regras arquiteturais.
+**DEVORQ** é um meta-framework de orquestração de desenvolvimento assistido por LLM. Não é uma aplicação — é um framework de workflow integrado a projetos externos.
 
-Em sua versão **v2.1**, o DEVORQ adota formalmente a arquitetura **Thin Client vs Fat Server**, centralizando toda a "mente" do framework no arquivo pilar `activation.md` e tornando o prompt específico das IAs puramente estrutural.
+Implemented in **Bash puro** (4.0+), sem dependências externas além de `git` e `jq`.
 
----
+### Pilares da v2.1
 
-## ⚙️ Arquitetura e Pilares da v2.1
-
-### 1. Modelo de Comunicação Agnóstica (Multi-LLM)
-O DEVORQ agora opera sobre a filosofia universal:
-- **`prompts/activation.md`**: O "Cérebro" único universal. Contém todas as metodologias de orquestração (como iterar, como quebrar tarefas, o modelo mental de planejamento e TDD).
-- **Adaptadores Finos (`gemini.md`, `claude.md`, etc)**: Interfaces mínimas exclusivas para o viés natural de cada modelo, focadas unicamente em engatilhar o protocolo primário.
-
-### 2. O Processo de Sub-Engenharia (`/spec` & `/break`)
-Nenhuma feature complexa é executada diretamente sob a abordagem de Big Bang. O fluxo impõe uma dissecção milimétrica:
-1. **`/spec`**: A Inteligência atua como *Arquiteta* (Tier 1), formulando os limites estritos e o design isolado do problema.
-2. **`/break`**: Quebra exata da arquitetura em pacotes subatômicos e testáveis.
-3. **`Handoff`**: Documento de contrato de estado gerado em 7 blocos estruturados, que servirá de *Task Brief* impecável para a sessão executora (Tier 2).
-
-### 3. As 17 Skills de Elite (Sistemas Interligados)
-Um arsenal de ferramentas modulares acopladas em `.devorq/skills/`, entre elas:
-- `handoff` - Geração do Pacote Padrão Ouro de sessão delegada.
-- `scope-guard` - Proteção rígida do escopo contra desvios de engenharia e complexidade acidental.
-- `quality-gate` - Pipeline analítico rigoroso pré-commit.
-- `tdd` - Ciclo nativo iterativo Red-Green-Refactor.
-- `learned-lesson` - Documentação persistente no repositório para evitar regressão das IAs (Zero-Shot optimization).
-
-### 4. Orquestração Direta e Automática (Motor CLI)
-A automação basal garante a adaptação ao ambiente real de build.
-O motor nativo Bash CLI avalia a árvore de arquivos, detecta dependências e subframeworks (Laravel, Next.js, Django) via heurística local e vincula dinamicamente servidores de contexto MCP (Ex: **Laravel Boost MCP** para ecossistemas PHP e **Context7** para genéricos).
+1. **Contratos Rigorosos** — Toda tarefa começa com `/spec` → `/break` → `/scope-guard`
+2. **Specs Formalizadas** — Front matter canônico com related_files e related_tasks
+3. **Validação Automática** — `./bin/devorq spec status` detecta implementação via arquivos relacionados
+4. **Governança de Skills** — Versionamento semver + CHANGELOG em cada skill
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
-### 1. Clonagem e Acoplamento
 ```bash
+# Clonar
 git clone https://github.com/nandinhos/devorq.git
 
-# Acople a orquestração no seu próprio projeto:
+# Integrar ao projeto
 cp -r devorq/.devorq/ /caminho/do/projeto/
 cp -r devorq/bin/ /caminho/do/projeto/
-cp devorq/SLASH_COMMANDS.md /caminho/do/projeto/
-```
+chmod +x /caminho/do/projeto/bin/devorq
 
-### 2. Boot na Sessão de AI
-Ao inicializar um terminal assistido ou painel de Inteligência (Cursor, Claude CLI, Gemini), inicie injetando o contexto base:
-> *"Acesse e leia as diretrizes contidas em `prompts/activation.md`."*
-
-### 3. Chamando Ferramentas
-Invoque capacidades especializadas usando Slash Commands diretamente, exemplos:
-- `/spec [escopo]` - Desenhar o projeto e blindar os contornos de arquitetura.
-- `/break [escopo]` - Desengatilhar uma cadeia sequencial de testes e desenvolvimento.
-
----
-
-## 🏗 Estrutura Central (Tree)
-
-```text
-/
-├── .devorq/
-│   ├── rules/          # Quality Gates engessados por domínio da linguagem
-│   ├── skills/         # Catálogo das Skills operacionais do Workflow
-│   └── templates/      # Padrões Universais (ex: Metodologia de Handoff)
-├── bin/
-│   └── devorq          # CLI Engine nativo em Shell Script
-├── lib/
-│   ├── detect.sh             # Motor avaliador AST Local de Frameworks
-│   ├── mcp-json-generator.sh # Montador estrito de payload p/ MCPs
-│   └── ...
-├── prompts/
-│   ├── activation.md   # Mente universal do Sistema (LLM-Agnostic)
-│   └── *.md            # Adaptadores nativos para engines (Claude, etc)
-├── docs/               # ADRs, Especificações e Histórico Rígido
-└── SLASH_COMMANDS.md   # Índice Explicativo de Invocação Rápida
+# Verificar contexto
+./bin/devorq context
 ```
 
 ---
 
-## 📍 Componentes Auxiliares
+## CLI Commands
 
-- [**SLASH COMMANDS**](SLASH_COMMANDS.md) - Manual instantâneo dos atalhos primários do sistema.
-- [**Handoff Package**](docs/templates/handoff-package.md) - Entenda o modelo T1/T2 adotado.
+```bash
+./bin/devorq init                        # Inicializar projeto
+./bin/devorq context                     # Mostrar contexto detectado
+./bin/devorq flow "<intenção>"           # Executar workflow completo
+./bin/devorq checkpoint                  # Criar checkpoint
+
+./bin/devorq spec status                 # Listar specs e verificar implementação
+./bin/devorq spec update                  # Atualizar status approved → implemented
+./bin/devorq spec index                   # Gerar índice de specs
+
+./bin/devorq handoff generate            # Gerar spec para próximo LLM
+./bin/devorq handoff list                 # Histórico de handoffs
+
+./bin/devorq skills                      # Listar skills disponíveis
+./bin/devorq skill versions <skill>     # Listar versões de uma skill
+```
 
 ---
 
-## 🛡 Filosofia
-O **DEVORQ** existe para garantir que a Inteligência Artificial não atue levianamente como uma rima livre de preencher código, mas sim sob o rigor de um *Engenheiro Sênior*, submetendo-se a restrições contratuais, testes obrigatórios e clareza de escopo desde o primeiro byte até o commit em `main`.
+## As 19 Skills
 
-Distribuído sob a licença **MIT**. Veja o arquivo `LICENSE` para diretrizes legais.  
-**@nandinhos — Elevando a régua do desenvolvimento automatizado.**
+| Skill | Função |
+|-------|--------|
+| `spec` | Geração de especificação com contrato detalhado |
+| `break` | Decompõe tarefas complexas em subtarefas |
+| `scope-guard` | Gera contratos FAZER/NÃO FAZER/ARQUIVOS |
+| `pre-flight` | Valida tipos, enums e dependências |
+| `env-context` | Detecta stack, LLM, runtime, banco |
+| `quality-gate` | Checklist pré-commit |
+| `session-audit` | Métricas de eficiência |
+| `tdd` | Ciclo RED → GREEN → REFACTOR |
+| `schema-validate` | Integridade de schema de banco |
+| `spec-export` | Handoff spec para troca de LLM |
+| `systematic-debugging` | Investigação metódica de bugs |
+| `code-review` | Revisão baseada em Clean Code |
+| `brainstorming` | Fase de design/exploração |
+| `learned-lesson` | Documenta lições para sessões futuras |
+| `handoff` | Gera spec padronizada para transferência entre LLMs |
+| `constraint-loader` | Carrega artefatos por tipo de task |
+| `integrity-guardian` | Valida padrões Livewire/Alpine em Blade |
+| `filament-expert` | Motor de regras Filament PHP |
+| `spec-manager` | Automação de status e organização de specs |
+
+---
+
+## Spex — Sistema de Specs
+
+### Front Matter Canônico
+
+```yaml
+---
+id: SPEC-2026-04-06-002
+title: Nome da Spec
+domain: arquitetura
+status: draft|approved|implemented
+priority: high|medium|low
+owner: team-core
+created_at: 2026-04-06
+updated_at: 2026-04-06
+source: manual
+related_tasks:
+  - TASK-001
+  - TASK-002
+related_files:
+  - path/to/artifact/
+  - bin/script
+---
+```
+
+### Detecção de Implementação
+
+O sistema usa critérios híbridos:
+1. **Front matter válido** — status approved
+2. **Contagem precisa** — related_files > 0
+3. **Verificação de existência** — > 50% dos arquivos existem
+
+```bash
+./bin/devorq spec status   # Lista todas as specs
+./bin/devorq spec update   # Promove approved → implemented
+```
+
+---
+
+## Fluxo Obrigatório v2.1
+
+```
+1. /env-context     → Detectar stack e constraints (automático)
+2. /spec            → Gerar contrato detalhado → [Gate 1]
+3. /break           → Decompor se complexo → [opcional]
+4. /pre-flight      → Validar tipos, enums e schema → [Gate 2]
+5. handoff generate → Spec para próximo LLM → [Gate 4] (se trocar LLM)
+6. tdd              → RED → GREEN → REFACTOR
+7. /quality-gate    → Checklist pré-commit → [Gate 3]
+8. /session-audit   → Métricas (OBRIGATÓRIO)
+9. /learned-lesson  → Capturar lições → [Gate 5]
+10. checkpoint      → Para continuidade
+```
+
+---
+
+## Estrutura
+
+```
+.devorq/
+├── agents/          # 6 agentes especializados (laravel, filament, php, python, shell, general)
+├── skills/          # 19 skills de workflow
+├── rules/           # Regras por stack (laravel-tall, python, php)
+├── state/           # Persistência local (context, contracts, specs)
+└── templates/       # Padrões universais
+
+bin/
+└── devorq           # CLI Engine em Bash
+
+docs/specs/          # Specs com front matter
+├── _index.md        # Índice automático
+└── *.md             # Arquivos de spec
+```
+
+---
+
+## Projetos com DEVORQ Integrado
+
+- `eventos-control` — Laravel + Filament
+- `nandorag` — App de notas com IA
+- `transcriptor` — Automação de transcrição
+
+---
+
+## Installation
+
+```bash
+# Via clone
+git clone https://github.com/nandinhos/devorq.git
+
+# Para atualizar projeto existente
+cp -r .devorq /path/to/project/
+cp -r bin /path/to/project/
+chmod +x bin/devorq
+```
+
+---
+
+**MIT License** — @nandinhos
