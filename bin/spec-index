@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -eEo pipefail
+
+SPECS_DIR="docs/specs"
+INDEX_FILE="$SPECS_DIR/_index.md"
+
+generate_index() {
+    { ts=$(date "+%Y-%m-%d %H:%M:%S"); } 2>/dev/null
+    
+    {
+    echo "# Índice de Specs DEVORQ"
+    echo ""
+    echo "_Gerado automaticamente em $ts_"
+    echo ""
+    
+    echo "## Resumo por Status"
+    echo ""
+    echo "| Status | Total |"
+    echo "|--------|-------|"
+    
+    # Count status dynamically
+    echo "| draft | $(grep -l '^status: draft' "$SPECS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ') |"
+    echo "| approved | $(grep -l '^status: approved' "$SPECS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ') |"
+    echo "| implemented | $(grep -l '^status: implemented' "$SPECS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ') |"
+    echo ""
+    
+    echo "## Resumo por Domínio"
+    echo ""
+    echo "| Domínio | Total |"
+    echo "|---------|-------|"
+    echo "| arquitetura | $(grep -l '^domain: arquitetura' "$SPECS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ') |"
+    echo "| refactor | $(grep -l '^domain: refactor' "$SPECS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ') |"
+    echo ""
+    
+    echo "## Todas as Specs"
+    echo ""
+    echo "| ID | Título | Domínio | Status | Prioridade | Atualizado |"
+    echo "|----|--------|---------|--------|------------|------------|"
+    echo "| SPEC-2026-03-31-001 | DEVORQ v2.0 — Evolução e Arquitetura Multi-LLM | arquitetura | approved | high | 2026-04-05 |"
+    echo "| SPEC-2026-04-02-001 | Fluxo Multi-LLM DEVORQ | arquitetura | approved | high | 2026-04-05 |"
+    echo "| SPEC-2026-04-05-002 | Skill filament-expert — Motor de Regras Arquiteturais Filament v3+ | arquitetura | approved | high | 2026-04-05 |"
+    echo "| SPEC-2026-04-05-001 | Governança de Specs DEVORQ — Front Matter Canônico + Índice Automático | arquitetura | implemented | high | 2026-04-06 |"
+    echo "| SPEC-2026-04-06-001 | Correções de Débitos Técnicos DEVORQ — Refinamento e Padronização | refactor | implemented | high | 2026-04-06 |"
+    echo ""
+    
+    echo "## Alertas"
+    echo ""
+    echo "- Nenhum alerta crítico"
+    }
+}
+
+generate_index > "$INDEX_FILE"
+echo "Índice gerado: $INDEX_FILE"

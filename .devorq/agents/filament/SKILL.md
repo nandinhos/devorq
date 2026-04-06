@@ -103,3 +103,15 @@ class UserResource extends Resource
 ## Fontes de Verdade
 - Documentação: https://filamentphp.com/docs/
 - GitHub: https://github.com/filamentphp/filament
+
+---
+
+## Anti-Patterns Obrigatórios
+
+> **Importante:** Para regras completas, consultar `.devorq/skills/filament-expert/SKILL.md`
+
+| Pattern | Proibido | Obrigatório |
+|---------|----------|-------------|
+| Ações em Pages | `window.confirm()`, `onclick` JS | `HasActions` + `InteractsWithActions` |
+| Navegação voltar | `$this->getPreviousUrl()` | `url()->previous()` |
+| Layout de tabelas | `Split`/`Stack` na raiz | Com `visibleFrom()` para mobile |

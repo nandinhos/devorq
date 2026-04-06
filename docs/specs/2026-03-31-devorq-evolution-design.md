@@ -1,3 +1,17 @@
+---
+id: SPEC-2026-03-31-001
+title: DEVORQ v2.0 — Evolução e Evolução de Arquitetura Multi-LLM
+domain: arquitetura
+status: implemented
+priority: high
+owner: team-core
+created_at: 2026-03-31
+updated_at: 2026-04-06
+source: manual
+related_tasks: []
+related_files: []
+---
+
 # DEVORQ v2.0 — Spec de Evolução
 
 **Data:** 2026-03-31

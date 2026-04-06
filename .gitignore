@@ -67,3 +67,5 @@ AI_INSTRUCTIONS.md
 
 # IDE e editores
 .claude/
+# Mas rastrear subdir commands para backup
+!.claude/commands/

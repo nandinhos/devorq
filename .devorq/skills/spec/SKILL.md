@@ -49,10 +49,24 @@ Fazer as seguintes perguntas ao usuário, **uma por vez**, aguardando resposta a
 Com base nas respostas, gerar o documento no seguinte template:
 
 ```markdown
+---
+id: SPEC-YYYY-MM-DD-NNN
+title: [Nome do Projeto/Feature]
+domain: arquitetura | importacao | ui_ux | refactor | seguranca | operacao
+status: draft
+priority: low | medium | high | critical
+owner: team-core
+created_at: YYYY-MM-DD
+updated_at: YYYY-MM-DD
+source: manual
+related_tasks: []
+related_files: []
+---
+
 # Spec — [Nome do Projeto/Feature]
 
 **Data**: YYYY-MM-DD
-**Status**: rascunho | aprovado
+**Status**: draft | approved
 **Autor**: [LLM/Usuário]
 
 ## Objetivo
@@ -84,16 +98,16 @@ Com base nas respostas, gerar o documento no seguinte template:
 
 ### Step 3: Salvar Documento
 
-Salvar em `docs/spec/YYYY-MM-DD-[nome-kebab-case].md` dentro do projeto alvo.
+Salvar em `docs/specs/YYYY-MM-DD-[nome-kebab-case].md` dentro do projeto alvo.
 
-Exemplo: `docs/spec/2026-04-02-autenticacao-oauth.md`
+Exemplo: `docs/specs/2026-04-02-autenticacao-oauth.md`
 
 ### Step 4: Gate de Aprovação
 
 Apresentar o documento gerado ao usuário com a pergunta:
 
 ```
-Spec gerada e salva em docs/spec/[arquivo].md
+Spec gerada e salva em docs/specs/[arquivo].md
 
 Revise o documento acima.
 - Algo está incorreto ou faltando?

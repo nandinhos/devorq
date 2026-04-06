@@ -242,6 +242,160 @@ cmd_skills() {
 }
 
 # =====================================================
+# SPECS
+# =====================================================
+
+cmd_spec() {
+    local subcmd="${2:-index}"
+    case "$subcmd" in
+        index)
+            local spec_index="$DEVORQ_ROOT/bin/spec-index"
+            if [ -f "$spec_index" ]; then
+                log "📋 Gerando índice de specs..."
+                bash "$spec_index"
+            else
+                log_error "bin/spec-index não encontrado"
+                return 1
+            fi
+            ;;
+        list)
+            local index_file="$DEVORQ_ROOT/docs/specs/_index.md"
+            if [ -f "$index_file" ]; then
+                cat "$index_file"
+            else
+                log_error "Índice não encontrado. Execute: devorq spec index"
+                return 1
+            fi
+            ;;
+        status)
+            spec_status
+            ;;
+        update)
+            spec_update
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq spec [index|list|status|update]"
+            return 1
+            ;;
+    esac
+}
+
+spec_status() {
+    log "📊 Analisando status das specs..."
+    echo ""
+    
+    local specs_dir="$DEVORQ_ROOT/docs/specs"
+    local count_approved=0
+    local count_implemented=0
+    
+    for spec_file in "$specs_dir"/*.md; do
+        [ -f "$spec_file" ] || continue
+        [ "$(basename "$spec_file")" = "_index.md" ] && continue
+        
+        local spec_id spec_title spec_status domain related_files related_tasks files_exist
+        spec_id=$(grep -m1 "^id:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        spec_title=$(grep -m1 "^title:" "$spec_file" 2>/dev/null | cut -d: -f2- | xargs)
+        spec_status=$(grep -m1 "^status:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        domain=$(grep -m1 "^domain:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        
+        # Contagem precisa de related_files (só no bloco YAML)
+        related_files=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep -c "^  - " || echo "0")
+        [ -z "$related_files" ] && related_files=0
+        
+        # Contagem related_tasks
+        related_tasks=$(grep -c "^  - TASK-" "$spec_file" 2>/dev/null || echo "0")
+        [ -z "$related_tasks" ] && related_tasks=0
+        
+        # Verificar existência dos arquivos
+        files_exist=0
+        if [ "$related_files" -gt 0 ]; then
+            local file_list
+            file_list=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
+            for f in $file_list; do
+                if [ -e "$f" ] || [ -d "$f" ]; then
+                    files_exist=$((files_exist + 1))
+                fi
+            done
+        fi
+        
+        echo "## $spec_id: $spec_title"
+        echo "  Status: $spec_status | Domínio: $domain"
+        echo "  Related files: $related_files | Encontrados: $files_exist"
+        echo "  Related tasks: $related_tasks"
+        
+        # Critério: related_files > 0 E > 50% existem
+        local percent=0
+        if [ "$related_files" -gt 0 ]; then
+            percent=$((files_exist * 100 / related_files))
+        fi
+        
+        if [ "$spec_status" = "approved" ] && [ "$related_files" -gt 0 ] && [ "$percent" -ge 50 ]; then
+            echo "  → Implementada ($percent% existe) ✓"
+        elif [ "$spec_status" = "approved" ] && [ "$related_files" -gt 0 ]; then
+            echo "  → Parcialmente implementada ($percent% existe)"
+        elif [ "$spec_status" = "approved" ]; then
+            echo "  → Aguarda implementação"
+        fi
+        
+        echo ""
+        
+        [ "$spec_status" = "approved" ] && count_approved=$((count_approved + 1))
+        [ "$spec_status" = "implemented" ] && count_implemented=$((count_implemented + 1))
+    done
+    
+    echo "---"
+    echo "Resumo: $count_approved approved, $count_implemented implemented"
+}
+
+spec_update() {
+    log "🔄 Atualizando status das specs..."
+    echo ""
+    
+    local specs_dir="$DEVORQ_ROOT/docs/specs"
+    local updated=0
+    
+    for spec_file in "$specs_dir"/*.md; do
+        [ -f "$spec_file" ] || continue
+        [ "$(basename "$spec_file")" = "_index.md" ] && continue
+        
+        local spec_id spec_status related_files files_exist percent
+        spec_id=$(grep -m1 "^id:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        spec_status=$(grep -m1 "^status:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        
+        related_files=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep -c "^  - " || echo "0")
+        [ -z "$related_files" ] && related_files=0
+        
+        files_exist=0
+        if [ "$related_files" -gt 0 ]; then
+            local file_list
+            file_list=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
+            for f in $file_list; do
+                if [ -e "$f" ] || [ -d "$f" ]; then
+                    files_exist=$((files_exist + 1))
+                fi
+            done
+        fi
+        
+        percent=0
+        [ "$related_files" -gt 0 ] && percent=$((files_exist * 100 / related_files))
+        
+        if [ "$spec_status" = "approved" ] && [ "$related_files" -gt 0 ] && [ "$percent" -ge 50 ]; then
+            log "Atualizando $spec_id: approved → implemented ($files_exist/$related_files = $percent%)"
+            sed -i "s/^status: approved$/status: implemented/" "$spec_file"
+            sed -i "s/^updated_at: [0-9-]*$/updated_at: $(date +%Y-%m-%d)/" "$spec_file"
+            updated=$((updated + 1))
+        fi
+    done
+    
+    echo ""
+    log "Specs atualizadas: $updated"
+    log "Regenerando índice..."
+    bash "$DEVORQ_ROOT/bin/spec-index"
+    log_success "Concluído!"
+}
+
+# =====================================================
 # LIÇÕES
 # =====================================================
 
@@ -452,6 +606,7 @@ case "${1:-help}" in
     lessons)     cmd_lessons "$@" ;;
     handoff)     cmd_handoff "$@" ;;
     skill)       cmd_skill "$@" ;;
+    spec)        cmd_spec "$@" ;;
     upgrade)     cmd_upgrade "$@" ;;
     help|--help|-h) cmd_help ;;
     *)           log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;

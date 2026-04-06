@@ -1,3 +1,26 @@
+---
+id: SPEC-2026-04-02-001
+title: Fluxo Multi-LLM DEVORQ
+domain: arquitetura
+status: implemented
+priority: high
+owner: team-core
+created_at: 2026-04-02
+updated_at: 2026-04-06
+source: manual
+related_tasks:
+  - TASK-001
+  - TASK-002
+related_files:
+  - bin/devorq
+  - .devorq/skills/spec/
+  - .devorq/skills/break/
+  - .devorq/skills/scope-guard/
+  - .devorq/skills/session-audit/
+  - .devorq/skills/learned-lesson/
+  - lib/handoff.sh
+---
+
 # SPEC — Fluxo Multi-LLM DEVORQ
 
 **Data**: 2026-04-02
