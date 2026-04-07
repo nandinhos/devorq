@@ -17,10 +17,11 @@ Implemented in **Bash puro** (4.0+), sem dependências externas além de `git` e
 ### Pilares da v2.1
 
 1. **Contratos Rigorosos** — Toda tarefa começa com `/spec` → `/break` → `/scope-guard`
-2. **Specs Formalizadas** — Front matter canônico com related_files e related_tasks
+2. **Specs Formalizadas** — Front matter canônico com `related_files` e `related_tasks`
 3. **Validação Automática** — `./bin/devorq spec status` detecta implementação via arquivos relacionados
 4. **Governança de Skills** — Versionamento semver + CHANGELOG em cada skill
-5. **Proteção de Sourcing** — Implementação obrigatória de *Bash Dual-Use Source Guard* em todos os módulos da `lib/`
+5. **Proteção de Sourcing** — *Bash Dual-Use Source Guard* obrigatório em `lib/`
+6. **Índice Auto-Regenerável** — `bin/spec-index` é executado automaticamente no `pre-commit` quando specs são alteradas
 
 ---
 
@@ -88,29 +89,27 @@ chmod +x /caminho/do/projeto/bin/devorq
 
 ---
 
-## Spex — Sistema de Specs
+## Specs — Sistema de Especificações
 
-### Front Matter Canônico
+### Front Matter Canônico (SPEC-2026-04-05-001)
 
 ```yaml
 ---
-id: SPEC-2026-04-06-002
-title: Nome da Spec
-domain: arquitetura
-status: draft|approved|implemented
-priority: high|medium|low
+id: SPEC-YYYY-MM-DD-NNN
+title: Título legível da spec
+domain: arquitetura | importacao | ui_ux | refactor | seguranca | operacao
+status: draft | planning | approved | in_progress | implemented | validated | blocked | archived
+priority: low | medium | high | critical
 owner: team-core
-created_at: 2026-04-06
-updated_at: 2026-04-06
-source: manual
-related_tasks:
-  - TASK-001
-  - TASK-002
-related_files:
-  - path/to/artifact/
-  - bin/script
+created_at: YYYY-MM-DD
+updated_at: YYYY-MM-DD
+source: manual | devorq | proposal/[caminho]
+related_tasks: []
+related_files: []
 ---
 ```
+
+> **Regra:** Todo arquivo em `docs/specs/` (exceto `_index.md`) DEVE ter Front Matter completo. O `_index.md` é gerado automaticamente pelo `bin/spec-index` — nunca editado manualmente.
 
 ### Detecção de Implementação
 
@@ -154,10 +153,11 @@ O sistema usa critérios híbridos:
 └── templates/       # Padrões universais
 
 bin/
-└── devorq           # CLI Engine em Bash
+├── devorq           # CLI Engine em Bash
+└── spec-index       # Gerador automático do índice de specs
 
-docs/specs/          # Specs com front matter
-├── _index.md        # Índice automático
+docs/specs/          # Specs com front matter canônico
+├── _index.md        # Índice automático (gerado por bin/spec-index)
 └── *.md             # Arquivos de spec
 ```
 
@@ -165,6 +165,7 @@ docs/specs/          # Specs com front matter
 
 ## Projetos com DEVORQ Integrado
 
+- `gacpac-ti` — Sistema de gestão militar (Laravel + Filament)
 - `eventos-control` — Laravel + Filament
 - `nandorag` — App de notas com IA
 - `transcriptor` — Automação de transcrição
@@ -187,15 +188,36 @@ chmod +x bin/devorq
 
 ## Governança de Scripts Bash
 
-Para garantir que módulos da `lib/` operem de forma segura tanto como bibliotecas quanto como ferramentas CLI, o DEVORQ adota o padrão **Bash Dual-Use Source Guard**.
+Para garantir que módulos da `lib/` operem de forma segura, o DEVORQ adota o padrão **Bash Dual-Use Source Guard** (v2.1).
 
 Todo arquivo em `lib/*.sh` deve conter o seguinte guard no topo:
 
 ```bash
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2
+    exit 1
+fi
 ```
 
-Isso previne a execução acidental de lógica de interface (CLI) durante operações de `source`, mantendo a integridade do ambiente de execução.
+Isso impede a execução direta de bibliotecas de funções, garantindo que só operem via `source`.
+
+---
+
+## Automação no Pre-Commit
+
+O hook `pre-commit` executa automaticamente:
+
+1. Verificação de contrato `/scope-guard`
+2. Lint (stack-aware)
+3. Detecção de arquivos sensíveis (`.env`, `*.key`, `*.pem`)
+4. **Regeneração do índice de specs** — se qualquer `docs/specs/*.md` estiver no staging, `bin/spec-index` é executado e o `_index.md` atualizado é incluído no commit
+
+Para instalar o hook em projetos integrados:
+
+```bash
+cp .devorq/hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
 
 ---
 
