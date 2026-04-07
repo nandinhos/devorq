@@ -1,7 +1,7 @@
 #!/bin/bash
 # DEVORQ - Módulo de Detecção
 # Funções de detecção de contexto, stack, LLM, tipo de projeto
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0
 
 # =====================================================
 # DETECÇÃO DE LLM
