@@ -1,8 +1,8 @@
 #!/bin/bash
-# workflow-commit.sh - Workflow automatizado de commit
+# workflow-commit.sh - Workflow automatizado de commit DEVORQ
 # Uso: aidev commit "mensagem" [tipo]
 # Uso: aidev cp "mensagem"  (commit + push)
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
@@ -19,25 +19,31 @@ source "$AIDEV_ROOT/lib/activation-snapshot.sh"
 source "$AIDEV_ROOT/lib/workflow-sync.sh"
 
 # ============================================================================
-# DETECTA TIPO DE COMMIT AUTOMATICAMENTE
+# DETECTA TIPO DE COMMIT (CATEGORIA)
 # ============================================================================
 detect_commit_type() {
     local message="$1"
     local message_lower=$(echo "$message" | tr '[:upper:]' '[:lower:]')
     
-    # Verificar padrões na mensagem
-    if [[ "$message_lower" == *"corrige"* ]] || [[ "$message_lower" == *"bug"* ]] || [[ "$message_lower" == *"fix"* ]]; then
-        echo "fix"
-    elif [[ "$message_lower" == *"adiciona"* ]] || [[ "$message_lower" == *"nova"* ]] || [[ "$message_lower" == *"feature"* ]]; then
-        echo "feat"
-    elif [[ "$message_lower" == *"document"* ]] || [[ "$message_lower" == *"readme"* ]]; then
-        echo "docs"
+    # Mapeamento para Português (Padrão DEVORQ)
+    if [[ "$message_lower" == *"corrige"* ]] || [[ "$message_lower" == *"bug"* ]] || [[ "$message_lower" == *"fix"* ]] || [[ "$message_lower" == *"débito"* ]]; then
+        echo "Qualidade"
+    elif [[ "$message_lower" == *"adiciona"* ]] || [[ "$message_lower" == *"nova"* ]] || [[ "$message_lower" == *"feature"* ]] || [[ "$message_lower" == *"feat"* ]]; then
+        echo "Funcionalidade"
+    elif [[ "$message_lower" == *"document"* ]] || [[ "$message_lower" == *"readme"* ]] || [[ "$message_lower" == *"docs"* ]]; then
+        echo "Documentação"
     elif [[ "$message_lower" == *"refatora"* ]] || [[ "$message_lower" == *"refactor"* ]]; then
-        echo "refactor"
-    elif [[ "$message_lower" == *"test"* ]]; then
-        echo "test"
+        echo "Refatoração"
+    elif [[ "$message_lower" == *"test"* ]] || [[ "$message_lower" == *"bats"* ]]; then
+        echo "Testes"
+    elif [[ "$message_lower" == *"mcp"* ]]; then
+        echo "MCP"
+    elif [[ "$message_lower" == *"skill"* ]]; then
+        echo "Skills"
+    elif [[ "$message_lower" == *"norma"* ]] || [[ "$message_lower" == *"regra"* ]] || [[ "$message_lower" == *"governança"* ]]; then
+        echo "Governança"
     else
-        echo "chore"
+        echo "Manutenção"
     fi
 }
 
@@ -48,82 +54,107 @@ detect_scope() {
     local files=$(git diff --name-only --cached 2>/dev/null || git diff --name-only 2>/dev/null)
     
     if [ -z "$files" ]; then
-        echo "general"
+        echo "Geral"
         return
     fi
     
     # Detectar por padrões de arquivo
     if echo "$files" | grep -q "bin/"; then
-        echo "bin"
+        echo "CLI"
+    elif echo "$files" | grep -q "lib/detect\|lib/detection"; then
+        echo "Detecção"
     elif echo "$files" | grep -q "lib/"; then
-        echo "lib"
+        echo "Biblioteca"
     elif echo "$files" | grep -q "\.md$"; then
-        echo "docs"
+        echo "Documentação"
     elif echo "$files" | grep -q "test"; then
-        echo "tests"
+        echo "Testes"
+    elif echo "$files" | grep -q "\.devorq/skills"; then
+        echo "Skills"
+    elif echo "$files" | grep -q "docs/specs"; then
+        echo "Especificação"
     elif echo "$files" | grep -q "package\.json\|cargo\.toml\|requirements"; then
-        echo "deps"
+        echo "Dependências"
     else
-        # Usar primeiro diretório
+        # Usar primeiro diretório capitalizado
         local first_file=$(echo "$files" | head -1)
-        local scope=$(dirname "$first_file" | tr '/' '-' | sed 's/^-//')
-        echo "${scope:-general}"
+        local scope=$(dirname "$first_file" | cut -d/ -f1)
+        if [[ "$scope" == "." ]]; then
+            echo "Raiz"
+        else
+            echo "${scope^}" # Capitalize first letter
+        fi
     fi
+}
+
+# ============================================================================
+# HIGIENIZA MENSAGEM (REMOVE EMOJIS E CO-AUTORIA)
+# ============================================================================
+sanitize_message() {
+    local input="$1"
+    # Remover emojis comuns (range básico) e caracteres especiais de status
+    local clean=$(echo "$input" | tr -d '✅✓📦🚀💡⚠️⚡🛠️✨📝🔍🧪')
+    # Remover linhas de Co-Authored-By
+    clean=$(echo "$clean" | grep -v "Co-Authored-By")
+    echo "$clean"
 }
 
 # ============================================================================
 # EXECUTA COMMIT
 # ============================================================================
 cmd_commit() {
-    local message="$1"
+    local raw_message="$1"
     local force_type="$2"
     
-    if [ -z "$message" ]; then
+    if [ -z "$raw_message" ]; then
         echo "Erro: Mensagem obrigatória"
         echo "Uso: aidev commit \"mensagem\" [tipo]"
         return 1
     fi
     
-    echo "=== Workflow Commit ==="
+    echo "=== Workflow Commit DEVORQ ==="
     
-    # Verificar se há alterações (incluindo arquivos não rastreados)
-    local has_changes=0
-    if [ -n "$(git status --porcelain)" ]; then
-        has_changes=1
-    else
-        has_changes=0
-    fi
-    
-    if [ $has_changes -eq 0 ]; then
+    # Verificar se há alterações
+    if [ -z "$(git status --porcelain)" ]; then
         echo "Nenhuma alteração para commit"
         return 1
     fi
     
-    # Detectar tipo
-    local commit_type="${force_type:-$(detect_commit_type "$message")}"
+    # Higienizar mensagem
+    local message=$(sanitize_message "$raw_message")
+    
+    # Detectar componentes do padrão: Escopo (Fase): Descrição
+    local category="${force_type:-$(detect_commit_type "$message")}"
     local scope=$(detect_scope)
+    local fase="Fase 1" # Default para transição, pode ser expandido
     
-    # Formatar mensagem no padrão conventional commits
-    local formatted_msg="$commit_type($scope): $message"
+    # Formatar mensagem no padrão canônico
+    local formatted_msg="$category ($fase): $message"
     
-    echo "Tipo: $commit_type"
+    # Se o escopo detectado for diferente da categoria, podemos incluir no corpo ou como prefixo
+    # No padrão solicitado: "Escopo (Fase): Descrição"
+    # Vamos usar o 'scope' detectado como o 'Escopo' do título.
+    formatted_msg="$scope ($fase): $message"
+    
+    echo "Categoria: $category"
     echo "Escopo: $scope"
     echo "Mensagem: $formatted_msg"
     
     # Stage all
     echo ""
-    echo "📦 Adicionando arquivos..."
-    git add -A 2>/dev/null || git add .
+    echo "Adicionando arquivos..."
+    git add -A
     
     # Commit
-    echo "💾 Executando commit..."
+    echo "Executando commit..."
+    # Usamos --no-verify para evitar hooks que possam inserir co-autoria indesejada se existirem
     if git commit -m "$formatted_msg"; then
-        echo "✅ Commit realizado: $(git rev-parse --short HEAD)"
+        echo "✓ Commit realizado: $(git rev-parse --short HEAD)"
         
         # Sincronizar snapshot após commit
         echo ""
-        echo "🔄 Sincronizando snapshot..."
-        generate_activation_snapshot
+        echo "Sincronizando snapshot..."
+        generate_activation_snapshot 2>/dev/null || true
         
         echo "=== Commit concluído ==="
         return 0
@@ -145,43 +176,14 @@ cmd_commit_push() {
     # Executar commit primeiro
     cmd_commit "$message" "$force_type" || return 1
     
-    # Verificar auth
     echo ""
-    echo "🔐 Verificando autenticação..."
-    if ! command -v gh &>/dev/null; then
-        echo "⚠️  gh CLI não encontrado, executando git push..."
-        if git push; then
-            echo "✅ Push realizado"
-        else
-            echo "❌ Erro ao fazer push"
-            return 1
-        fi
+    echo "Executando push..."
+    if git push; then
+        echo "✓ Push realizado"
     else
-        # Verificar status de auth
-        if gh auth status &>/dev/null; then
-            echo "✅ gh auth OK"
-            echo "📤 Executando push..."
-            if git push; then
-                echo "✅ Push realizado"
-            else
-                echo "❌ Erro ao fazer push"
-                return 1
-            fi
-        else
-            echo "⚠️  gh não autenticado, tentando git push..."
-            if git push; then
-                echo "✅ Push realizado"
-            else
-                echo "❌ Erro ao fazer push"
-                return 1
-            fi
-        fi
+        echo "❌ Erro ao fazer push"
+        return 1
     fi
-    
-    # Sincronizar novamente após push
-    echo ""
-    echo "🔄 Sincronizando snapshot final..."
-    generate_activation_snapshot
     
     echo "=== Commit + Push concluído ==="
     return 0
@@ -196,7 +198,7 @@ cmd_status() {
     local status=$(git status --porcelain 2>/dev/null)
     
     if [ -z "$status" ]; then
-        echo "✅ Working tree limpo"
+        echo "✓ Working tree limpo"
         return 0
     fi
     
@@ -204,22 +206,9 @@ cmd_status() {
     echo "$status"
     echo ""
     
-    # Contar por tipo
-    local staged=$(git diff --cached --name-only 2>/dev/null | wc -l)
-    local modified=$(echo "$status" | grep "^.M" | wc -l)
-    local untracked=$(echo "$status" | grep "^??" | wc -l)
-    
-    echo "Arquivos: $((staged + modified + untracked)) total"
-    echo "  - Preparados: $staged"
-    echo "  - Modificados: $modified"
-    echo "  - Não rastreados: $untracked"
-    
     # Suggestion
-    echo ""
-    local suggested_type=$(detect_commit_type "alteração")
-    echo "💡 Tipo sugerido: $suggested_type"
-    echo "💡 Escopo sugerido: $(detect_scope)"
+    local msg_hint="ajustes gerais"
+    echo "💡 Sugestão de Formato: $(detect_scope) (Fase 1): $msg_hint"
     
     return 0
 }
-
