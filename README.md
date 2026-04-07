@@ -18,6 +18,7 @@ Implemented in **Bash puro** (4.0+), sem dependências externas além de `git` e
 2. **Specs Formalizadas** — Front matter canônico com related_files e related_tasks
 3. **Validação Automática** — `./bin/devorq spec status` detecta implementação via arquivos relacionados
 4. **Governança de Skills** — Versionamento semver + CHANGELOG em cada skill
+5. **Proteção de Sourcing** — Implementação obrigatória de *Bash Dual-Use Source Guard* em todos os módulos da `lib/`
 
 ---
 
@@ -179,6 +180,20 @@ cp -r .devorq /path/to/project/
 cp -r bin /path/to/project/
 chmod +x bin/devorq
 ```
+
+---
+
+## Governança de Scripts Bash
+
+Para garantir que módulos da `lib/` operem de forma segura tanto como bibliotecas quanto como ferramentas CLI, o DEVORQ adota o padrão **Bash Dual-Use Source Guard**.
+
+Todo arquivo em `lib/*.sh` deve conter o seguinte guard no topo:
+
+```bash
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+```
+
+Isso previne a execução acidental de lógica de interface (CLI) durante operações de `source`, mantendo a integridade do ambiente de execução.
 
 ---
 

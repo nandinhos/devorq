@@ -7,6 +7,7 @@
 # 
 # Uso: source lib/core.sh
 # ============================================================================
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # Lê a versão do SSOT (arquivo VERSION na raiz do projeto)
 # Protege contra re-definição quando o módulo é sourced múltiplas vezes

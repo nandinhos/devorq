@@ -7,6 +7,7 @@
 #
 # Uso: source lib/state.sh
 # Dependencias: lib/core.sh, lib/file-ops.sh
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 # ============================================================================
 
 # Arquivo de estado unificado

@@ -7,6 +7,7 @@
 # 
 # Uso: source lib/loader.sh
 # ============================================================================
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # Diretório base do aidev (detectado automaticamente)
 AIDEV_LIB_DIR="${AIDEV_LIB_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
@@ -227,13 +228,6 @@ count_loaded_modules() {
 # ============================================================================
 # Auto-carregamento do core (sempre necessário)
 # ============================================================================
-
-# Carrega core automaticamente se este script for sourcado diretamente
-if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
-    echo "Este script deve ser sourced, não executado diretamente."
-    echo "Uso: source lib/loader.sh"
-    exit 1
-fi
 
 # Tenta carregar core e i18n se existirem
 if [ -f "$AIDEV_LIB_DIR/core.sh" ] && ! module_loaded "core"; then

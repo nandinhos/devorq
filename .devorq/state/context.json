@@ -1,0 +1,8 @@
+{
+  "stack": "generic",
+  "project_type": "greenfield",
+  "llm": "claude-code",
+  "runtime": "docker-sail",
+  "database": "unknown",
+  "detected_at": "2026-04-06T23:38:38-03:00"
+}

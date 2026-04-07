@@ -8,6 +8,7 @@
 # Uso: source lib/cli.sh
 # Dependências: lib/core.sh
 # ============================================================================
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # Variáveis de CLI (defaults)
 CLI_INSTALL_PATH=""

@@ -5,6 +5,7 @@
 # ============================================================================
 # Health check completo que verifica se MCPs estão respondendo
 # Não apenas se o comando existe, mas se realmente funcionam
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 # ============================================================================
 
 _MCP_HEALTH_TIMEOUT=5

@@ -7,6 +7,7 @@
 # 
 # Uso: source lib/mcp.sh
 # Dependências: lib/core.sh, lib/file-ops.sh, lib/detection.sh, lib/templates.sh
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 # ============================================================================
 
 # ============================================================================

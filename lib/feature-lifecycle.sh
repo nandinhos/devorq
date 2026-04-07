@@ -6,6 +6,7 @@
 # Automatiza transições do fluxo: backlog → features → current → history
 # Comandos: aidev plan | aidev start | aidev done | aidev complete
 # ============================================================================
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # Carregar sed_inplace de core.sh se ainda não disponível
 if ! declare -f sed_inplace > /dev/null 2>&1; then

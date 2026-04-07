@@ -7,6 +7,7 @@
 # 
 # Uso: source lib/detection.sh
 # Dependências: lib/core.sh
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 # ============================================================================
 
 # Variáveis de resultado de detecção

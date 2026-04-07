@@ -1,6 +1,7 @@
 #!/bin/bash
 # workflow-release.sh - Workflow completo de release
 # Uso: aidev release [patch|minor|major]
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
@@ -278,21 +279,3 @@ cmd_pre_release_check() {
     echo "  aidev release major  # major release (x+1.0.0)"
 }
 
-# Executar se chamado diretamente
-if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
-    case "${1:-check}" in
-        patch|minor|major)
-            cmd_release "$1"
-            ;;
-        check|status)
-            cmd_pre_release_check
-            ;;
-        *)
-            echo "Workflow Release - Uso:"
-            echo "  $0 patch   - Release patch (x.y.z+1)"
-            echo "  $0 minor   - Release minor (x.y+1.0)"
-            echo "  $0 major   - Release major (x+1.0.0)"
-            echo "  $0 check   - Verificar status pré-release"
-            ;;
-    esac
-fi

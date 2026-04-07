@@ -1,5 +1,6 @@
 #!/bin/bash
 # lib/handoff.sh — Geração e rastreamento de handoff multi-LLM
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # Carregar sed_inplace de core.sh se ainda não disponível
 if ! declare -f sed_inplace > /dev/null 2>&1; then

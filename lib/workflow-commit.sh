@@ -2,6 +2,7 @@
 # workflow-commit.sh - Workflow automatizado de commit
 # Uso: aidev commit "mensagem" [tipo]
 # Uso: aidev cp "mensagem"  (commit + push)
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
@@ -222,25 +223,3 @@ cmd_status() {
     return 0
 }
 
-# Executar se chamado diretamente
-if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
-    case "${1:-}" in
-        commit|c)
-            shift
-            cmd_commit "$@"
-            ;;
-        push|cp)
-            shift
-            cmd_commit_push "$@"
-            ;;
-        status|s)
-            cmd_status
-            ;;
-        *)
-            echo "Workflow Commit - Uso:"
-            echo "  $0 commit \"mensagem\"      - Executa commit"
-            echo "  $0 push \"mensagem\"        - Commit + Push"
-            echo "  $0 status                  - Verifica status"
-            ;;
-    esac
-fi

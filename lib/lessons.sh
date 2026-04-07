@@ -1,6 +1,7 @@
 #!/bin/bash
 # lib/lessons.sh — Pipeline de Auto-Aprendizado
 # Captura, validação e incorporação de lições aprendidas nas skills
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # =====================================================
 # CAPTURA DE LIÇÃO

@@ -1,6 +1,7 @@
 #!/bin/bash
 # workflow-sync.sh - Hook de sincronização automática após tarefas
 # Sincroniza: activation_snapshot + unified.json
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
@@ -203,20 +204,3 @@ task_complete() {
     fi
 }
 
-# Executar se chamado diretamente
-if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
-    case "${1:-sync}" in
-        sync)
-            sync_workflow "${2:-false}" "${3:-manual}"
-            ;;
-        validate)
-            validate_conformity
-            ;;
-        task)
-            task_complete "$2" "$3"
-            ;;
-        *)
-            echo "Uso: $0 [sync|validate|task] [args]"
-            ;;
-    esac
-fi

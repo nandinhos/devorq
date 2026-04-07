@@ -1,6 +1,7 @@
 #!/bin/bash
 # activation-snapshot.sh - Gera snapshot de ativação para bootstrap rápido
 # Include: 6 commits recentes + issues + checksums
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
@@ -318,8 +319,3 @@ auto_sync() {
     generate_activation_snapshot
 }
 
-# Se chamado diretamente, gera snapshot
-if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
-    generate_activation_snapshot
-    cat "$SNAPSHOT_FILE"
-fi

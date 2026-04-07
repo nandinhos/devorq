@@ -1,6 +1,7 @@
 #!/bin/bash
 # DEVORQ - Módulo de Validação com MCP Context7
 # Valida implementação contra documentação oficial
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # =====================================================
 # VALIDAR DOCUMENTAÇÃO LARAVEL

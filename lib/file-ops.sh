@@ -8,6 +8,7 @@
 # Uso: source lib/file-ops.sh
 # Dependências: lib/core.sh
 # ============================================================================
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # Variáveis de controle de comportamento
 AIDEV_DRY_RUN="${AIDEV_DRY_RUN:-false}"

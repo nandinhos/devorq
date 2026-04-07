@@ -9,6 +9,7 @@
 # Uso: source lib/checkpoint-manager.sh
 # Dependencias: lib/context-monitor.sh
 # ============================================================================
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 # ============================================================================
 # CRIAR CHECKPOINT
