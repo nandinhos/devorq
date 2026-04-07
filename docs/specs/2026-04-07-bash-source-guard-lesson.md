@@ -1,9 +1,17 @@
 ---
 id: LESSON-2026-04-07-001
 title: Bash Source Guard (BASH_SOURCE vs 0)
+domain: arquitetura
 status: validated
-category: shell
-tags: [bash, sourcing, modularity]
+priority: medium
+owner: team-core
+created_at: 2026-04-07
+updated_at: 2026-04-07
+source: manual
+related_tasks: []
+related_files:
+  - lib/core.sh
+  - lib/workflow-commit.sh
 ---
 
 # Lição Aprendida: Guard de Sourcing em Shell

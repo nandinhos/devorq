@@ -1,11 +1,20 @@
 ---
 id: SPEC-2026-04-06-002
 title: "Correção de 15 Débitos Técnicos — Code Review DEVORQ"
-date: 2026-04-06
-status: rascunho
 domain: refactor
+status: draft
 priority: high
+owner: team-core
+created_at: 2026-04-06
 updated_at: 2026-04-06
+source: manual
+related_tasks: []
+related_files:
+  - lib/orchestration/flow.sh
+  - lib/mcp-health-check.sh
+  - lib/core.sh
+  - lib/mcp-fallback.sh
+  - bin/devorq
 ---
 
 # Spec — Correção de 15 Débitos Técnicos — Code Review DEVORQ

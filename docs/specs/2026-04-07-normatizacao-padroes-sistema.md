@@ -1,12 +1,14 @@
 ---
-id: 2026-04-07-001
+id: SPEC-2026-04-07-001
 title: Normatização de Commits e Padronização de Fluxo DEVORQ
+domain: operacao
 status: approved
+priority: high
+owner: team-core
 created_at: 2026-04-07
 updated_at: 2026-04-07
-author: Gemini CLI (Devorq Agent)
-domain: governance
-description: Estabelecer e aplicar o padrão canônico de commits e automação de integridade para o ecossistema DEVORQ.
+source: manual
+related_tasks: []
 related_files:
   - bin/devorq
   - lib/workflow-commit.sh
