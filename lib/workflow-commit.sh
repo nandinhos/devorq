@@ -92,11 +92,13 @@ detect_scope() {
 # ============================================================================
 sanitize_message() {
     local input="$1"
-    # Remover emojis comuns (range básico) e caracteres especiais de status
-    local clean=$(echo "$input" | tr -d '✅✓📦🚀💡⚠️⚡🛠️✨📝🔍🧪')
-    # Remover linhas de Co-Authored-By
-    clean=$(echo "$clean" | grep -v "Co-Authored-By")
-    echo "$clean"
+    # Remover emojis comuns via sed (caracteres não-ASCII ou range específico)
+    # Tentativa mais conservadora: remover apenas os emojis problemáticos conhecidos
+    local clean=$(echo "$input" | sed 's/[✅✓📦🚀💡⚠️⚡🛠️✨📝🔍🧪]//g')
+    # Remover linhas de Co-Authored-By (case insensitive)
+    clean=$(echo "$clean" | grep -iv "Co-Authored-By")
+    # Remover espaços extras no início/fim
+    echo "$clean" | xargs
 }
 
 # ============================================================================
