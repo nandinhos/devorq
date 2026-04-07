@@ -30,6 +30,6 @@ Estabelecer um protocolo de **Handoff Explícito** que force o Antigravity a ade
 - **Handoff Metadata:** Incluir a tag `target_llm: antigravity` no JSON de Handoff para disparar os alertas de contrato.
 
 ## 5. Critérios de Aceite
-- [ ] O Antigravity gera uma SPEC com Front Matter 100% canônico.
-- [ ] O Handoff para o Antigravity é validado sem "N/A" no índice de specs após o retorno.
-- [ ] Documentação de "Lições Aprendidas" sobre o comportamento do editor.
+- [x] O Antigravity gera uma SPEC com Front Matter 100% canônico. *(Evidência: LESSON-2026-04-07-002 — 11/11 campos obrigatórios presentes)*
+- [x] O Handoff para o Antigravity é validado sem "N/A" no índice de specs após o retorno. *(Evidência: `grep -c 'N/A' _index.md` = 0, 13/13 specs presentes)*
+- [x] Documentação de "Lições Aprendidas" sobre o comportamento do editor. *(Evidência: `docs/specs/2026-04-07-lesson-antigravity-behavior.md` — 6 seções documentadas)*

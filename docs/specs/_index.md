@@ -1,6 +1,6 @@
 # Índice de Specs DEVORQ
 
-_Gerado automaticamente em 2026-04-07 11:31:23_
+_Gerado automaticamente em 2026-04-07 11:43:26_
 
 ## Resumo por Status
 
