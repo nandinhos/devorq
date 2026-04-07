@@ -12,46 +12,6 @@ _MCP_MAX_RETRIES=3
 _MCP_RETRY_DELAY=1
 
 # ============================================================================
-# Funções Auxiliares (devem vir primeiro)
-# ============================================================================
-
-_mcp_fallback_log() {
-    local level="$1"
-    local mcp_name="$2"
-    local message="$3"
-    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    
-    echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >&2
-    
-    mkdir -p .devorq/logs 2>/dev/null || true
-    echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >> .devorq/logs/mcp-fallback.log 2>/dev/null || true
-}
-
-_mcp_fallback_update_status() {
-    local mcp_name="$1"
-    local status="$2"
-    local message="$3"
-    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    
-    mkdir -p .devorq/state 2>/dev/null || true
-    
-    local temp_file
-    temp_file=$(mktemp)
-    
-    if [ -f "$_MCP_FALLBACK_STATE_FILE" ]; then
-        jq --arg name "$mcp_name" \
-           --arg status "$status" \
-           --arg msg "$message" \
-           --arg ts "$timestamp" \
-           '.mcps[$name] = {"status": $status, "message": $msg, "last_check": $ts}' \
-           "$_MCP_FALLBACK_STATE_FILE" > "$temp_file" && mv "$temp_file" "$_MCP_FALLBACK_STATE_FILE"
-    else
-        echo "{\"updated_at\": \"$timestamp\", \"mcps\": {\"$mcp_name\": {\"status\": \"$status\", \"message\": \"$message\", \"last_check\": \"$timestamp\"}}}" > "$temp_file"
-        mv "$temp_file" "$_MCP_FALLBACK_STATE_FILE"
-    fi
-}
-
-# ============================================================================
 # mcp_fallback_check <mcp-name>
 # Verifica se MCP está instalado e responde
 # Faz retry 3x antes de marcar como down
@@ -90,17 +50,17 @@ mcp_fallback_check() {
         esac
         
         if [ $result -eq 0 ]; then
-            _mcp_fallback_log "INFO" "$mcp_name" "OK after $((retries + 1)) attempt(s)"
-            _mcp_fallback_update_status "$mcp_name" "connected" "OK"
+            mcp_fallback_log "INFO" "$mcp_name" "OK after $((retries + 1)) attempt(s)"
+            mcp_fallback_update_status "$mcp_name" "connected" "OK"
             return 0
         fi
-        
+
         retries=$((retries + 1))
         [ $retries -lt $_MCP_MAX_RETRIES ] && sleep $_MCP_RETRY_DELAY
     done
-    
-    _mcp_fallback_log "WARN" "$mcp_name" "FALLBACK ATIVADO após $_MCP_MAX_RETRIES tentativas"
-    _mcp_fallback_update_status "$mcp_name" "fallback" "Ativado automaticamente"
+
+    mcp_fallback_log "WARN" "$mcp_name" "FALLBACK ATIVADO após $_MCP_MAX_RETRIES tentativas"
+    mcp_fallback_update_status "$mcp_name" "fallback" "Ativado automaticamente"
     return 1
 }
 

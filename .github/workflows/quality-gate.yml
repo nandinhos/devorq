@@ -7,7 +7,27 @@ on:
     branches: [main]
 
 jobs:
+  quality-bash:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck and bats
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck bats
+
+      - name: Shellcheck — bin e lib
+        run: |
+          shellcheck bin/devorq
+          shellcheck lib/*.sh
+          shellcheck lib/**/*.sh 2>/dev/null || shellcheck lib/orchestration/*.sh
+
+      - name: Bats — suite completa
+        run: bats tests/
+
   detect:
+    needs: quality-bash
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

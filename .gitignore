@@ -58,6 +58,7 @@ node_modules/
 .devorq/state/specs/
 .devorq/state/session-audits/
 .devorq/.cache/
+.devorq/logs/
 
 # Serena (configuracao local)
 .serena/

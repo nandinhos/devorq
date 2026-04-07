@@ -31,23 +31,28 @@ log_success() { echo -e "${GREEN}✓${NC} $1"; }
 # =====================================================
 
 phase1_detection() {
-    log_step "FASE 1: DETECÇÃO DE CONTEXTO"
-    
-    local stack=$(detect_stack "$DEVORQ_ROOT")
-    log_info "Stack: $stack"
-    
-    local project_type=$(detect_project_type "$DEVORQ_ROOT")
-    log_info "Tipo: $project_type"
-    
-    local llm=$(detect_llm)
-    log_info "LLM: $llm"
-    
-    local runtime=$(detect_runtime)
-    log_info "Runtime: $runtime"
-    
-    local db=$(detect_database)
-    log_info "Banco: $db"
-    
+    log_step "FASE 1: DETECÇÃO DE CONTEXTO" >&2
+
+    local stack
+    stack=$(detect_stack "$DEVORQ_ROOT")
+    log_info "Stack: $stack" >&2
+
+    local project_type
+    project_type=$(detect_project_type "$DEVORQ_ROOT")
+    log_info "Tipo: $project_type" >&2
+
+    local llm
+    llm=$(detect_llm)
+    log_info "LLM: $llm" >&2
+
+    local runtime
+    runtime=$(detect_runtime)
+    log_info "Runtime: $runtime" >&2
+
+    local db
+    db=$(detect_database)
+    log_info "Banco: $db" >&2
+
     # Salvar no state
     mkdir -p "$DEVORQ_DIR/state"
     cat > "$DEVORQ_DIR/state/context.json" << EOF
@@ -60,7 +65,8 @@ phase1_detection() {
   "detected_at": "$(date -Iseconds)"
 }
 EOF
-    
+
+    # stdout: apenas payload estruturado para captura via $()
     echo "$stack:$project_type:$llm:$runtime:$db"
 }
 
@@ -296,12 +302,12 @@ phase5_contract() {
 2. [O que NÃO fazer 2]
 
 ## ARQUIVOS PERMITIDOS
-- `caminho/arquivo1.php`
-- `caminho/arquivo2.js`
+- \`caminho/arquivo1.php\`
+- \`caminho/arquivo2.js\`
 
 ## ARQUIVOS PROIBIDOS
-- `app/Models/User.php`
-- `config/auth.php`
+- \`app/Models/User.php\`
+- \`config/auth.php\`
 
 ## DONE_CRITERIA (Objetivos)
 - [ ] Critério verificável 1
@@ -402,8 +408,10 @@ run_full_flow() {
 }
 
 # =====================================================
-# MAIN
+# MAIN — só executa quando o script é chamado diretamente, não ao ser sourced
 # =====================================================
+
+[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
 
 case "${1:-}" in
     flow)

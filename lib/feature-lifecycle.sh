@@ -7,6 +7,13 @@
 # Comandos: aidev plan | aidev start | aidev done | aidev complete
 # ============================================================================
 
+# Carregar sed_inplace de core.sh se ainda não disponível
+if ! declare -f sed_inplace > /dev/null 2>&1; then
+    _LIFECYCLE_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # shellcheck source=lib/core.sh
+    source "$_LIFECYCLE_LIB_DIR/core.sh" 2>/dev/null || true
+fi
+
 _SCRIPT_DIR_FLC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Diretórios (relativos ao CWD do projeto)
@@ -319,7 +326,7 @@ _flc_update_features_readme_start() {
     # Adiciona ou atualiza a seção "Em Execucao"
     if grep -q "Em Execucao\|Em Execução" "$readme"; then
         # Adiciona linha na tabela existente
-        sed -i "/Em Execucao\|Em Execução/,/^---/{
+        sed_inplace "/Em Execucao\|Em Execução/,/^---/{
             /^\| [A-Za-z]/a\| $feature_title | [current/](../current/$feature_file) | $date_now |
         }" "$readme" 2>/dev/null || true
     fi
@@ -355,7 +362,7 @@ flc_sprint_done() {
         safe_sprint=$(echo "$sprint_id" | sed 's/[\/&]/\\&/g')
     fi
 
-    sed -i "/${safe_sprint}/s/Pendente\|Em andamento\|PROXIMO\|PRÓXIMO/Concluida ($date_now)/g" "$readme" 2>/dev/null || true
+    sed_inplace "/${safe_sprint}/s/Pendente\|Em andamento\|PROXIMO\|PRÓXIMO/Concluida ($date_now)/g" "$readme" 2>/dev/null || true
 
     print_success "Sprint '$sprint_id' marcada como concluida"
 
@@ -390,7 +397,7 @@ flc_sprint_done() {
     if [ -n "$next_sprint_action" ] && [ -f "$checkpoint_file" ]; then
         # Atualiza ou insere seção "Próxima Ação"
         if grep -q "Próxima Ação" "$checkpoint_file" 2>/dev/null; then
-            sed -i "/Próxima Ação/{ n; s/.*/- $next_sprint_action/; }" "$checkpoint_file" 2>/dev/null || true
+            sed_inplace "/Próxima Ação/{ n; s/.*/- $next_sprint_action/; }" "$checkpoint_file" 2>/dev/null || true
         else
             printf '\n## Próxima Ação\n- %s\n' "$next_sprint_action" >> "$checkpoint_file"
         fi
@@ -446,7 +453,7 @@ flc_feature_complete() {
     mkdir -p "$history_month_dir"
 
     # Atualiza status no arquivo antes de mover
-    sed -i "s/\*\*Status:\*\* .*/\*\*Status:\*\* Concluido/g" "$source_file" 2>/dev/null || true
+    sed_inplace "s/\*\*Status:\*\* .*/\*\*Status:\*\* Concluido/g" "$source_file" 2>/dev/null || true
 
     local dest_file="$history_month_dir/${feature_basename%.md}-${day}.md"
     mv "$source_file" "$dest_file"
@@ -537,7 +544,7 @@ _flc_update_features_readme_complete() {
     [ ! -f "$readme" ] && return 0
 
     # Remove da seção "Em Execucao" se estiver lá
-    sed -i "/Em Execucao\|Em Execução/,/^---/{
+    sed_inplace "/Em Execucao\|Em Execução/,/^---/{
         /$feature_basename/d
     }" "$readme" 2>/dev/null || true
 

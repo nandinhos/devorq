@@ -348,19 +348,41 @@ set_env_value() {
     local key="$1"
     local value="$2"
     local env_file="${3:-${CLI_INSTALL_PATH:-.}/.env}"
-    
+
+    # Validar chave: apenas A-Z, 0-9 e _ — evita regex injection em grep/sed
+    if [[ ! "$key" =~ ^[A-Z_][A-Z0-9_]*$ ]]; then
+        echo "ERRO: chave de env inválida: '$key' (use apenas A-Z, 0-9, _)" >&2
+        return 1
+    fi
+
     mkdir -p "$(dirname "$env_file")"
     [ ! -f "$env_file" ] && touch "$env_file"
-    
-    if grep -q "^$key=" "$env_file"; then
+
+    # Escapar valor para uso seguro no sed (metacaracteres de substituição)
+    local escaped_value
+    escaped_value=$(printf '%s' "$value" | sed 's/[&\\/]/\\&/g')
+
+    if grep -q "^${key}=" "$env_file"; then
         # Atualiza existente
-        sed -i "s|^$key=.*|$key=\"$value\"|" "$env_file"
+        sed -i "s|^${key}=.*|${key}=\"${escaped_value}\"|" "$env_file"
     else
-        # Adiciona novo
-        echo "$key=\"$value\"" >> "$env_file"
+        # Adiciona novo (usa printf para evitar interpretação de escape sequences)
+        printf '%s="%s"\n' "$key" "$value" >> "$env_file"
     fi
-    
-    # Exporta para a sessão atual também
+
+    # Exporta para a sessão atual
     export "$key"="$value"
     print_debug "Variável $key definida em $env_file"
+}
+
+# Helper cross-platform para substituição in-place
+# GNU sed usa: sed -i 'expr' file
+# BSD sed usa: sed -i '' 'expr' file
+# Uso: sed_inplace 'expr' file
+sed_inplace() {
+    if sed --version 2>/dev/null | grep -q GNU; then
+        sed -i "$@"
+    else
+        sed -i '' "$@"
+    fi
 }

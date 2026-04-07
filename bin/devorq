@@ -7,6 +7,13 @@ set -eEo pipefail
 DEVORQ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
 
+# Verificar dependência obrigatória: jq
+if ! command -v jq >/dev/null 2>&1; then
+    echo "ERRO: 'jq' é uma dependência obrigatória do DEVORQ." >&2
+    echo "Instale com: apt install jq  /  brew install jq  /  dnf install jq" >&2
+    exit 1
+fi
+
 # Cores
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -22,6 +29,7 @@ log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Carregar módulos
+source "$DEVORQ_ROOT/lib/core.sh"
 source "$DEVORQ_ROOT/lib/detect.sh"
 source "$DEVORQ_ROOT/lib/lessons.sh"
 source "$DEVORQ_ROOT/lib/handoff.sh"
@@ -310,13 +318,12 @@ spec_status() {
         # Verificar existência dos arquivos
         files_exist=0
         if [ "$related_files" -gt 0 ]; then
-            local file_list
-            file_list=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
-            for f in $file_list; do
+            while IFS= read -r f; do
+                [ -z "$f" ] && continue
                 if [ -e "$f" ] || [ -d "$f" ]; then
                     files_exist=$((files_exist + 1))
                 fi
-            done
+            done < <(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
         fi
         
         echo "## $spec_id: $spec_title"
@@ -368,22 +375,21 @@ spec_update() {
         
         files_exist=0
         if [ "$related_files" -gt 0 ]; then
-            local file_list
-            file_list=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
-            for f in $file_list; do
+            while IFS= read -r f; do
+                [ -z "$f" ] && continue
                 if [ -e "$f" ] || [ -d "$f" ]; then
                     files_exist=$((files_exist + 1))
                 fi
-            done
+            done < <(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
         fi
-        
+
         percent=0
         [ "$related_files" -gt 0 ] && percent=$((files_exist * 100 / related_files))
         
         if [ "$spec_status" = "approved" ] && [ "$related_files" -gt 0 ] && [ "$percent" -ge 50 ]; then
             log "Atualizando $spec_id: approved → implemented ($files_exist/$related_files = $percent%)"
-            sed -i "s/^status: approved$/status: implemented/" "$spec_file"
-            sed -i "s/^updated_at: [0-9-]*$/updated_at: $(date +%Y-%m-%d)/" "$spec_file"
+            sed_inplace "s/^status: approved$/status: implemented/" "$spec_file"
+            sed_inplace "s/^updated_at: [0-9-]*$/updated_at: $(date +%Y-%m-%d)/" "$spec_file"
             updated=$((updated + 1))
         fi
     done
@@ -546,8 +552,10 @@ cmd_upgrade() {
 }
 
 cmd_help() {
+    local _version
+    _version=$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]' || echo "?")
     cat << EOF
-DEVORQ v2.0 — Orquestrador de Desenvolvimento Multi-LLM
+DEVORQ v${_version} — Orquestrador de Desenvolvimento Multi-LLM
 
 Uso: devorq <comando> [opcoes]
 
@@ -577,7 +585,7 @@ Versionamento de skills:
   skill version <skill> <bump>  Criar snapshot de nova versão (patch|minor|major)
   skill versions <skill>        Listar versões disponíveis de uma skill
 
-Fluxo obrigatório (v2.0):
+Fluxo obrigatório:
   1. devorq init
   2. /scope-guard            [Gate 1: aprovar contrato]
   3. /pre-flight             [Gate 2: aprovar antes de implementar]
@@ -609,5 +617,6 @@ case "${1:-help}" in
     spec)        cmd_spec "$@" ;;
     upgrade)     cmd_upgrade "$@" ;;
     help|--help|-h) cmd_help ;;
+    --version|-v) cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]'; echo ;;
     *)           log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
 esac

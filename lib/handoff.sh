@@ -1,6 +1,13 @@
 #!/bin/bash
 # lib/handoff.sh — Geração e rastreamento de handoff multi-LLM
 
+# Carregar sed_inplace de core.sh se ainda não disponível
+if ! declare -f sed_inplace > /dev/null 2>&1; then
+    _HANDOFF_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # shellcheck source=lib/core.sh
+    source "$_HANDOFF_LIB_DIR/core.sh" 2>/dev/null || true
+fi
+
 # =====================================================
 # GERAR HANDOFF
 # =====================================================
@@ -159,7 +166,9 @@ handoff_list() {
     fi
 
     local count=0
-    for f in $(ls -t "$handoffs_dir"/handoff_*.md 2>/dev/null); do
+    # Glob nativo — sem word-splitting, sem quebra com espaços em nomes
+    for f in "$handoffs_dir"/handoff_*.md; do
+        [ -f "$f" ] || continue
         count=$((count + 1))
         local name
         name=$(basename "$f" .md)
@@ -190,9 +199,7 @@ handoff_update_status() {
     fi
 
     # Atualizar status no arquivo
-    if command -v sed > /dev/null 2>&1; then
-        sed -i "s/Status: [a-z_]*/Status: $new_status/" "$latest"
-        echo "Status do handoff atualizado: $new_status"
-        echo "Arquivo: $(basename "$latest")"
-    fi
+    sed_inplace "s/Status: [a-z_]*/Status: $new_status/" "$latest"
+    echo "Status do handoff atualizado: $new_status"
+    echo "Arquivo: $(basename "$latest")"
 }

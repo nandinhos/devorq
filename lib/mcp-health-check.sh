@@ -186,8 +186,15 @@ mcp_health_all() {
     
     # Detecta stack primeiro (para saber se Laravel é aplicável)
     local current_stack="generic"
-    if [ -f ".devorq/lib/stack-detector.sh" ]; then
-        source ".devorq/lib/stack-detector.sh"
+    local _stack_detector
+    _stack_detector="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib/stack-detector.sh"
+    # Fallback para DEVORQ_ROOT se disponível
+    if [ -f "${DEVORQ_ROOT:-}/lib/stack-detector.sh" ]; then
+        _stack_detector="${DEVORQ_ROOT}/lib/stack-detector.sh"
+    fi
+    if [ -f "$_stack_detector" ]; then
+        # shellcheck source=/dev/null
+        source "$_stack_detector"
         current_stack=$(stack_detect "." 2>/dev/null || echo "generic")
     fi
     
