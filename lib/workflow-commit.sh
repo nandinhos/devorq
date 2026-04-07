@@ -1,22 +1,22 @@
 #!/bin/bash
 # workflow-commit.sh - Workflow automatizado de commit DEVORQ
-# Uso: aidev commit "mensagem" [tipo]
-# Uso: aidev cp "mensagem"  (commit + push)
-[[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0
+# Uso: devorq commit "mensagem" [tipo]
+# Uso: devorq cp "mensagem"  (commit + push)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
+DEVORQ_ROOT="${DEVORQ_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
 
 # Detectar diretório do projeto
-if [[ "$AIDEV_ROOT" == *".devorq" ]]; then
-    PROJECT_ROOT="$(dirname "$AIDEV_ROOT")"
+if [[ "$DEVORQ_ROOT" == *".devorq" ]]; then
+    PROJECT_ROOT="$(dirname "$DEVORQ_ROOT")"
     cd "$PROJECT_ROOT"
 else
-    PROJECT_ROOT="$AIDEV_ROOT"
+    PROJECT_ROOT="$DEVORQ_ROOT"
 fi
 
-source "$AIDEV_ROOT/lib/activation-snapshot.sh"
-source "$AIDEV_ROOT/lib/workflow-sync.sh"
+source "$DEVORQ_ROOT/lib/activation-snapshot.sh"
+source "$DEVORQ_ROOT/lib/workflow-sync.sh"
 
 # ============================================================================
 # DETECTA TIPO DE COMMIT (CATEGORIA)
@@ -92,9 +92,14 @@ detect_scope() {
 # ============================================================================
 sanitize_message() {
     local input="$1"
-    # Remover emojis comuns via sed (caracteres não-ASCII ou range específico)
-    # Tentativa mais conservadora: remover apenas os emojis problemáticos conhecidos
-    local clean=$(echo "$input" | sed 's/[✅✓📦🚀💡⚠️⚡🛠️✨📝🔍🧪]//g')
+    # Remover caracteres não-ASCII (incluindo a maioria dos emojis) via perl (cross-platform robust)
+    # se perl não disponível, fallback para tr
+    local clean
+    if command -v perl >/dev/null 2>&1; then
+        clean=$(echo "$input" | perl -pe 's/[^\x00-\x7F]+//g')
+    else
+        clean=$(echo "$input" | tr -cd '\11\12\15\40-\176')
+    fi
     # Remover linhas de Co-Authored-By (case insensitive)
     clean=$(echo "$clean" | grep -iv "Co-Authored-By")
     # Remover espaços extras no início/fim
@@ -110,7 +115,7 @@ cmd_commit() {
     
     if [ -z "$raw_message" ]; then
         echo "Erro: Mensagem obrigatória"
-        echo "Uso: aidev commit \"mensagem\" [tipo]"
+        echo "Uso: devorq commit \"mensagem\" [tipo]"
         return 1
     fi
     

@@ -5,7 +5,7 @@
 # ============================================================================
 # Health check completo que verifica se MCPs estão respondendo
 # Não apenas se o comando existe, mas se realmente funcionam
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 # ============================================================================
 
 _MCP_HEALTH_TIMEOUT=5
@@ -246,7 +246,7 @@ mcp_health_suggest() {
     if [ -z "$CONTEXT7_API_KEY" ]; then
         echo "  context7:"
         echo "    1. Obtenha chave em: https://upstash.com/"
-        echo "    2. Execute: aidev mcp keys"
+        echo "    2. Execute: devorq mcp keys"
         echo "    3. Adicione ao ~/.bashrc: export CONTEXT7_API_KEY=\"sua-chave\""
         echo ""
     fi

@@ -5,7 +5,7 @@
 # ============================================================================
 # Princípio: MCPs são enhancement, não dependência
 # Se MCP não responde → fallback automático sem erro
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 # ============================================================================
 
 _MCP_FALLBACK_STATE_FILE="${MCP_FALLBACK_STATE_FILE:-.devorq/state/mcp-fallback-status.json}"
@@ -177,7 +177,7 @@ mcp_fallback_get_status() {
 
 # ============================================================================
 # mcp_fallback_hook_sprint_done
-# Hook para executar após 'aidev done'
+# Hook para executar após 'devorq done'
 # Verifica todos os MCPs e ativa fallback se necessário
 # ============================================================================
 mcp_fallback_hook_sprint_done() {

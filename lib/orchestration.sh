@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - Orchestration Module
+# DEVORQ V3 - Orchestration Module
 # ============================================================================
 # Sistema de orquestracao inteligente: estado de skills, protocolo de agentes,
 # sistema de confianca e validacao
 #
 # Uso: source lib/orchestration.sh
 # Dependencias: lib/core.sh, lib/file-ops.sh, lib/kb.sh (opcional)
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 if [ -f "${CLI_INSTALL_PATH:-.}/lib/metrics.sh" ]; then
     source "${CLI_INSTALL_PATH:-.}/lib/metrics.sh"
 elif [ -f "lib/metrics.sh" ]; then
@@ -461,7 +461,7 @@ confidence_log() {
 # Uso: try_with_recovery "npm install" "npm cache clean --force"
 try_with_recovery() {
     local command="$1"
-    local recovery_command="${2:-aidev doctor --fix}"
+    local recovery_command="${2:-devorq doctor --fix}"
     local max_attempts="${3:-2}"
     local attempt=1
 

@@ -1,23 +1,23 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - Core Module
+# DEVORQ V3 - Core Module
 # ============================================================================
 # Funções utilitárias de output e formatação
 # 
 # Uso: source lib/core.sh
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 # Lê a versão do SSOT (arquivo VERSION na raiz do projeto)
 # Protege contra re-definição quando o módulo é sourced múltiplas vezes
-if [ -z "${AIDEV_VERSION:-}" ]; then
-    if [ -f "$AIDEV_ROOT_DIR/VERSION" ]; then
-        AIDEV_VERSION=$(cat "$AIDEV_ROOT_DIR/VERSION" | tr -d '[:space:]')
+if [ -z "${DEVORQ_VERSION:-}" ]; then
+    if [ -f "$DEVORQ_ROOT_DIR/VERSION" ]; then
+        DEVORQ_VERSION=$(cat "$DEVORQ_ROOT_DIR/VERSION" | tr -d '[:space:]')
     else
-        AIDEV_VERSION="0.0.0-unknown"
+        DEVORQ_VERSION="0.0.0-unknown"
     fi
-    readonly AIDEV_VERSION
+    readonly DEVORQ_VERSION
 fi
 
 # ============================================================================
@@ -26,7 +26,7 @@ fi
 
 # Definição base para manter compatibilidade com echo e printf
 # Usamos strings ANSI-C ($'\e') para garantir o caractere ESC real
-if [[ -z "${NO_COLOR:-}" ]] && { [[ -u /dev/stdout ]] || [[ -t 1 ]] || [[ "${AIDEV_FORCE_COLOR:-false}" == "true" ]]; }; then
+if [[ -z "${NO_COLOR:-}" ]] && { [[ -u /dev/stdout ]] || [[ -t 1 ]] || [[ "${DEVORQ_FORCE_COLOR:-false}" == "true" ]]; }; then
     RED=$'\e[0;31m'
     GREEN=$'\e[0;32m'
     YELLOW=$'\e[1;33m'
@@ -50,8 +50,8 @@ fi
 # Contadores (inicializados em cada operação)
 # ============================================================================
 
-AIDEV_FILES_CREATED=0
-AIDEV_DIRS_CREATED=0
+DEVORQ_FILES_CREATED=0
+DEVORQ_DIRS_CREATED=0
 
 # ============================================================================
 # Funções de Output
@@ -60,8 +60,8 @@ AIDEV_DIRS_CREATED=0
 # Exibe header do script
 # Uso: print_header "Título Opcional"
 print_header() {
-    local title="${1:-AI Dev Superpowers}"
-    local version="${AIDEV_VERSION}"
+    local title="${1:-DEVORQ}"
+    local version="${DEVORQ_VERSION}"
     
     # 1. Conteúdo limpo (sem cores)
     local clean_content="  ${title} v${version}"
@@ -139,8 +139,8 @@ print_summary() {
     echo -e "${CYAN}╔════════════════════════════════════════════════════════════════╗${NC}"
     printf "${CYAN}║${NC}%b%*s${CYAN}║${NC}\n" "${display_title}" "$pad_len" ""
     echo -e "${CYAN}╠════════════════════════════════════════════════════════════════╣${NC}"
-    printf "${CYAN}║${NC}  Diretórios criados: %-42s${CYAN}║${NC}\n" "$AIDEV_DIRS_CREATED"
-    printf "${CYAN}║${NC}  Arquivos criados:   %-42s${CYAN}║${NC}\n" "$AIDEV_FILES_CREATED"
+    printf "${CYAN}║${NC}  Diretórios criados: %-42s${CYAN}║${NC}\n" "$DEVORQ_DIRS_CREATED"
+    printf "${CYAN}║${NC}  Arquivos criados:   %-42s${CYAN}║${NC}\n" "$DEVORQ_FILES_CREATED"
     printf "${CYAN}║${NC}  Modo:               %-42s${CYAN}║${NC}\n" "$mode"
     printf "${CYAN}║${NC}  Stack:              %-42s${CYAN}║${NC}\n" "$stack"
     echo -e "${CYAN}╚════════════════════════════════════════════════════════════════╝${NC}"
@@ -195,10 +195,10 @@ print_progress() {
 # Funções de Debug (opcional)
 # ============================================================================
 
-# Exibe mensagem de debug (somente se AIDEV_DEBUG=true)
+# Exibe mensagem de debug (somente se DEVORQ_DEBUG=true)
 # Uso: print_debug "Mensagem de debug"
 print_debug() {
-    if [ "${AIDEV_DEBUG:-false}" = "true" ]; then
+    if [ "${DEVORQ_DEBUG:-false}" = "true" ]; then
         echo -e "${MAGENTA}[DEBUG]${NC} $1" >&2
     fi
 }
@@ -210,20 +210,20 @@ print_debug() {
 # Reseta contadores para nova operação
 # Uso: reset_counters
 reset_counters() {
-    AIDEV_FILES_CREATED=0
-    AIDEV_DIRS_CREATED=0
+    DEVORQ_FILES_CREATED=0
+    DEVORQ_DIRS_CREATED=0
 }
 
 # Incrementa contador de arquivos
 # Uso: increment_files
 increment_files() {
-    ((AIDEV_FILES_CREATED++)) || true
+    ((DEVORQ_FILES_CREATED++)) || true
 }
 
 # Incrementa contador de diretórios
 # Uso: increment_dirs
 increment_dirs() {
-    ((AIDEV_DIRS_CREATED++)) || true
+    ((DEVORQ_DIRS_CREATED++)) || true
 }
 
 # Resolve caminhos dinamicamente (expande $HOME, ~, etc)

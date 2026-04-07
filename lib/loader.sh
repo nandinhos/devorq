@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - Module Loader
+# DEVORQ V3 - Module Loader
 # ============================================================================
 # Sistema de carregamento de módulos com verificação de dependências
 # 
 # Uso: source lib/loader.sh
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
-# Diretório base do aidev (detectado automaticamente)
-AIDEV_LIB_DIR="${AIDEV_LIB_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-AIDEV_ROOT_DIR="${AIDEV_ROOT_DIR:-$(dirname "$AIDEV_LIB_DIR")}"
+# Diretório base do devorq (detectado automaticamente)
+DEVORQ_LIB_DIR="${DEVORQ_LIB_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+DEVORQ_ROOT_DIR="${DEVORQ_ROOT_DIR:-$(dirname "$DEVORQ_LIB_DIR")}"
 
 # Módulos carregados
 declare -a LOADED_MODULES=()
@@ -24,7 +24,7 @@ declare -a LOADED_MODULES=()
 # Uso: load_module "core"
 load_module() {
     local module_name="$1"
-    local module_path="$AIDEV_LIB_DIR/${module_name}.sh"
+    local module_path="$DEVORQ_LIB_DIR/${module_name}.sh"
     
     # Verifica se já foi carregado
     if module_loaded "$module_name"; then
@@ -185,7 +185,7 @@ load_essential_modules() {
 load_all_modules() {
     local module_file
     
-    for module_file in "$AIDEV_LIB_DIR"/*.sh; do
+    for module_file in "$DEVORQ_LIB_DIR"/*.sh; do
         if [ -f "$module_file" ] && [ "$(basename "$module_file")" != "loader.sh" ]; then
             local module_name
             module_name=$(basename "$module_file" .sh)
@@ -212,7 +212,7 @@ list_loaded_modules() {
 list_available_modules() {
     local module_file
     
-    for module_file in "$AIDEV_LIB_DIR"/*.sh; do
+    for module_file in "$DEVORQ_LIB_DIR"/*.sh; do
         if [ -f "$module_file" ]; then
             basename "$module_file" .sh
         fi
@@ -230,14 +230,14 @@ count_loaded_modules() {
 # ============================================================================
 
 # Tenta carregar core e i18n se existirem
-if [ -f "$AIDEV_LIB_DIR/core.sh" ] && ! module_loaded "core"; then
+if [ -f "$DEVORQ_LIB_DIR/core.sh" ] && ! module_loaded "core"; then
     # shellcheck source=/dev/null
-    source "$AIDEV_LIB_DIR/core.sh"
+    source "$DEVORQ_LIB_DIR/core.sh"
     LOADED_MODULES+=("core")
 fi
 
-if [ -f "$AIDEV_LIB_DIR/i18n.sh" ] && ! module_loaded "i18n"; then
+if [ -f "$DEVORQ_LIB_DIR/i18n.sh" ] && ! module_loaded "i18n"; then
     # shellcheck source=/dev/null
-    source "$AIDEV_LIB_DIR/i18n.sh"
+    source "$DEVORQ_LIB_DIR/i18n.sh"
     LOADED_MODULES+=("i18n")
 fi

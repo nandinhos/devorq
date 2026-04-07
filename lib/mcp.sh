@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - MCP Module
+# DEVORQ V3 - MCP Module
 # ============================================================================
 # Model Context Protocol - Configuração de servidores MCP para AIs
 # 
 # Uso: source lib/mcp.sh
 # Dependências: lib/core.sh, lib/file-ops.sh, lib/detection.sh, lib/templates.sh
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 # ============================================================================
 
 # ============================================================================
-source "${AIDEV_ROOT_DIR:-$(dirname $(dirname ${BASH_SOURCE[0]}))}/lib/templates.sh"
+source "${DEVORQ_ROOT_DIR:-$(dirname $(dirname ${BASH_SOURCE[0]}))}/lib/templates.sh"
 
 # ============================================================================
 # Configuração de Servidores MCP
@@ -68,7 +68,7 @@ generate_claude_mcp_config() {
 
     # Captura servidores customizados ANTES de sobrescrever (protege em --force)
     local _custom_servers="{}"
-    if [ -f "$mcp_file" ] && [ "${AIDEV_FORCE:-false}" = "true" ]; then
+    if [ -f "$mcp_file" ] && [ "${DEVORQ_FORCE:-false}" = "true" ]; then
         _custom_servers=$(_mcp_extract_custom_servers "$mcp_file")
     fi
 
@@ -88,7 +88,7 @@ generate_claude_mcp_config() {
         export STACK="$stack"
 
         # Usa template se disponível, senão fallback para heredoc
-        local template_file="$AIDEV_ROOT_DIR/templates/mcp/claude-code.json.tmpl"
+        local template_file="$DEVORQ_ROOT_DIR/templates/mcp/claude-code.json.tmpl"
         if [ -f "$template_file" ]; then
             process_template "$template_file" "$mcp_file"
         else
@@ -420,7 +420,7 @@ mcp_status() {
         fi
     else
         print_warning "MCP não configurado"
-        print_info "Use 'aidev init' ou 'aidev mcp setup' para configurar"
+        print_info "Use 'devorq init' ou 'devorq mcp setup' para configurar"
     fi
 }
 
@@ -434,7 +434,7 @@ mcp_add_server() {
     
     if [ -z "$server_name" ] || [ -z "$command" ]; then
         print_error "Nome do servidor e comando são obrigatórios"
-        print_info "Uso: aidev mcp add <nome> --command <cmd> [--args <args>]"
+        print_info "Uso: devorq mcp add <nome> --command <cmd> [--args <args>]"
         return 1
     fi
     

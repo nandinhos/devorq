@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3.2 - Unified State Manager
+# DEVORQ V3.2 - Unified State Manager
 # ============================================================================
 # Sistema de estado unificado com operacoes ACID-like, checkpoints e rollback.
 #
 # Uso: source lib/state.sh
 # Dependencias: lib/core.sh, lib/file-ops.sh
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 # ============================================================================
 
 # Arquivo de estado unificado
@@ -66,7 +66,7 @@ state_init() {
         
         cat > "$STATE_FILE" << EOF
 {
-  "version": "${AIDEV_VERSION:-unknown}",
+  "version": "${DEVORQ_VERSION:-unknown}",
   "session": {
     "id": "$session_id",
     "started_at": "$timestamp",
@@ -577,7 +577,7 @@ state_migrate_legacy() {
 state_export() {
     state_ensure
     
-    echo "=== AI Dev Superpowers - Estado Unificado ==="
+    echo "=== DEVORQ - Estado Unificado ==="
     echo "Arquivo: $STATE_FILE"
     echo "Data: $(date)"
     echo ""

@@ -1,11 +1,11 @@
 #!/bin/bash
 # workflow-sync.sh - Hook de sincronização automática após tarefas
 # Sincroniza: activation_snapshot + unified.json
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
-source "$AIDEV_ROOT/lib/activation-snapshot.sh"
+DEVORQ_ROOT="${DEVORQ_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
+source "$DEVORQ_ROOT/lib/activation-snapshot.sh"
 
 # ============================================================================
 # VERIFICA SE HÁ CHANGES PARA COMMITAR ANTES DE SYNC
@@ -60,7 +60,7 @@ sync_workflow() {
         echo "⚠️  Alterações pendentes detectadas!"
         local change_type=$(detect_change_type)
         echo "   Tipo detectado: $change_type"
-        echo "   Execute 'aidev commit <msg>' antes de sincronizar"
+        echo "   Execute 'devorq commit <msg>' antes de sincronizar"
     fi
     
     # 2. Verificar unified.json (se precisa sync)
@@ -94,8 +94,8 @@ sync_workflow() {
 # SINCRONIZA unified.json COM ESTADO ATUAL
 # ============================================================================
 sync_unified_json() {
-    local unified_file="$AIDEV_ROOT/state/unified.json"
-    local framework_version="${AIDEV_VERSION:-$(cat "$AIDEV_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
+    local unified_file="$DEVORQ_ROOT/state/unified.json"
+    local framework_version="${DEVORQ_VERSION:-$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
     framework_version="${framework_version:-4.5.1}"
     local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
@@ -149,7 +149,7 @@ validate_conformity() {
     fi
     
     # 1.5 Verificar se há snapshots falsos na raiz
-    local root_state_dir="$AIDEV_ROOT/../state"
+    local root_state_dir="$DEVORQ_ROOT/../state"
     if [ -d "$root_state_dir" ]; then
         echo "❌ Snapshot espúrio detectado na raiz do projeto (diretório 'state/')"
         ((issues++))

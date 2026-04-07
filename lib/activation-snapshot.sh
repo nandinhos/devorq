@@ -1,11 +1,11 @@
 #!/bin/bash
 # activation-snapshot.sh - Gera snapshot de ativação para bootstrap rápido
 # Include: 6 commits recentes + issues + checksums
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
-STATE_DIR="$AIDEV_ROOT/state"
+DEVORQ_ROOT="${DEVORQ_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
+STATE_DIR="$DEVORQ_ROOT/state"
 SNAPSHOT_FILE="$STATE_DIR/activation_snapshot.json"
 
 # ============================================================================
@@ -148,9 +148,9 @@ get_checkpoint_info() {
 # GERA CHECKSUMS DOS ARQUIVOS DO FRAMEWORK
 # ============================================================================
 get_framework_checksums() {
-    local orchestrator="$AIDEV_ROOT/agents/orchestrator.md"
-    local skills_dir="$AIDEV_ROOT/skills"
-    local agents_dir="$AIDEV_ROOT/agents"
+    local orchestrator="$DEVORQ_ROOT/agents/orchestrator.md"
+    local skills_dir="$DEVORQ_ROOT/skills"
+    local agents_dir="$DEVORQ_ROOT/agents"
     
     local orch_hash="null"
     local skills_hash="null"
@@ -176,7 +176,7 @@ get_framework_checksums() {
 # ============================================================================
 check_unified_sync() {
     local unified_file="$STATE_DIR/unified.json"
-    local framework_version="${AIDEV_VERSION:-$(cat "$AIDEV_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
+    local framework_version="${DEVORQ_VERSION:-$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
     framework_version="${framework_version:-4.5.1}"
     
     if [ ! -f "$unified_file" ]; then
@@ -200,7 +200,7 @@ check_unified_sync() {
 generate_activation_snapshot() {
     local runtime=$(detect_runtime)
     local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local framework_version="${AIDEV_VERSION:-$(cat "$AIDEV_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
+    local framework_version="${DEVORQ_VERSION:-$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
     framework_version="${framework_version:-4.5.1}"
     
     # Obter informações do git

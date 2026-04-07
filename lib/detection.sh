@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - Detection Module
+# DEVORQ V3 - Detection Module
 # ============================================================================
 # Funções para detecção de stack, plataforma e contexto do projeto
 # 
 # Uso: source lib/detection.sh
 # Dependências: lib/core.sh
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 # ============================================================================
 
 # Variáveis de resultado de detecção

@@ -1,19 +1,19 @@
 #!/bin/bash
 # workflow-release.sh - Workflow completo de release
-# Uso: aidev release [patch|minor|major]
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+# Uso: devorq release [patch|minor|major]
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
-AIDEV_ROOT="${AIDEV_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+DEVORQ_ROOT="${DEVORQ_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
-# Detectar se AIDEV_ROOT aponta para .devorq ou para root
-if [[ "$AIDEV_ROOT" == *".devorq" ]]; then
-    PROJECT_ROOT="$(dirname "$AIDEV_ROOT")"
+# Detectar se DEVORQ_ROOT aponta para .devorq ou para root
+if [[ "$DEVORQ_ROOT" == *".devorq" ]]; then
+    PROJECT_ROOT="$(dirname "$DEVORQ_ROOT")"
 else
-    PROJECT_ROOT="$AIDEV_ROOT"
+    PROJECT_ROOT="$DEVORQ_ROOT"
 fi
-source "$AIDEV_ROOT/lib/activation-snapshot.sh"
-source "$AIDEV_ROOT/lib/workflow-sync.sh"
-source "$AIDEV_ROOT/lib/workflow-commit.sh"
+source "$DEVORQ_ROOT/lib/activation-snapshot.sh"
+source "$DEVORQ_ROOT/lib/workflow-sync.sh"
+source "$DEVORQ_ROOT/lib/workflow-commit.sh"
 
 # ============================================================================
 # DETECTA VERSÃO ATUAL
@@ -156,7 +156,7 @@ cmd_release() {
     echo "1. Verificando alterações..."
     if ! git diff-index --quiet HEAD -- 2>/dev/null; then
         echo "⚠️  Há alterações não commitadas!"
-        echo "   Execute 'aidev commit' primeiro ou use --force"
+        echo "   Execute 'devorq commit' primeiro ou use --force"
         read -p "Continuar mesmo assim? (s/n): " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Ss]$ ]]; then
@@ -274,8 +274,8 @@ cmd_pre_release_check() {
     # Próximos passos
     echo ""
     echo "Próximos passos:"
-    echo "  aidev release patch   # patch release (x.y.z+1)"
-    echo "  aidev release minor  # minor release (x.y+1.0)"
-    echo "  aidev release major  # major release (x+1.0.0)"
+    echo "  devorq release patch   # patch release (x.y.z+1)"
+    echo "  devorq release minor  # minor release (x.y+1.0)"
+    echo "  devorq release major  # major release (x+1.0.0)"
 }
 

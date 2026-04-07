@@ -1,7 +1,7 @@
 #!/bin/bash
 # DEVORQ - Módulo de Detecção
 # Funções de detecção de contexto, stack, LLM, tipo de projeto
-[[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 # =====================================================
 # DETECÇÃO DE LLM

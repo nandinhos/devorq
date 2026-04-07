@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - Checkpoint Manager Module
+# DEVORQ V3 - Checkpoint Manager Module
 # ============================================================================
 # Gestao de checkpoints automaticos para preservacao de contexto
 # Cria, lista, restaura e exporta checkpoints de sessao
@@ -9,7 +9,7 @@
 # Uso: source lib/checkpoint-manager.sh
 # Dependencias: lib/context-monitor.sh
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 # ============================================================================
 # CRIAR CHECKPOINT
@@ -244,7 +244,7 @@ ckpt_generate_restore_prompt() {
 
     cat << EOF
 ============================================================
-RESTAURAR CONTEXTO - AI Dev Superpowers
+RESTAURAR CONTEXTO - DEVORQ
 ============================================================
 
 Checkpoint: $ckpt_id
@@ -420,7 +420,7 @@ EOF
 - Arquivo: \`$ckpt_file\`
 
 ---
-*Gerado automaticamente por AI Dev Superpowers v$version*
+*Gerado automaticamente por DEVORQ v$version*
 EOF
 }
 

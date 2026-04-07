@@ -2,7 +2,7 @@
 # error-recovery.sh - Sistema de Recuperação Automática de Erros
 # Sprint 6.2: Advanced Error Recovery
 # Sugere correções automáticas baseadas na Knowledge Base
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 # ============================================================================
 # CONFIGURAÇÃO
@@ -34,7 +34,7 @@ declare -A ERROR_PATTERNS=(
     ["not found"]='Comando ou arquivo não encontrado|Verifique se está instalado e no PATH.|which <comando> para verificar'
     
     # Erros de dependência
-    ["No such module"]='Módulo não encontrado|Uma dependência está faltando.|aidev doctor --fix para reparar dependências'
+    ["No such module"]='Módulo não encontrado|Uma dependência está faltando.|devorq doctor --fix para reparar dependências'
     ["ModuleNotFoundError"]='Módulo Python não encontrado|Instale a dependência: pip install <módulo>'
     ["ImportError"]='Erro de importação|Biblioteca não encontrada.|Instale a biblioteca necessária.'
     
@@ -54,7 +54,7 @@ declare -A ERROR_PATTERNS=(
     ["timed out"]='Tempo esgotado|A conexão excedeu o tempo limite.|Tente novamente ou verifique a rede.'
     
     # Erros de disk space
-    ["No space left on device"]='Disco cheio|Não há espaço disponível no disco.|Libere espaço: aidev doctor --clean'
+    ["No space left on device"]='Disco cheio|Não há espaço disponível no disco.|Libere espaço: devorq doctor --clean'
     ["ENOSPC"]='Sem espaço em disco|O disco está cheio.|Remova arquivos desnecessários.'
     
     # Erros de variáveis
@@ -62,8 +62,8 @@ declare -A ERROR_PATTERNS=(
     ["parameter not set"]='Parâmetro não definido|Um parâmetro obrigatório não foi fornecido.|Passe todos os parâmetros necessários.'
     
     # Erros de AI Dev específicos
-    ["AIDEV_GLOBAL_DIR"]='Configuração de diretório global|Problema com AIDEV_GLOBAL_DIR.|Exporte AIDEV_GLOBAL_DIR=$HOME/.aidev-superpowers'
-    ["deploy_sync"]='Erro de sincronização|Falha na sincronização com instalação global.|Execute: aidev system sync'
+    ["DEVORQ_GLOBAL_DIR"]='Configuração de diretório global|Problema com DEVORQ_GLOBAL_DIR.|Exporte DEVORQ_GLOBAL_DIR=$HOME/.devorq'
+    ["deploy_sync"]='Erro de sincronização|Falha na sincronização com instalação global.|Execute: devorq system sync'
     ["checkpoint"]='Erro de checkpoint|Falha ao criar checkpoint.|Verifique permissões em .devorq/state/'
     ["version"]='Erro de versão|Problema com versionamento.|Verifique o arquivo VERSION: cat VERSION'
     
@@ -107,7 +107,7 @@ error_recovery_analyze() {
     if [ -z "$pattern_found" ]; then
         description="Erro não categorizado"
         solution="Análise manual necessária. Consulte os logs para mais detalhes."
-        fix_command="aidev doctor"
+        fix_command="devorq doctor"
         confidence="low"
         
         # Tenta identificar tipo geral
@@ -185,10 +185,10 @@ error_recovery_suggest() {
         echo "      $ $fix_cmd"
         echo ""
         echo "   Para executar automaticamente:"
-        echo "      aidev doctor --recovery"
+        echo "      devorq doctor --recovery"
     else
         echo "   🔍 Diagnóstico necessário:"
-        echo "      aidev doctor --verbose"
+        echo "      devorq doctor --verbose"
     fi
     
     echo ""
@@ -205,7 +205,7 @@ error_recovery_auto() {
     
     if [ "$actionable" != "true" ]; then
         echo "⚠️  Recovery automático não disponível para este erro."
-        echo "   Execute 'aidev doctor' para diagnóstico manual."
+        echo "   Execute 'devorq doctor' para diagnóstico manual."
         return 1
     fi
     
@@ -228,15 +228,15 @@ error_recovery_auto() {
             echo "❌ Comando não encontrado. Instalação manual necessária."
             return 1
             ;;
-        "AIDEV_GLOBAL_DIR")
-            echo "🔧 Configurando AIDEV_GLOBAL_DIR..."
-            export AIDEV_GLOBAL_DIR="$HOME/.aidev-superpowers"
-            echo "export AIDEV_GLOBAL_DIR=$HOME/.aidev-superpowers" >> ~/.bashrc
+        "DEVORQ_GLOBAL_DIR")
+            echo "🔧 Configurando DEVORQ_GLOBAL_DIR..."
+            export DEVORQ_GLOBAL_DIR="$HOME/.devorq"
+            echo "export DEVORQ_GLOBAL_DIR=$HOME/.devorq" >> ~/.bashrc
             echo "✅ Configuração adicionada ao .bashrc"
             ;;
         "deploy_sync")
             echo "🔧 Sincronizando instalação global..."
-            aidev system sync --force 2>/dev/null || echo "⚠️  Sincronização manual necessária"
+            devorq system sync --force 2>/dev/null || echo "⚠️  Sincronização manual necessária"
             ;;
         *)
             echo "⚠️  Recovery automático não implementado para: $pattern"
@@ -319,7 +319,7 @@ error_recovery_cli() {
             shift
             local error_msg="$*"
             if [ -z "$error_msg" ]; then
-                echo "Uso: aidev error-recovery analyze '<mensagem de erro>'"
+                echo "Uso: devorq error-recovery analyze '<mensagem de erro>'"
                 return 1
             fi
             error_recovery_analyze "$error_msg" 1 "manual"
@@ -336,9 +336,9 @@ error_recovery_cli() {
             error_recovery_handler 1 100 "teste" "Permission denied: arquivo.txt"
             ;;
         help|--help|-h)
-            echo "Error Recovery - AI Dev Superpowers"
+            echo "Error Recovery - DEVORQ"
             echo ""
-            echo "Uso: aidev error-recovery <comando>"
+            echo "Uso: devorq error-recovery <comando>"
             echo ""
             echo "Comandos:"
             echo "  analyze '<msg>'   Analisa uma mensagem de erro"

@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - Feature Lifecycle CLI Module
+# DEVORQ V3 - Feature Lifecycle CLI Module
 # ============================================================================
 # Automatiza transições do fluxo: backlog → features → current → history
-# Comandos: aidev plan | aidev start | aidev done | aidev complete
+# Comandos: devorq plan | devorq start | devorq done | devorq complete
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 # Carregar sed_inplace de core.sh se ainda não disponível
 if ! declare -f sed_inplace > /dev/null 2>&1; then
@@ -167,7 +167,7 @@ flc_feature_start() {
 
         if [ -n "$brainstorm_file" ] && [ -f "$brainstorm_file" ]; then
             print_error "Feature '$feature_id' esta em brainstorm/ e ainda nao foi promovida a features/."
-            print_info "Execute primeiro: aidev create-feature $feature_id"
+            print_info "Execute primeiro: devorq create-feature $feature_id"
             print_info "Isso converte o brainstorm em plano detalhado com sprints definidos."
             return 1
         fi
@@ -178,8 +178,8 @@ flc_feature_start() {
 
         if [ -n "$backlog_file" ] && [ -f "$backlog_file" ]; then
             print_error "Feature '$feature_id' esta em backlog/ e ainda nao passou por brainstorm."
-            print_info "Execute: aidev brainstorm $feature_id"
-            print_info "Ou refine diretamente: aidev refine $feature_id"
+            print_info "Execute: devorq brainstorm $feature_id"
+            print_info "Ou refine diretamente: devorq refine $feature_id"
             return 1
         fi
     fi
@@ -201,7 +201,7 @@ flc_feature_start() {
         local active_name
         active_name=$(find "$_FLC_CURRENT_DIR" -name "*.md" ! -name "README.md" 2>/dev/null | head -1 | xargs basename)
         print_error "Ja existe uma feature ativa em current/: $active_name"
-        print_info "Execute 'aidev complete <id>' para finalizar antes de iniciar nova."
+        print_info "Execute 'devorq complete <id>' para finalizar antes de iniciar nova."
         return 1
     fi
 
@@ -278,7 +278,7 @@ backlog/ (ideia) → features/ (planejada) → current/ (executando) → history
 **Regras:**
 - Apenas 1 feature ativa aqui por vez
 - Checkpoint atualizado a cada sprint concluida
-- Ao concluir: usar \`aidev complete <id>\`
+- Ao concluir: usar \`devorq complete <id>\`
 
 ---
 
@@ -306,7 +306,7 @@ GREEN → Implemente o mínimo para passar
 REFACTOR → Limpe sem quebrar os testes
 \`\`\`
 
-Ao concluir cada sprint: \`aidev done sprint-N "descricao"\`
+Ao concluir cada sprint: \`devorq done sprint-N "descricao"\`
 
 ---
 
@@ -379,7 +379,7 @@ flc_sprint_done() {
         local feature_file
         feature_file=$(find "$_FLC_CURRENT_DIR" -name "*.md" ! -name "README.md" 2>/dev/null | head -1 | xargs basename 2>/dev/null)
         local feature_id_next="${feature_file%.md}"
-        next_sprint_action="aidev complete $feature_id_next"
+        next_sprint_action="devorq complete $feature_id_next"
         print_info "Execute: $next_sprint_action"
     else
         # Extrai próximo sprint pendente da tabela do README
@@ -516,7 +516,7 @@ backlog/ (ideia) → features/ (planejada) → current/ (executando) → history
 **Regras:**
 - Apenas 1 feature ativa aqui por vez
 - Checkpoint atualizado a cada sprint concluida
-- Ao concluir: usar \`aidev complete <id>\`
+- Ao concluir: usar \`devorq complete <id>\`
 
 ---
 
@@ -524,7 +524,7 @@ backlog/ (ideia) → features/ (planejada) → current/ (executando) → history
 
 *Nenhuma feature em execucao no momento.*
 
-Use \`aidev start <feature-id>\` para iniciar uma feature de features/.
+Use \`devorq start <feature-id>\` para iniciar uma feature de features/.
 
 ---
 
@@ -688,7 +688,7 @@ _flc_history_index_rebuild() {
 # History — Índice Consolidado
 
 > Todas as features concluídas, organizadas por período.
-> Atualizado automaticamente por \`aidev complete\`.
+> Atualizado automaticamente por \`devorq complete\`.
 > Última atualização: $date_now
 
 ---
@@ -767,7 +767,7 @@ _flc_roadmap_rebuild() {
 | [History](history/) | Concluidos | Arquivado por data |
 
 **Fluxo:** backlog/ → features/ → current/ → history/YYYY-MM/
-**Comandos:** \`aidev plan\` | \`aidev start\` | \`aidev done\` | \`aidev complete\`
+**Comandos:** \`devorq plan\` | \`devorq start\` | \`devorq done\` | \`devorq complete\`
 
 ---
 
@@ -793,7 +793,7 @@ $(printf "$history_table")
 
 ---
 
-*Este arquivo e gerado automaticamente por \`aidev complete\`. Nao edite manualmente.*
+*Este arquivo e gerado automaticamente por \`devorq complete\`. Nao edite manualmente.*
 EOF
 
     _flc_log "INFO" "ROADMAP reconstruido: $roadmap"
@@ -846,7 +846,7 @@ flc_brainstorm_create() {
     fi
 
     if [ -z "$item_id" ]; then
-        print_error "Uso: aidev brainstorm <backlog-id> [--auto]"
+        print_error "Uso: devorq brainstorm <backlog-id> [--auto]"
         print_info "  --auto: cria template sem interação"
         print_info "Items no backlog:"
         ls "$_FLC_BACKLOG_DIR"/*.md 2>/dev/null | grep -v README | xargs -n1 basename 2>/dev/null | sed 's/\.md$//' | sed 's/^/  - /' || print_info "  (backlog vazio)"
@@ -928,11 +928,11 @@ ${problema:-<!-- Descreva o problema central que esta ideia resolve -->}
 
 ---
 
-*Gerado por \`aidev brainstorm\`. Promova com \`aidev create-feature $safe_name\`.*
+*Gerado por \`devorq brainstorm\`. Promova com \`devorq create-feature $safe_name\`.*
 EOF
 
     print_success "Brainstorm criado: $dest_file"
-    print_info "Edite o arquivo e depois execute: aidev create-feature $safe_name"
+    print_info "Edite o arquivo e depois execute: devorq create-feature $safe_name"
 
     _flc_stage_and_show "$dest_file"
 }
@@ -945,7 +945,7 @@ flc_feature_from_brainstorm() {
     local item_id="${1:-}"
 
     if [ -z "$item_id" ]; then
-        print_error "Uso: aidev create-feature <brainstorm-id>"
+        print_error "Uso: devorq create-feature <brainstorm-id>"
         print_info "Items em brainstorm:"
         ls "$_FLC_BRAINSTORM_DIR"/*.md 2>/dev/null | grep -v README | xargs -n1 basename 2>/dev/null | sed 's/\.md$//' | sed 's/^/  - /' || print_info "  (nenhum brainstorm)"
         return 1
@@ -960,7 +960,7 @@ flc_feature_from_brainstorm() {
 
     if [ -z "$source_file" ] || [ ! -f "$source_file" ]; then
         print_error "Brainstorm '$item_id' nao encontrado em brainstorm/"
-        print_info "Execute primeiro: aidev brainstorm <backlog-id>"
+        print_info "Execute primeiro: devorq brainstorm <backlog-id>"
         return 1
     fi
 
@@ -1025,11 +1025,11 @@ ${decisao:-<!-- Descreva o objetivo desta feature baseado no brainstorm -->}
 
 ---
 
-*Promovida de brainstorm por \`aidev create-feature\`. Inicie com \`aidev start $safe_name\`.*
+*Promovida de brainstorm por \`devorq create-feature\`. Inicie com \`devorq start $safe_name\`.*
 EOF
 
     print_success "Feature criada em features/: $dest_file"
-    print_info "Proximo passo: aidev start $safe_name"
+    print_info "Proximo passo: devorq start $safe_name"
 
     _flc_stage_and_show "$dest_file"
 }

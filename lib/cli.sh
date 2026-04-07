@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # ============================================================================
-# AI Dev Superpowers V3 - CLI Module
+# DEVORQ V3 - CLI Module
 # ============================================================================
 # Funções para parsing de argumentos e interface de linha de comando
 # 
 # Uso: source lib/cli.sh
 # Dependências: lib/core.sh
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 # Variáveis de CLI (defaults)
 CLI_INSTALL_PATH=""
@@ -20,9 +20,9 @@ CLI_LANGUAGE="pt-BR"
 CLI_AUTO_DETECT=true
 CLI_NO_MCP=false
 CLI_NO_HOOKS=false
-AIDEV_COMMAND=""
-AIDEV_FORCE=false
-AIDEV_DRY_RUN=false
+DEVORQ_COMMAND=""
+DEVORQ_FORCE=false
+DEVORQ_DRY_RUN=false
 
 # Sincroniza estado da sessão se disponível
 # Deve ser chamado após parse_args
@@ -68,8 +68,8 @@ show_help() {
     # ========================================================================
     # Correção de Alinhamento (ANSI-safe)
     # ------------------------------------------------------------------------
-    local version="${AIDEV_VERSION}"
-    local app_name="AI Dev Superpowers"
+    local version="${DEVORQ_VERSION}"
+    local app_name="DEVORQ"
     
     # 1. Conteúdo limpo (sem cores) para cálculo de largura
     local clean_content="  ${app_name} v${version}"
@@ -97,7 +97,7 @@ show_help() {
     echo ""
 
     echo -e "${C_YELLOW}Uso:${C_NC}"
-    echo -e "  aidev <comando> [opções]"
+    echo -e "  devorq <comando> [opções]"
     echo ""
 
     echo -e "${C_YELLOW}Comandos Principais:${C_NC}"
@@ -150,18 +150,18 @@ show_help() {
     echo ""
 
     echo -e "${C_GREY}Para ajuda específica de 'init':${C_NC}"
-    echo "  aidev init --help"
+    echo "  devorq init --help"
     echo ""
     
     echo -e "${C_YELLOW}Documentação:${C_NC}"
-    echo "  https://github.com/nandinhos/aidev-superpowers-v3"
+    echo "  https://github.com/nandinhos/devorq-v3"
     echo ""
 }
 
 # Exibe versão
 # Uso: show_version
 show_version() {
-    echo "aidev v${AIDEV_VERSION}"
+    echo "devorq v${DEVORQ_VERSION}"
 }
 
 # ============================================================================
@@ -183,9 +183,9 @@ parse_args() {
     CLI_NO_MCP=false
     CLI_NO_HOOKS=false
     CLI_ONBOARDING=false
-    AIDEV_COMMAND=""
-    AIDEV_FORCE=false
-    AIDEV_DRY_RUN=false
+    DEVORQ_COMMAND=""
+    DEVORQ_FORCE=false
+    DEVORQ_DRY_RUN=false
     
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -220,11 +220,11 @@ parse_args() {
                 shift
                 ;;
             --force)
-                AIDEV_FORCE=true
+                DEVORQ_FORCE=true
                 shift
                 ;;
             --dry-run)
-                AIDEV_DRY_RUN=true
+                DEVORQ_DRY_RUN=true
                 shift
                 ;;
             --no-mcp)
@@ -249,13 +249,13 @@ parse_args() {
                 ;;
             -*)
                 print_error "Opção desconhecida: $1"
-                echo "Use 'aidev --help' para ver opções disponíveis"
+                echo "Use 'devorq --help' para ver opções disponíveis"
                 exit 1
                 ;;
             *)
                 # Argumento posicional (subcomando ou path)
-                if [ -z "$AIDEV_COMMAND" ]; then
-                    AIDEV_COMMAND="$1"
+                if [ -z "$DEVORQ_COMMAND" ]; then
+                    DEVORQ_COMMAND="$1"
                 elif [ -z "$CLI_INSTALL_PATH" ]; then
                     CLI_INSTALL_PATH="$1"
                 fi
@@ -387,8 +387,8 @@ show_config_summary() {
     echo "  Auto-detectar: $CLI_AUTO_DETECT"
     echo "  MCP Engine:    $([ "$CLI_NO_MCP" = true ] && echo "Desabilitado" || echo "Habilitado")"
     echo "  Hooks:         $([ "$CLI_NO_HOOKS" = true ] && echo "Desabilitado" || echo "Habilitado")"
-    echo "  Force:         $AIDEV_FORCE"
-    echo "  Dry-run:       $AIDEV_DRY_RUN"
+    echo "  Force:         $DEVORQ_FORCE"
+    echo "  Dry-run:       $DEVORQ_DRY_RUN"
     
     if [ -n "$CLI_PRD_PATH" ]; then
         echo "  PRD:           $CLI_PRD_PATH"
