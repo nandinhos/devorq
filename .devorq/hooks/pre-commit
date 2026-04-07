@@ -1,0 +1,144 @@
+#!/bin/bash
+# DEVORQ - Git Hook: Pre-commit Quality Gate
+# Este hook executa validações antes de permitir commit
+
+set -eEo pipefail
+
+DEVORQ_ROOT="$(git rev-parse --show-toplevel)"
+DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
+
+echo "🔍 DEVORQ Pre-commit Hook"
+echo "======================="
+
+# Cores
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+pass() { echo -e "${GREEN}✓${NC} $1"; }
+fail() { echo -e "${RED}✗${NC} $1"; }
+warn() { echo -e "${YELLOW}⚠${NC} $1"; }
+
+# Detectar stack
+detect_stack() {
+    if [ -f "$DEVORQ_ROOT/composer.json" ]; then
+        if grep -q '"laravel/framework"' "$DEVORQ_ROOT/composer.json" 2>/dev/null; then
+            echo "laravel"
+            return
+        fi
+    fi
+    echo "generic"
+}
+
+STACK=$(detect_stack)
+
+# ============================================
+# VALIDAÇÕES
+# ============================================
+
+errors=0
+
+echo ""
+echo "1. Verificando alterações..."
+git diff --cached --name-only
+echo ""
+
+# 2. Verificar se há contrato de escopo
+echo "2. Verificando /scope-guard..."
+if [ -f "$DEVORQ_DIR/state/contracts/ct_latest.md" ]; then
+    pass "Contrato existe"
+else
+    warn "Nenhum contrato encontrado (recomendado: usar devorq flow antes)"
+fi
+
+# 3. Verificar lint (se disponível)
+echo "3. Verificando lint..."
+
+case "$STACK" in
+    "laravel")
+        if [ -f "$DEVORQ_ROOT/vendor/bin/pint" ]; then
+            if "$DEVORQ_ROOT/vendor/bin/pint" --test 2>/dev/null; then
+                pass "Pint OK"
+            else
+                fail "Pint falhou"
+                errors=$((errors + 1))
+            fi
+        elif command -v php &>/dev/null; then
+            pass "Pint não instalado (skip)"
+        fi
+        ;;
+    *)
+        pass "Lint não aplicável para $STACK"
+        ;;
+esac
+
+# 4. Verificar testes (se disponíveis)
+echo "4. Verificando testes..."
+
+case "$STACK" in
+    "laravel")
+        if [ -f "$DEVORQ_ROOT/vendor/bin/pest" ]; then
+            pass "Pest disponível (skip em pre-commit)"
+        elif [ -f "$DEVORQ_ROOT/vendor/bin/phpunit" ]; then
+            pass "PHPUnit disponível (skip em pre-commit)"
+        else
+            warn "Nenhum test runner encontrado"
+        fi
+        ;;
+    *)
+        pass "Testes não verificados para $STACK"
+        ;;
+esac
+
+# 5. Verificar arquivos proibidos
+echo "5. Verificando arquivos sensíveis..."
+
+PROHIBITED_FILES=(
+    ".env"
+    "*.key"
+    "*.pem"
+    "secrets.json"
+)
+
+for pattern in "${PROHIBITED_FILES[@]}"; do
+    if git diff --cached --name-only | grep -q "$pattern" 2>/dev/null; then
+        fail "Arquivo sensível detectado: $pattern"
+        warn "Remova do staging ou adicione ao .gitignore"
+        errors=$((errors + 1))
+    fi
+done
+
+echo ""
+
+# 6. Regenerar índice de specs (se specs foram alteradas)
+echo "6. Verificando specs..."
+
+if git diff --cached --name-only | grep -q '^docs/specs/.*\.md$' 2>/dev/null; then
+    if [ -x "$DEVORQ_ROOT/bin/spec-index" ]; then
+        "$DEVORQ_ROOT/bin/spec-index" >/dev/null 2>&1
+        git add "$DEVORQ_ROOT/docs/specs/_index.md"
+        pass "Índice de specs regenerado automaticamente"
+    else
+        warn "bin/spec-index não encontrado ou sem permissão de execução"
+    fi
+else
+    pass "Nenhuma spec alterada (skip)"
+fi
+
+echo ""
+
+# RESULTADO
+if [ $errors -gt 0 ]; then
+    fail "Pre-commit falhou com $errors erro(s)"
+    echo ""
+    echo "Para continuar sem validação:"
+    echo "  git commit --no-verify"
+    exit 1
+else
+    pass "Pre-commit validado"
+    echo ""
+    echo "💡 Dica: Execute 'devorq flow' para fluxo completo"
+fi
+
+exit 0
