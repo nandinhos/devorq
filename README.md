@@ -10,6 +10,8 @@
 
 **DEVORQ** é um meta-framework de orquestração de desenvolvimento assistido por LLM. Não é uma aplicação — é um framework de workflow integrado a projetos externos.
 
+![Fluxo de Trabalho DEVORQ v2.1](docs/images/fluxo.png)
+
 Implemented in **Bash puro** (4.0+), sem dependências externas além de `git` e `jq`.
 
 ### Pilares da v2.1
