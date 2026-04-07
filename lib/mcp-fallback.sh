@@ -5,7 +5,7 @@
 # ============================================================================
 # Princípio: MCPs são enhancement, não dependência
 # Se MCP não responde → fallback automático sem erro
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 # ============================================================================
 
 _MCP_FALLBACK_STATE_FILE="${MCP_FALLBACK_STATE_FILE:-.devorq/state/mcp-fallback-status.json}"

@@ -5,7 +5,7 @@
 # ============================================================================
 # Detecta qual stack o projeto utiliza (Laravel, Node, Python, etc)
 # Usado para ativar MCPs condicionais automaticamente
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 # ============================================================================
 
 _STACK_DETECTOR_REGISTRY="${_STACK_DETECTOR_REGISTRY:-.devorq/config/mcp-registry.yaml}"

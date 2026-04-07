@@ -1,6 +1,6 @@
-#!/bin/bash
 # lib/handoff.sh — Geração e rastreamento de handoff multi-LLM
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+# Proteção contra execução direta (opcional, mas o return 0 no source estava errado)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 
 # Carregar sed_inplace de core.sh se ainda não disponível
 if ! declare -f sed_inplace > /dev/null 2>&1; then

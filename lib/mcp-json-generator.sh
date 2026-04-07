@@ -5,7 +5,7 @@
 # ============================================================================
 # Gera configuração de MCPs automaticamente
 # Suporta merge com configuração existente
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 # ============================================================================
 
 _MCP_GENERATOR_REGISTRY="${MCP_GENERATOR_REGISTRY:-.devorq/config/mcp-registry.yaml}"

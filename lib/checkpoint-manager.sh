@@ -9,7 +9,7 @@
 # Uso: source lib/checkpoint-manager.sh
 # Dependencias: lib/context-monitor.sh
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 
 # ============================================================================
 # CRIAR CHECKPOINT

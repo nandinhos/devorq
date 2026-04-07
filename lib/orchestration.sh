@@ -8,7 +8,7 @@
 #
 # Uso: source lib/orchestration.sh
 # Dependencias: lib/core.sh, lib/file-ops.sh, lib/kb.sh (opcional)
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 if [ -f "${CLI_INSTALL_PATH:-.}/lib/metrics.sh" ]; then
     source "${CLI_INSTALL_PATH:-.}/lib/metrics.sh"
 elif [ -f "lib/metrics.sh" ]; then

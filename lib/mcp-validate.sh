@@ -1,7 +1,7 @@
 #!/bin/bash
 # DEVORQ - Módulo de Validação com MCP Context7
 # Valida implementação contra documentação oficial
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 
 # =====================================================
 # VALIDAR DOCUMENTAÇÃO LARAVEL

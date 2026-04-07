@@ -5,7 +5,7 @@
 # ============================================================================
 # Health check completo que verifica se MCPs estão respondendo
 # Não apenas se o comando existe, mas se realmente funcionam
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 # ============================================================================
 
 _MCP_HEALTH_TIMEOUT=5

@@ -7,7 +7,7 @@
 # 
 # Uso: source lib/core.sh
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 
 # Lê a versão do SSOT (arquivo VERSION na raiz do projeto)
 # Protege contra re-definição quando o módulo é sourced múltiplas vezes

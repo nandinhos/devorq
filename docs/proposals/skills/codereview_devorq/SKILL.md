@@ -8,21 +8,6 @@ description: >
   Esta skill auto-detecta a stack tecnológica e aplica regras específicas por linguagem/framework.
   Ative também quando o usuário mencionar: "débito técnico", "tech debt", "refatoração urgente",
   "código legado", "antes de ir pra produção", "o que você acha do meu código".
-triggers:
-  - "code-review"
-  - "/code-review"
-  - "revisar"
-  - "review"
-  - "auditoria de código"
-  - "análise de qualidade"
-globs:
-  - "**/*.php"
-  - "**/*.js"
-  - "**/*.ts"
-  - "**/*.py"
-  - "**/*.go"
-  - "composer.json"
-  - "package.json"
 ---
 
 # Code Review — Análise Técnica Profunda
@@ -317,11 +302,11 @@ TOTAL:        [N] itens acionáveis
 Sprint 1 (Esta semana — Crítico):
   • [item 1]
   • [item 2]
- 
+
 Sprint 2 (Próximas 2 semanas — Importante):
   • [item 3]
   • [item 4]
- 
+
 Sprint 3 (Backlog — Melhoria):
   • [item 5]
   • [item 6]

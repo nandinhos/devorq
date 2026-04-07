@@ -411,7 +411,8 @@ run_full_flow() {
 # MAIN — só executa quando o script é chamado diretamente, não ao ser sourced
 # =====================================================
 
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+# O flow.sh pode ser executado diretamente pelo bin/devorq ou incluído como biblioteca.
+# [[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0 # Antiga proteção removida para permitir modo híbrido
 
 case "${1:-}" in
     flow)

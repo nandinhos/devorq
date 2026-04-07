@@ -1,0 +1,102 @@
+1..99
+ok 1 E2E: 'devorq init' cria estrutura básica de diretórios e arquivos de estado
+ok 2 E2E: 'devorq flow' gera artefatos de brainstorm, contrato e spec em sequência
+ok 3 E2E: 'devorq handoff generate' produz arquivo de handoff válido
+ok 4 E2E: 'devorq skills' lista skills disponíveis quando o diretório existe
+ok 5 E2E: Bibliotecas não podem ser executadas diretamente
+ok 6 E2E: Carregamento de funções em subshells robusto (Bug 127)
+ok 7 flow: phase5_contract cria arquivo de contrato em state/contracts/
+ok 8 flow: phase5_contract retorna path do arquivo criado no stdout
+ok 9 flow: phase5_contract nao gera erro ao processar crases no conteudo
+ok 10 flow: phase1_detection stdout tem exatamente 5 campos separados por :
+ok 11 flow: phase1_detection nao emite texto de log no stdout
+ok 12 handoff: generate_handoff cria arquivo handoff_*.md em state/handoffs/
+ok 13 handoff: generate_handoff cria arquivo com secoes obrigatorias
+ok 14 handoff: handoff_update_status atualiza o campo Status no arquivo
+ok 15 handoff: handoff_update_status retorna erro quando nao ha handoff ativo
+ok 16 mcp_generator_create com stack laravel gera JSON com chave mcpServers
+ok 17 stack_get_mcps com input nodejs generico (sem nextjs) retorna resultado vazio
+ok 18 stack_get_mcps com input nodejs e next.config.js retorna resultado não vazio com nextjs-mcp
+ok 19 is_legacy com diretório tests contendo .js não retorna falso positivo
+ok 20 cmd_skills em diretório sem skills retorna mensagem limpa sem item fantasma
+ok 21 lib/state.sh: não referencia .aidev/
+ok 22 lib/orchestration.sh: não referencia .aidev/
+ok 23 lib/mcp-fallback.sh: não referencia .aidev/
+ok 24 lib/mcp.sh: não referencia .aidev/
+ok 25 lib/core.sh: não referencia .aidev/
+ok 26 lib/checkpoint-manager.sh: não referencia .aidev/
+ok 27 lib/detection.sh: não referencia .aidev/
+ok 28 lib/error-recovery.sh: não referencia .aidev/
+ok 29 lib/feature-lifecycle.sh: não referencia .aidev/
+ok 30 lib/mcp-health-check.sh: não referencia .aidev/
+ok 31 lib/mcp-json-generator.sh: não referencia .aidev/
+ok 32 lib/stack-detector.sh: não referencia .aidev/
+ok 33 lib/workflow-commit.sh: não referencia .aidev/
+ok 34 lib/workflow-release.sh: não referencia .aidev/
+ok 35 lib/workflow-sync.sh: não referencia .aidev/
+ok 36 skill brainstorming/SKILL.md: não referencia .aidev/
+ok 37 skill learned-lesson/SKILL.md: não referencia .aidev/
+ok 38 skill spec/SKILL.md existe
+ok 39 skill spec/SKILL.md contém trigger 'spec'
+not ok 40 skill spec/SKILL.md documenta saída em docs/spec/
+# (in test file tests/skills.bats, line 18)
+#   `grep -q "docs/spec/" "$DEVORQ_ROOT/.devorq/skills/spec/SKILL.md"' failed
+ok 41 skill spec/SKILL.md menciona gate de aprovação
+ok 42 skill spec/CHANGELOG.md existe
+ok 43 skill spec/VERSIONS/v1.0.0.md existe
+ok 44 skill break/SKILL.md existe
+ok 45 skill break/SKILL.md contém trigger 'break'
+ok 46 skill break/SKILL.md menciona protótipo antes de comportamento
+ok 47 skill break/SKILL.md documenta saída em .devorq/state/tasklist/
+ok 48 skill break/CHANGELOG.md existe
+ok 49 skill break/VERSIONS/v1.0.0.md existe
+ok 50 constraint-loader menciona busca de código reutilizável
+ok 51 constraint-loader tem Step 0 antes do Step 1
+ok 52 laravel-tall.md contém regra Thin Client
+ok 53 laravel-tall.md proíbe lógica de negócio no frontend
+ok 54 prompts/claude.md menciona /spec
+ok 55 prompts/claude.md menciona /break
+ok 56 lib/core.sh: sem erros ao fazer source
+ok 57 lib/orchestration.sh: sem erros ao fazer source
+ok 58 lib/state.sh: sem erros ao fazer source
+ok 59 lib/detect.sh: sem erros ao fazer source
+ok 60 lib/mcp-fallback.sh: sem erros ao fazer source
+ok 61 lib/checkpoint-manager.sh: sem erros ao fazer source
+ok 62 lib/error-recovery.sh: sem erros ao fazer source
+ok 63 lib/lessons.sh: sem erros ao fazer source
+ok 64 lib/handoff.sh: sem erros ao fazer source
+ok 65 1.1: phase5_contract gera arquivo sem executar crases como comandos
+ok 66 1.1: contrato gerado contém variavel user_intent interpolada corretamente
+ok 67 1.2: phase1_detection retorna apenas payload estruturado no stdout
+ok 68 1.2: cut -d: -f1 em saida de phase1_detection extrai stack sem texto de log
+ok 69 1.3: mcp_health_all nao falha silenciosamente quando stack-detector nao existe no path errado
+ok 70 1.3: mcp-health-check usa path derivado de DEVORQ_ROOT para stack-detector
+ok 71 2.1: set_env_value rejeita chave com caracteres invalidos
+ok 72 2.1: set_env_value rejeita chave com ponto
+ok 73 2.1: set_env_value aceita chave valida maiuscula e underscore
+ok 74 2.1: set_env_value com valor contendo pipe nao corrompe o .env
+ok 75 2.1: set_env_value com valor contendo barra nao corrompe o .env
+ok 76 2.2: load_env preserva valor com sinal de igual no conteudo
+ok 77 2.2: load_env preserva valor com espacos
+ok 78 2.2: load_env ignora comentarios
+ok 79 2.2: load_env ignora linhas vazias
+ok 80 2.3: .gitignore inclui .devorq/logs/
+ok 81 2.3: git check-ignore reconhece arquivo de log como ignorado
+ok 82 2.4: bin/devorq contem verificacao de jq no inicio
+ok 83 2.4: bin/devorq falha com mensagem clara quando jq nao esta disponivel
+ok 84 3.1: mcp-fallback nao contem funcao _mcp_fallback_log (privada duplicada)
+ok 85 3.1: mcp-fallback nao contem funcao _mcp_fallback_update_status (privada duplicada)
+ok 86 3.1: mcp-fallback ainda contem funcao publica mcp_fallback_log
+ok 87 3.1: mcp-fallback ainda contem funcao publica mcp_fallback_update_status
+ok 88 3.2: lib/core.sh exporta funcao sed_inplace
+ok 89 3.2: sed_inplace modifica arquivo no place corretamente
+ok 90 3.3: handoff.sh nao usa 'for f in $(ls' (word-splitting)
+ok 91 3.3: bin/devorq nao usa 'for f in $file_list' sem aspas
+ok 92 3.4: bin/devorq nao contem 'sed -i' direto (usa sed_inplace)
+ok 93 3.4: lib/handoff.sh nao contem 'sed -i' direto (usa sed_inplace)
+ok 94 3.5: lib/feature-lifecycle.sh nao contem 'sed -i' direto (usa sed_inplace)
+ok 95 3.6: arquivo VERSION contem 2.1
+ok 96 3.6: bin/devorq --version exibe 2.1
+ok 97 3.6: bin/devorq nao contem string hardcoded v2.0 ou 1.3.1
+ok 98 3.7: shellcheck lib/feature-lifecycle.sh sem erros de severity error
+ok 99 3.7: shellcheck lib/orchestration.sh sem erros de severity error

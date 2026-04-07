@@ -7,7 +7,7 @@
 # 
 # Uso: source lib/loader.sh
 # ============================================================================
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 
 # Diretório base do aidev (detectado automaticamente)
 AIDEV_LIB_DIR="${AIDEV_LIB_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"

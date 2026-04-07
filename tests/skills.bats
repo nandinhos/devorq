@@ -14,8 +14,8 @@ DEVORQ_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
     grep -q "\"spec\"" "$DEVORQ_ROOT/.devorq/skills/spec/SKILL.md"
 }
 
-@test "skill spec/SKILL.md documenta saída em docs/spec/" {
-    grep -q "docs/spec/" "$DEVORQ_ROOT/.devorq/skills/spec/SKILL.md"
+@test "skill spec/SKILL.md documenta saída em docs/specs/" {
+    grep -q "docs/specs/" "$DEVORQ_ROOT/.devorq/skills/spec/SKILL.md"
 }
 
 @test "skill spec/SKILL.md menciona gate de aprovação" {

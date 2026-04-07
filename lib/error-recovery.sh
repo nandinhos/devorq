@@ -2,7 +2,7 @@
 # error-recovery.sh - Sistema de Recuperação Automática de Erros
 # Sprint 6.2: Advanced Error Recovery
 # Sugere correções automáticas baseadas na Knowledge Base
-[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && { echo "Erro: Este arquivo deve ser incluído (sourced), não executado diretamente." >&2; exit 1; }
 
 # ============================================================================
 # CONFIGURAÇÃO
