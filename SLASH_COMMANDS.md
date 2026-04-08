@@ -129,6 +129,48 @@ Classifica:
 
 ---
 
+### /devorq-info
+**Ativa**: Exibir informações de estado e versão do projeto
+
+```
+/devorq-info
+```
+
+Inspeciona:
+- Versão core do orquestrador
+- Stack detectada e runtime ativo
+- Caminhos e configuração de ambiente
+
+---
+
+### /devorq-skills
+**Ativa**: Listagem de skills instaladas e versões
+
+```
+/devorq-skills
+```
+
+Exibe:
+- Todas as skills disponíveis no diretório .devorq/skills/
+- Versão atual de cada skill (baseada no CHANGELOG)
+- Recomendações de atualização de skills
+
+---
+
+### /devorq-upgrade
+**Ativa**: Atualização interativa do core DEVORQ
+
+```
+/devorq-upgrade
+```
+
+Comportamento:
+- **Interativo**: Solicita confirmação do usuário antes de agir
+- Atualiza binários em bin/ e bibliotecas em lib/
+- Recomenda atualização para melhorar performance e estabilidade
+
+---
+
 ## Formato de Resposta DEVORQ
 
 Ao ativar qualquer comando, o fluxo segue:
@@ -154,6 +196,9 @@ Ao ativar qualquer comando, o fluxo segue:
 
 | Comando | Descrição |
 |---------|-----------|
+| `/devorq-info` | Exibe estado, versão e contexto do projeto |
+| `/devorq-skills` | Lista todas as skills e suas versões |
+| `/devorq-upgrade` | Atualiza infraestrutura do orquestrador (Interativo) |
 | `/spec` | Gera contrato de escopo (FAZER/NÃO FAZER/ARQUIVOS) → Gate 1 |
 | `/break` | Decompõe tarefa complexa em subtarefas manejáveis |
 | `/pre-flight` | Valida tipos, enums e dependências → Gate 2 |

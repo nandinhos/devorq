@@ -51,6 +51,16 @@ Salvar resultado em `.devorq/state/context.json`:
 }
 ```
 
-## Step 5 — Resumo
+## Step 5 — Inspeção Final
 
-Apresentar resumo de inicialização e confirmar se o usuário quer prosseguir para `/spec`.
+Executar para validar o estado:
+```bash
+./bin/devorq info
+./bin/devorq skills
+```
+
+## Step 6 — Resumo e Ações
+
+1.  **Apresentar Resumo**: Mostre o contexto detectado e a lista de skills.
+2.  **Sugerir Upgrade**: Se a versão do orquestrador puder ser melhorada, sugira `/devorq-upgrade` para melhor performance.
+3.  **Próximo Passo**: Confirmar se o usuário quer prosseguir para `/spec`.
