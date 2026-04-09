@@ -2,11 +2,11 @@
 id: SPEC-2026-04-06-002
 title: "Correção de 15 Débitos Técnicos — Code Review DEVORQ"
 domain: refactor
-status: draft
+status: implemented
 priority: high
 owner: team-core
 created_at: 2026-04-06
-updated_at: 2026-04-06
+updated_at: 2026-04-07
 source: manual
 related_tasks: []
 related_files:
@@ -19,7 +19,7 @@ related_files:
 
 # Spec — Correção de 15 Débitos Técnicos — Code Review DEVORQ
 
-**Data**: 2026-04-06 | **Status**: rascunho
+**Data**: 2026-04-07 | **Status**: implementado
 
 ---
 

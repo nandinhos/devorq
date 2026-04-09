@@ -325,19 +325,31 @@ get_state_value() {
 # Uso: load_env ["path/to/.env"]
 load_env() {
     local env_file="${1:-${CLI_INSTALL_PATH:-.}/.env}"
-    
+
     if [ -f "$env_file" ]; then
         print_debug "Carregando variáveis de $env_file"
-        # Lê linha por linha ignorando comentários e exportando
-        while IFS='=' read -r key value || [ -n "$key" ]; do
-            # Remove whitespace
-            key=$(echo "$key" | xargs)
-            # Ignora linhas vazias ou comentários
-            [[ -z "$key" || "$key" =~ ^# ]] && continue
-            
+        # Lê linha por linha preservando valores com = e espaços
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Ignora comentários e linhas vazias
+            [[ "$line" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "${line// }" ]] && continue
+
+            # Extrai key (antes do primeiro =) e value (depois do primeiro =)
+            local key="${line%%=*}"
+            local value="${line#*=}"
+
+            # Remove espaços da key apenas
+            key="${key// /}"
+
+            # Ignora keys vazias
+            [[ -z "$key" ]] && continue
+
             # Remove aspas do valor se existirem
-            value=$(echo "$value" | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
-            
+            value="${value%\"}"
+            value="${value#\"}"
+            value="${value%\'}"
+            value="${value#\'}"
+
             export "$key"="$value"
         done < "$env_file"
     fi

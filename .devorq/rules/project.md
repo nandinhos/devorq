@@ -1,16 +1,14 @@
-# Regras do Projeto - Greenfield
+# Regras do Projeto - DEVORQ Framework
 
 ## Contexto
-- Tipo: Sistema novo
-- Stack: generic
-- Regra: Arquitetura primeiro, código depois
+- **Stack:** Bash Puro (4.0+) / Shell Scripting
+- **Padrão:** Orquestração Multi-LLM baseada em Gates de Aprovação.
 
-## Regras de Ouro
-1. TDD Obrigatório
-2. PRD como fonte de verdade
-3. Code Review antes de merge
+## Arquitetura Primeiro
+1. **Especificação:** Toda feature ou bugfix deve ser documentada em `docs/specs/` antes de qualquer código ser escrito.
+2. **Handoff:** Trocas de contexto entre chats devem usar o comando `handoff generate`.
 
-## Padrões
-- Estrutura: MVC padrão
-- Testes: Feature tests
-- Linter: Pint
+## Padrões de Código
+- **Shell:** `set -eEo pipefail`, trap para erros em `lib/error-recovery.sh`.
+- **Mensagens de Commit:** Convencionais em pt-BR (ex: `feat(lib): descrição`).
+- **Documentação:** Markdown com Front Matter YAML canônico.

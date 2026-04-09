@@ -2,7 +2,7 @@
 id: SPEC-2026-04-07-001
 title: Normatização de Commits e Padronização de Fluxo DEVORQ
 domain: operacao
-status: approved
+status: implemented
 priority: high
 owner: team-core
 created_at: 2026-04-07
@@ -13,8 +13,8 @@ related_files:
   - bin/devorq
   - lib/workflow-commit.sh
   - lib/detect.sh
-  - docs/specs/_index.md
   - .git/hooks/prepare-commit-msg
+  - tests/hooks.bats
 ---
 
 # Especificação: Normatização de Commits e Padrões

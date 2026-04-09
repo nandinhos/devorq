@@ -195,8 +195,13 @@ O projeto usa Context7 para validar contra documentação oficial. Configurado e
 ## Homologação Multi-LLM v2.1
 
 Ao receber o prompt de ativação de homologação, o Claude Code deve:
-1. Consultar [.devorq/state/handoffs/homologation_handoff.md](file:///home/nandodev/projects/devorq/.devorq/state/handoffs/homologation_handoff.md).
-2. Validar cada item do [docs/quality/checklist_conformidade.md](file:///home/nandodev/projects/devorq/docs/quality/checklist_conformidade.md).
+1. Consultar `.devorq/state/handoffs/homologation_handoff.md`.
+2. Validar cada item do `docs/quality/checklist_conformidade.md`.
 3. Reportar o estado de cada Slash Command, priorizando os logs de execução do `./bin/devorq`.
+
+## Governança Estrita (v2.1)
+Qualquer artefato de documentação deve aderir à `SPEC-2026-04-05-001`. O uso de pipes `|` no Front Matter é proibido. O status deve ser mantido em inglês técnico (ex: `in_progress`).
+
+---
 
 > Documentação completa: https://github.com/nandinhos/devorq

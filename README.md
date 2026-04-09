@@ -205,18 +205,30 @@ Isso impede a execução direta de bibliotecas de funções, garantindo que só 
 
 ## Automação no Pre-Commit
 
-O hook `pre-commit` executa automaticamente:
+O DEVORQ utiliza dois hooks automáticos:
+
+### pre-commit
+Executa automaticamente:
 
 1. Verificação de contrato `/scope-guard`
 2. Lint (stack-aware)
 3. Detecção de arquivos sensíveis (`.env`, `*.key`, `*.pem`)
 4. **Regeneração do índice de specs** — se qualquer `docs/specs/*.md` estiver no staging, `bin/spec-index` é executado e o `_index.md` atualizado é incluído no commit
 
-Para instalar o hook em projetos integrados:
+### prepare-commit-msg
+Valida e higieniza mensagens de commit:
+
+- **Bloqueia emojis** (🤖🚀✅❌⚠️💡🔥✨📝🎯🏆⭐💎🎉👏👍👎😅😂😍🥰😎🤔😮🙄😤🥺😱)
+- **Bloqueia Co-Authored-By** (case-insensitive)
+- **Permite** commits normais, merge e template
+
+Para instalar os hooks em projetos integrados:
 
 ```bash
 cp .devorq/hooks/pre-commit .git/hooks/pre-commit
+cp .devorq/hooks/prepare-commit-msg .git/hooks/prepare-commit-msg
 chmod +x .git/hooks/pre-commit
+chmod +x .git/hooks/prepare-commit-msg
 ```
 
 ---
