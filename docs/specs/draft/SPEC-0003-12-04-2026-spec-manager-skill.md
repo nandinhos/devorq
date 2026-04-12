@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-12-001
+id: SPEC-0003-12-04-2026-spec-manager-skill
 title: Estrutura de Specs com Subpastas por Status
 domain: arquitetura
 status: draft
@@ -10,7 +10,7 @@ author: Nando Dev
 related_files: ["bin/spec-index", "bin/devorq", ".devorq/hooks/pre-commit", "AGENTS.md", "GEMINI.md", "README.md"]
 ---
 
-# SPEC-2026-04-12-001: Estrutura de Specs com Subpastas por Status
+# SPEC-0003-12-04-2026-spec-manager-skill: Estrutura de Specs com Subpastas por Status
 
 ## Contexto
 
