@@ -310,6 +310,61 @@ cmd_spec_move() {
     echo "Moved: $filename -> $new_status/"
 }
 
+cmd_spec_new() {
+    local title="${*:3}"
+    
+    if [[ -z "$title" ]]; then
+        echo "Uso: devorq spec new \"título da spec\""
+        return 1
+    fi
+    
+    local next_num=$(spec_get_next_number)
+    local date=$(date "+%d-%m-%Y")
+    local slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | tr ' ' '-' | tr -s '-')
+    slug=${slug%%-}
+    slug=${slug##-}
+    
+    local filename="SPEC-${next_num}-${date}-${slug}.md"
+    local target_dir="$DEVORQ_ROOT/docs/specs/draft"
+    local target_file="$target_dir/$filename"
+    
+    mkdir -p "$target_dir"
+    
+    cat > "$target_file" << EOF
+---
+id: SPEC-${next_num}-${date}-${slug}
+title: ${title}
+domain: arquitetura
+status: draft
+created_at: ${date}
+updated_at: ${date}
+author: Nando Dev
+related_files: []
+---
+
+# ${title}
+
+## Contexto
+
+
+
+## Decisões
+
+
+
+## Critérios de Aceite
+
+- [ ] 
+
+EOF
+    
+    echo "Spec criada: $target_file"
+    
+    if [ -n "$EDITOR" ]; then
+        $EDITOR "$target_file"
+    fi
+}
+
 cmd_spec() {
     local subcmd="${2:-index}"
     case "$subcmd" in
@@ -341,9 +396,12 @@ cmd_spec() {
         move)
             cmd_spec_move "$3" "$4"
             ;;
+        new)
+            cmd_spec_new "$@"
+            ;;
         *)
             log_error "Subcomando desconhecido: $subcmd"
-            echo "Uso: devorq spec [index|list|status|update|move]"
+            echo "Uso: devorq spec [index|list|status|update|move|new]"
             return 1
             ;;
     esac
