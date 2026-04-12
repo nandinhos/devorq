@@ -417,6 +417,76 @@ cmd_spec_find() {
     fi
 }
 
+cmd_spec_validate() {
+    local fix=0
+    if [[ "$1" == "--fix" ]]; then
+        fix=1
+    fi
+    
+    local specs_dir="$DEVORQ_ROOT/docs/specs"
+    local issues=0
+    
+    echo "[DEVORQ] Validando padronização de specs..."
+    echo ""
+    
+    local new_pattern='^SPEC-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}-'
+    local old_pattern='^SPEC-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{3}$'
+    
+    shopt -s globstar
+    for f in "$specs_dir"/**/SPEC-*.md; do
+        [ -f "$f" ] || continue
+        [ "$(basename "$f")" == "_index.md" ] && continue
+        
+        local basename=$(basename "$f")
+        local relative_path="${f#$DEVORQ_ROOT/}"
+        
+        if [[ "$basename" =~ $old_pattern ]]; then
+            issues=$((issues + 1))
+            echo "⚠ $basename: Nomenclatura não padronizada"
+            echo "  → Era: SPEC-YYYY-MM-DD-NNN"
+            echo "  → Deve ser: SPEC-NNNN-DD-MM-AAAA-slug"
+            echo "  → Path: $relative_path"
+            echo ""
+        fi
+        
+        if ! grep -q "^id:" "$f" 2>/dev/null; then
+            issues=$((issues + 1))
+            echo "⚠ $basename: Front matter sem 'id'"
+            echo "  → Path: $relative_path"
+            echo ""
+        fi
+        
+        local status=$(grep -m1 "^status:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+        if [[ -n "$status" ]]; then
+            local expected_dir="$specs_dir/$status"
+            local actual_dir=$(dirname "$f")
+            if [[ "$expected_dir" != "$actual_dir" ]]; then
+                issues=$((issues + 1))
+                echo "⚠ $basename: Status '$status' não corresponde à pasta"
+                echo "  → Pasta atual: $actual_dir"
+                echo "  → Deveria estar em: $expected_dir"
+                echo ""
+            fi
+        fi
+    done
+    
+    echo ""
+    if [[ "$issues" -gt 0 ]]; then
+        echo "[DEVORQ] Encontrados $issues problema(s)"
+        if [[ "$fix" -eq 0 ]]; then
+            echo ""
+            echo "Para corrigir automaticamente, execute:"
+            echo "  ./bin/devorq spec validate --fix"
+        else
+            echo "[DEVORQ] Correção automática não implementada ainda"
+        fi
+        return 1
+    else
+        echo "[DEVORQ] Todas as specs padronizadas ✓"
+        return 0
+    fi
+}
+
 cmd_spec() {
     local subcmd="${2:-index}"
     case "$subcmd" in
@@ -454,9 +524,13 @@ cmd_spec() {
         find)
             cmd_spec_find "$3"
             ;;
+        validate)
+            shift 2
+            cmd_spec_validate "$@"
+            ;;
         *)
             log_error "Subcomando desconhecido: $subcmd"
-            echo "Uso: devorq spec [index|list|status|update|move|new|find]"
+            echo "Uso: devorq spec [index|list|status|update|move|new|find|validate]"
             return 1
             ;;
     esac
