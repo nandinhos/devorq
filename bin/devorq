@@ -531,9 +531,14 @@ cmd_upgrade() {
     # Garantir que bin/ e lib/ existam no destino
     mkdir -p "$target/bin" "$target/lib"
 
-    # Copiar CLI
+    # Copiar CLI (devorq principal primeiro, depois auxiliares)
     cp "$DEVORQ_ROOT/bin/devorq" "$target/bin/devorq"
-    cp "$DEVORQ_ROOT/bin/devorq-prompt" "$target/bin/devorq-prompt" 2>/dev/null || true
+    for f in "$DEVORQ_ROOT/bin/"*; do
+        fname=$(basename "$f")
+        if [ "$fname" != "devorq" ] && [ -f "$f" ]; then
+            cp "$f" "$target/bin/"
+        fi
+    done
     chmod +x "$target/bin/devorq"
 
     # Copiar apenas os módulos shell (não sobrescrever .py específicos do projeto)
