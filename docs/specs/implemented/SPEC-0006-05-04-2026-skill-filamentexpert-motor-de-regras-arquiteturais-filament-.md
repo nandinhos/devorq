@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-05-002
+id: SPEC-0006-05-04-2026
 title: Skill filament-expert — Motor de Regras Arquiteturais Filament v3+
 domain: arquitetura
 status: implemented

@@ -1,5 +1,5 @@
 ---
-id: TEST-FINAL-001
+id: SPEC-0020-12-04-2026
 title: Final Test Spec
 domain: test
 status: approved

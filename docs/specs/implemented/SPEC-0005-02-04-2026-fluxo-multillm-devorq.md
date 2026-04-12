@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-02-001
+id: SPEC-0005-02-04-2026
 title: Fluxo Multi-LLM DEVORQ
 domain: arquitetura
 status: implemented

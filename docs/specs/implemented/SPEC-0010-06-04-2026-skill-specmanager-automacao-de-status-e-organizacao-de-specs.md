@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-06-003
+id: SPEC-0010-06-04-2026
 title: Skill spec-manager — Automação de Status e Organização de Specs
 domain: arquitetura
 status: implemented

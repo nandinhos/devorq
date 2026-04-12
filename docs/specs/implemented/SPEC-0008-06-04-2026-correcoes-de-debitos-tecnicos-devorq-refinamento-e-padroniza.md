@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-06-001
+id: SPEC-0008-06-04-2026
 title: Correções de Débitos Técnicos DEVORQ — Refinamento e Padronização
 domain: refactor
 status: implemented

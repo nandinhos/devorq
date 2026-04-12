@@ -1,5 +1,5 @@
 ---
-id: LESSON-2026-04-07-001
+id: SPEC-0012-07-04-2026
 title: Bash Source Guard (BASH_SOURCE vs 0)
 domain: arquitetura
 status: validated

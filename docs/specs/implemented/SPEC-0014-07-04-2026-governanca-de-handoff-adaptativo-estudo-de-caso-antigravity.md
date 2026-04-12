@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-07-004
+id: SPEC-0014-07-04-2026
 title: Governança de Handoff Adaptativo — Estudo de Caso Antigravity
 domain: arquitetura
 status: implemented

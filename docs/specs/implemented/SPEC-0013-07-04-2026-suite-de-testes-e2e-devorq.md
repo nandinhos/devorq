@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-07-003
+id: SPEC-0013-07-04-2026
 title: Suíte de Testes E2E DEVORQ
 domain: arquitetura
 status: implemented

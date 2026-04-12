@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-05-001
+id: SPEC-0007-05-04-2026
 title: Governança de Specs DEVORQ — Front Matter Canônico + Índice Automático
 domain: arquitetura
 status: implemented
@@ -77,7 +77,7 @@ Resolve a dor atual: specs sem status legível, dois diretórios concorrentes (`
 **Front matter canônico (obrigatório):**
 ```yaml
 ---
-id: SPEC-YYYY-MM-DD-NNN
+id: SPEC-0007-05-04-2026
 title: Título legível da spec
 domain: arquitetura | importacao | ui_ux | refactor | seguranca | operacao
 status: draft | planning | approved | in_progress | implemented | validated | blocked | archived

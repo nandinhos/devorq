@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-07-001
+id: SPEC-0017-07-04-2026
 title: Normatização de Commits e Padronização de Fluxo DEVORQ
 domain: operacao
 status: implemented

@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-07-002
+id: SPEC-0011-07-04-2026
 title: Implementação do Bash Dual-Use Source Guard
 domain: arquitetura
 status: implemented

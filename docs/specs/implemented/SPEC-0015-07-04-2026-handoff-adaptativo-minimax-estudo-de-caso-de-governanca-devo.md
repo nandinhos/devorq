@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-07-005
+id: SPEC-0015-07-04-2026
 title: Handoff Adaptativo MiniMax — Estudo de Caso de Governanca DEVORQ v2.1
 domain: arquitetura
 status: implemented
@@ -53,7 +53,7 @@ Arquivo criado: `docs/specs/2026-04-07-estudo-caso-minimax.md`
 Front Matter aplicado (11 campos obrigatorios):
 ```yaml
 ---
-id: SPEC-2026-04-07-005
+id: SPEC-0015-07-04-2026
 title: Handoff Adaptativo MiniMax — Estudo de Caso de Governanca DEVORQ v2.1
 domain: arquitetura
 status: implemented

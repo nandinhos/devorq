@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-09-001
+id: SPEC-0018-09-04-2026
 title: Handoff Adaptativo Gemini CLI — Estudo de Caso de Governança DEVORQ v2.1
 domain: operacao
 status: draft

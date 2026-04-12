@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-03-31-001
+id: SPEC-0004-31-03-2026
 title: DEVORQ v2.0 — Evolução e Evolução de Arquitetura Multi-LLM
 domain: arquitetura
 status: implemented

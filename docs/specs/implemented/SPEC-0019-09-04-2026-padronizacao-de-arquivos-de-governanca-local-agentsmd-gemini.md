@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-09-002
+id: SPEC-0019-09-04-2026
 title: Padronização de Arquivos de Governança Local (AGENTS.md, GEMINI.md, CLAUDE.md)
 domain: arquitetura
 status: implemented
