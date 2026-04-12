@@ -1,10 +1,11 @@
 ---
-id: TEST-2026-04-12-001
-title: Test Status Change
-domain: test
+id: SPEC-TEST-INTEGRATION
+title: Teste de Integracao
+domain: arquitetura
 status: draft
-priority: medium
-created: 2026-04-12
+created_at: 2026-04-12
+updated_at: 2026-04-12
 ---
+# Teste
 
-# Test
+Spec de teste de integracao.
