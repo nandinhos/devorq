@@ -1,6 +1,6 @@
 # Índice de Specs DEVORQ
 
-_Gerado automaticamente em 2026-04-12 03:30:02_
+_Gerado automaticamente em 2026-04-12 03:34:04_
 
 ## Resumo por Status
 
@@ -15,7 +15,7 @@ _Gerado automaticamente em 2026-04-12 03:30:02_
 
 | Domínio | Total |
 |---------|-------|
-| arquitetura | 12 |
+| arquitetura | 13 |
 | refactor | 2 |
 | operacao | 2 |
 
@@ -39,7 +39,7 @@ _Gerado automaticamente em 2026-04-12 03:30:02_
 | SPEC-2026-04-07-005 | Handoff Adaptativo MiniMax — Estudo de Caso de Governanca DEVORQ v2.1 | arquitetura | implemented | critical | 2026-04-07 |
 | SPEC-2026-04-09-001 | Handoff Adaptativo Gemini CLI — Estudo de Caso de Governança DEVORQ v2.1 | operacao | draft | medium | 2026-04-09 |
 | SPEC-2026-04-09-002 | Padronização de Arquivos de Governança Local (AGENTS.md, GEMINI.md, CLAUDE.md) | arquitetura | implemented | high | 2026-04-09 |
-| TEST-2026-04-12-001 | Test Status Change | test | draft | medium | N/A |
+| SPEC-TEST-INTEGRATION | Teste de Integracao | arquitetura | draft | N/A | 2026-04-12 |
 | TEST-FINAL-001 | Final Test Spec | test | approved | medium | N/A |
 
 ## Alertas
