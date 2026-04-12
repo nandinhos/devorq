@@ -253,6 +253,48 @@ cmd_skills() {
 # SPECS
 # =====================================================
 
+cmd_spec_move() {
+    local id="$1"
+    local new_status="$2"
+    
+    if [[ -z "$id" || -z "$new_status" ]]; then
+        echo "Uso: devorq spec move <id> <novo_status>"
+        return 1
+    fi
+    
+    local valid_statuses=(backlog brainstorming draft approved planning in_progress validated implemented blocked archived)
+    local is_valid=0
+    for s in "${valid_statuses[@]}"; do
+        [[ "$s" == "$new_status" ]] && is_valid=1 && break
+    done
+    
+    if [[ "$is_valid" -eq 0 ]]; then
+        echo "Status inválido: $new_status"
+        echo "Válidos: ${valid_statuses[*]}"
+        return 1
+    fi
+    
+    local spec_file
+    spec_file=$(find "$DEVORQ_ROOT/docs/specs" -name "*.md" -type f -exec grep -l "^id: ${id}$" {} \; 2>/dev/null | head -1)
+    
+    if [[ -z "$spec_file" ]]; then
+        echo "Spec não encontrada: $id"
+        return 1
+    fi
+    
+    local filename=$(basename "$spec_file")
+    local target_dir="$DEVORQ_ROOT/docs/specs/$new_status"
+    local target_file="$target_dir/$filename"
+    
+    mkdir -p "$target_dir"
+    git -C "$DEVORQ_ROOT" mv "$spec_file" "$target_file"
+    
+    local today=$(date "+%Y-%m-%d")
+    sed -i "s/^updated_at:.*/updated_at: $today/" "$target_file"
+    
+    echo "Moved: $filename -> $new_status/"
+}
+
 cmd_spec() {
     local subcmd="${2:-index}"
     case "$subcmd" in
@@ -281,9 +323,12 @@ cmd_spec() {
         update)
             spec_update
             ;;
+        move)
+            cmd_spec_move "$3" "$4"
+            ;;
         *)
             log_error "Subcomando desconhecido: $subcmd"
-            echo "Uso: devorq spec [index|list|status|update]"
+            echo "Uso: devorq spec [index|list|status|update|move]"
             return 1
             ;;
     esac
