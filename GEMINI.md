@@ -5,7 +5,7 @@ Este arquivo contém instruções específicas para o Gemini CLI operar com segu
 ## Restrições Críticas (Bypass Guard)
 - **Front Matter:** Proibido o uso de qualquer campo YAML fora dos 11 campos canônicos definidos em `SPEC-2026-04-05-001`.
 - **Enums:** Use exclusivamente os valores definidos para `status` (ex: `draft`, `approved`) e `domain` (ex: `arquitetura`, `operacao`).
-- **Indexação:** Toda criação ou alteração de spec EXIGE a execução de `./bin/spec-index`.
+- **Indexação:** Toda criação ou alteração de spec EXIGE a execução de `./bin/spec-index`. Specs são automaticamente movidas para subpastas por status via hook pre-commit quando o front matter `status` muda.
 
 ## Comandos Permitidos (Shell)
 - Sempre use `chmod +x` antes de executar binários do `./bin/`.

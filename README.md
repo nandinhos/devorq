@@ -158,7 +158,17 @@ bin/
 
 docs/specs/          # Specs com front matter canônico
 ├── _index.md        # Índice automático (gerado por bin/spec-index)
-└── *.md             # Arquivos de spec
+├── backlog/         # Specs pendentes
+├── brainstorming/   # Specs em exploração
+├── draft/           # Specs em elaboração
+├── approved/        # Specs aprovadas
+├── planning/        # Specs em planejamento
+├── in_progress/     # Specs sendo implementadas
+├── validated/       # Specs validadas
+├── implemented/     # Specs implementadas
+├── blocked/         # Specs bloqueadas
+├── archived/        # Specs arquivadas
+└── *.md             # Arquivos de spec (raiz para compatibilidade)
 ```
 
 ---

@@ -24,3 +24,9 @@ O sucesso da orquestração reside na **adesão aos contratos**, não no modelo 
 
 ## Superpowers Spec Path Override
 O Superpowers Framework salva specs em `docs/superpowers/specs/` por padrão, mas **preferências do projeto sobrescrevem este padrão**. Este projeto usa `docs/specs/` como localização canônica de specs (conforme definido acima em Gate 1).
+
+## Estrutura de Subpastas por Status
+Specs são organizadas automaticamente em `docs/specs/` por status:
+- `backlog/`, `brainstorming/`, `draft/`, `approved/`, `planning/`, `in_progress/`, `validated/`, `implemented/`, `blocked/`, `archived/`
+- O hook pre-commit move specs para a subpasta correspondente quando o status muda no front matter.
+- Use `devorq spec move <id> <novo_status>` para mover manualmente.
