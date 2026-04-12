@@ -327,8 +327,8 @@ cmd_spec_move() {
     git -C "$DEVORQ_ROOT" mv "$spec_file" "$target_file"
     
     local today=$(date "+%Y-%m-%d")
-    sed -i "s/^updated_at:.*/updated_at: $today/" "$target_file"
-    sed -i "s/^status:.*/status: $new_status/" "$target_file"
+    sed_inplace "s/^updated_at:.*/updated_at: $today/" "$target_file"
+    sed_inplace "s/^status:.*/status: $new_status/" "$target_file"
     
     echo "Moved: $filename -> $new_status/"
 }
