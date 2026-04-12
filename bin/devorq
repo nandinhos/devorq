@@ -365,6 +365,58 @@ EOF
     fi
 }
 
+cmd_spec_find() {
+    local query="$*"
+    
+    if [[ -z "$query" ]]; then
+        echo "Uso: devorq spec find \"busca\""
+        return 1
+    fi
+    
+    local specs_dir="$DEVORQ_ROOT/docs/specs"
+    local found=0
+    local count=0
+    
+    echo "Resultados para: $query"
+    echo ""
+    
+    shopt -s globstar
+    for f in "$specs_dir"/**/SPEC-*.md; do
+        [ -f "$f" ] || continue
+        [ "$(basename "$f")" == "_index.md" ] && continue
+        
+        local basename=$(basename "$f")
+        
+        if echo "$basename" | grep -qi "$query"; then
+            found=1
+        elif grep -qi "$query" "$f" 2>/dev/null; then
+            found=1
+        fi
+        
+        if [[ "$found" -eq 1 ]]; then
+            count=$((count + 1))
+            local id=$(grep -m1 "^id:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+            local title=$(grep -m1 "^title:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+            local status=$(grep -m1 "^status:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+            local relative_path="${f#$DEVORQ_ROOT/}"
+            
+            echo "📄 $id"
+            echo "   Título: $title"
+            echo "   Status: $status"
+            echo "   Path: $relative_path"
+            echo ""
+            
+            found=0
+        fi
+    done
+    
+    if [[ "$count" -eq 0 ]]; then
+        echo "Nenhuma spec encontrada para: $query"
+    else
+        echo "Total: $count spec(s) encontrada(s)"
+    fi
+}
+
 cmd_spec() {
     local subcmd="${2:-index}"
     case "$subcmd" in
@@ -399,9 +451,12 @@ cmd_spec() {
         new)
             cmd_spec_new "$@"
             ;;
+        find)
+            cmd_spec_find "$3"
+            ;;
         *)
             log_error "Subcomando desconhecido: $subcmd"
-            echo "Uso: devorq spec [index|list|status|update|move|new]"
+            echo "Uso: devorq spec [index|list|status|update|move|new|find]"
             return 1
             ;;
     esac
