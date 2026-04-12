@@ -253,6 +253,20 @@ cmd_skills() {
 # SPECS
 # =====================================================
 
+spec_get_next_number() {
+    local specs_dir="$DEVORQ_ROOT/docs/specs"
+    local max_num=0
+    
+    shopt -s globstar
+    for f in "$specs_dir"/**/SPEC-*.md; do
+        [ -f "$f" ] || continue
+        local num=$(echo "$(basename "$f")" | sed -n 's/SPEC-\([0-9]\{4\}\).*/\1/p')
+        [ -n "$num" ] && [ $((10#${num#0})) -gt "$max_num" ] && max_num=$((10#${num#0}))
+    done
+    
+    printf "%04d" $((max_num + 1))
+}
+
 cmd_spec_move() {
     local id="$1"
     local new_status="$2"
