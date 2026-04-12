@@ -802,6 +802,19 @@ cmd_upgrade() {
     fi
 
     log_success "DEVORQ atualizado em: $target"
+
+    # Verificar padronização de specs (se docs/specs/ existir)
+    if [ -d "$target/docs/specs" ]; then
+        echo ""
+        if "$target/bin/devorq" spec validate >/dev/null 2>&1; then
+            echo "✓ Specs padronizadas"
+        else
+            echo "⚠ Specs fora do padrão detectadas"
+            echo "  Execute '$target/bin/devorq spec validate' para ver detalhes"
+            echo "  Execute '$target/bin/devorq spec validate --fix' para corrigir"
+        fi
+    fi
+
     log_info "Execute './bin/devorq init' no projeto para reinicializar o contexto."
 }
 
