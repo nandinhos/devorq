@@ -19,9 +19,9 @@ jobs:
 
       - name: Shellcheck — bin e lib
         run: |
-          shellcheck bin/devorq
-          shellcheck lib/*.sh
-          shellcheck lib/**/*.sh 2>/dev/null || shellcheck lib/orchestration/*.sh
+          shellcheck --severity=error bin/devorq
+          shellcheck --severity=error lib/*.sh
+          shellcheck --severity=error lib/**/*.sh 2>/dev/null || shellcheck --severity=error lib/orchestration/*.sh
 
       - name: Bats — suite completa
         run: bats tests/
