@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eEo pipefail
+shopt -s globstar 2>/dev/null || true
 
 SPECS_DIR="docs/specs"
 INDEX_FILE="$SPECS_DIR/_index.md"
@@ -29,10 +30,10 @@ generate_index() {
     echo ""
     echo "| Status | Total |"
     echo "|--------|-------|"
-    local status_enum=(draft planning approved in_progress implemented validated blocked archived)
+    local status_enum=(backlog brainstorming draft approved planning in_progress validated implemented blocked archived)
     for s in "${status_enum[@]}"; do
         local count
-        count=$({ grep -l "^status: ${s}$" "$SPECS_DIR"/*.md 2>/dev/null || true; } | wc -l | tr -d ' ')
+        count=$({ grep -l "^status: ${s}$" "$SPECS_DIR"/**/*.md 2>/dev/null || true; } | wc -l | tr -d ' ')
         [[ "$count" -gt 0 ]] && echo "| ${s} | ${count} |"
     done
     echo ""
@@ -44,7 +45,7 @@ generate_index() {
     local domain_enum=(arquitetura importacao ui_ux refactor seguranca operacao)
     for d in "${domain_enum[@]}"; do
         local count
-        count=$({ grep -l "^domain: ${d}$" "$SPECS_DIR"/*.md 2>/dev/null || true; } | wc -l | tr -d ' ')
+        count=$({ grep -l "^domain: ${d}$" "$SPECS_DIR"/**/*.md 2>/dev/null || true; } | wc -l | tr -d ' ')
         [[ "$count" -gt 0 ]] && echo "| ${d} | ${count} |"
     done
     echo ""
@@ -55,7 +56,7 @@ generate_index() {
     echo "|----|--------|---------|--------|------------|------------|"
     
     # Loop dinâmico sobre os arquivos de spec (exceto o próprio índice)
-    for spec_file in "$SPECS_DIR"/*.md; do
+    for spec_file in "$SPECS_DIR"/**/*.md; do
         [[ "$spec_file" == *"/_index.md" ]] && continue
         
         local id=$(extract_front_matter "$spec_file" "id")
