@@ -338,12 +338,13 @@ cmd_spec() {
 spec_status() {
     log "📊 Analisando status das specs..."
     echo ""
-    
+
     local specs_dir="$DEVORQ_ROOT/docs/specs"
     local count_approved=0
     local count_implemented=0
-    
-    for spec_file in "$specs_dir"/*.md; do
+
+    shopt -s globstar
+    for spec_file in "$specs_dir"/**/*.md; do
         [ -f "$spec_file" ] || continue
         [ "$(basename "$spec_file")" = "_index.md" ] && continue
         
@@ -404,11 +405,12 @@ spec_status() {
 spec_update() {
     log "🔄 Atualizando status das specs..."
     echo ""
-    
+
     local specs_dir="$DEVORQ_ROOT/docs/specs"
     local updated=0
-    
-    for spec_file in "$specs_dir"/*.md; do
+
+    shopt -s globstar
+    for spec_file in "$specs_dir"/**/*.md; do
         [ -f "$spec_file" ] || continue
         [ "$(basename "$spec_file")" = "_index.md" ] && continue
         
