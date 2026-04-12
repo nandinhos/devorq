@@ -291,6 +291,7 @@ cmd_spec_move() {
     
     local today=$(date "+%Y-%m-%d")
     sed -i "s/^updated_at:.*/updated_at: $today/" "$target_file"
+    sed -i "s/^status:.*/status: $new_status/" "$target_file"
     
     echo "Moved: $filename -> $new_status/"
 }
