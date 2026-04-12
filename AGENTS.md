@@ -21,3 +21,6 @@ O sucesso da orquestração reside na **adesão aos contratos**, não no modelo 
 1. Nenhuma implementação é iniciada sem uma SPEC aprovada em `docs/specs/` (Gate 1).
 2. Se o contrato estiver ambíguo, o Implementador deve parar e pedir clarificação ao Arquiteto.
 3. O "Handoff Adaptativo" garante que o contexto seja transferido de forma estruturada entre diferentes LLMs.
+
+## Superpowers Spec Path Override
+O Superpowers Framework salva specs em `docs/superpowers/specs/` por padrão, mas **preferências do projeto sobrescrevem este padrão**. Este projeto usa `docs/specs/` como localização canônica de specs (conforme definido acima em Gate 1).
