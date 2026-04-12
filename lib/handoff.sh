@@ -1,3 +1,4 @@
+#!/bin/bash
 # lib/handoff.sh — Geração e rastreamento de handoff multi-LLM
 # Proteção contra execução direta (opcional, mas o return 0 no source estava errado)
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
