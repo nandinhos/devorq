@@ -931,6 +931,112 @@ cmd_upgrade() {
     log_info "Execute './bin/devorq init' no projeto para reinicializar o contexto."
 }
 
+cmd_install() {
+    local target_dir="${1:-.}"
+    
+    if [ ! -d "$HOME/.devorq" ]; then
+        echo "ERRO: DEVORQ não instalado. Execute: curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash"
+        return 1
+    fi
+    
+    cd "$target_dir" || return 1
+    
+    echo "Atualizando DEVORQ..."
+    git -C "$HOME/.devorq" pull origin main
+    
+    local version=$(cat "$HOME/.devorq/VERSION")
+    
+    if [ -f ".devorq/version" ]; then
+        local installed_version=$(cat ".devorq/version")
+        if [ "$installed_version" = "$version" ]; then
+            echo "DEVORQ já está na versão $version (mais recente)"
+            return 0
+        fi
+        echo "Atualizando de $installed_version para $version..."
+    fi
+    
+    echo "Instalando no projeto..."
+    cp -r "$HOME/.devorq/bin/" .
+    cp -r "$HOME/.devorq/lib/" .
+    
+    mkdir -p .devorq
+    cp -r "$HOME/.devorq/.devorq/"* .devorq/
+    rm -rf .devorq/state .devorq/logs
+    mkdir -p .devorq/state .devorq/logs
+    
+    echo "$version" > .devorq/version
+    
+    if [ ! -d ".git" ]; then
+        git init
+        echo ".devorq/" >> .gitignore
+        echo ".devorq/logs/" >> .gitignore
+        echo "Projeto inicializado com git"
+    fi
+    
+    echo ""
+    echo "DEVORQ $version instalado em $(pwd)"
+    echo "Rode 'devorq activate' para ativar"
+}
+
+cmd_update() {
+    if [ ! -d "$HOME/.devorq" ]; then
+        echo "ERRO: DEVORQ não instalado localmente"
+        return 1
+    fi
+    
+    echo "Atualizando DEVORQ..."
+    git -C "$HOME/.devorq" pull origin main
+    
+    local version=$(cat "$HOME/.devorq/VERSION")
+    echo "DEVORQ atualizado para v$version"
+    
+    local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
+    if [ -d "$projects_dir" ]; then
+        echo "Atualizando projetos..."
+        for proj in "$projects_dir"/*; do
+            if [ -f "$proj/.devorq/version" ]; then
+                local proj_version=$(cat "$proj/.devorq/version" 2>/dev/null)
+                if [ "$proj_version" != "$version" ]; then
+                    echo "  - $(basename "$proj"): $proj_version → $version"
+                    cp -r "$HOME/.devorq/bin/" "$proj/"
+                    cp -r "$HOME/.devorq/lib/" "$proj/"
+                    cp -r "$HOME/.devorq/.devorq/"* "$proj/.devorq/"
+                    rm -rf "$proj/.devorq/state" "$proj/.devorq/logs"
+                    mkdir -p "$proj/.devorq/state" "$proj/.devorq/logs"
+                    echo "$version" > "$proj/.devorq/version"
+                fi
+            fi
+        done
+    fi
+    
+    echo "Concluído."
+}
+
+cmd_activate() {
+    if [ ! -d ".devorq" ]; then
+        echo "ERRO: DEVORQ não instalado neste projeto. Rode: devorq install"
+        return 1
+    fi
+    
+    export DEVORQ_ROOT="$(pwd)/.devorq"
+    export PATH="$(pwd)/bin:$PATH"
+    
+    if [ -f "$DEVORQ_ROOT/hooks/prepare-commit-msg" ]; then
+        chmod +x "$DEVORQ_ROOT/hooks/"*.sh 2>/dev/null || true
+    fi
+    
+    local version=$(cat ".devorq/version" 2>/dev/null || echo "?")
+    echo "DEVORQ ativado — v$version em $(pwd)"
+}
+
+cmd_deactivate() {
+    if [ -n "$DEVORQ_ROOT" ]; then
+        echo "DEVORQ desativado (era: $DEVORQ_ROOT)"
+    fi
+    unset DEVORQ_ROOT
+    export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "$(pwd)/bin" | tr '\n' ':' | sed 's/:$//')
+}
+
 cmd_help() {
     local _version
     _version=$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]' || echo "?")
@@ -996,6 +1102,10 @@ case "${1:-help}" in
     skill)       cmd_skill "$@" ;;
     spec)        cmd_spec "$@" ;;
     upgrade)     cmd_upgrade "$@" ;;
+    install)     cmd_install "$2" ;;
+    update)      cmd_update ;;
+    activate)    cmd_activate ;;
+    deactivate)  cmd_deactivate ;;
     help|--help|-h) cmd_help ;;
     --version|-v) cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]'; echo ;;
     *)           log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
