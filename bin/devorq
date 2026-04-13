@@ -4,7 +4,7 @@
 
 set -eEo pipefail
 
-DEVORQ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEVORQ_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
 
 # Verificar dependência obrigatória: jq
