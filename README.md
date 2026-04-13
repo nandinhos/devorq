@@ -28,16 +28,15 @@ Implemented in **Bash puro** (4.0+), sem dependências externas além de `git` e
 ## Quick Start
 
 ```bash
-# Clonar
-git clone https://github.com/nandinhos/devorq.git
+# Instalação do zero (via curl)
+curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash
 
-# Integrar ao projeto
-cp -r devorq/.devorq/ /caminho/do/projeto/
-cp -r devorq/bin/ /caminho/do/projeto/
-chmod +x /caminho/do/projeto/bin/devorq
+# Instalar em um projeto
+cd meu-projeto
+devorq install
 
-# Verificar contexto
-./bin/devorq context
+# Ativar no projeto
+devorq activate
 ```
 
 ---
@@ -49,6 +48,11 @@ chmod +x /caminho/do/projeto/bin/devorq
 ./bin/devorq context                     # Mostrar contexto detectado
 ./bin/devorq flow "<intenção>"           # Executar workflow completo
 ./bin/devorq checkpoint                  # Criar checkpoint
+
+./bin/devorq install                     # Instalar DEVORQ no projeto
+./bin/devorq update                      # Atualizar DEVORQ global e replicar nos projetos
+./bin/devorq activate                     # Ativar DEVORQ no projeto atual
+./bin/devorq deactivate                  # Desativar DEVORQ
 
 ./bin/devorq upgrade <path>              # Atualizar DEVORQ em outro projeto
 
@@ -228,14 +232,30 @@ docs/specs/          # Specs com front matter canônico
 
 ## Installation
 
-```bash
-# Via clone
-git clone https://github.com/nandinhos/devorq.git
+### Instalação do Zero
 
-# Para integrar ao projeto existente
-./bin/devorq upgrade /path/to/project
-# Isso copia bin/, lib/ e .devorq/, e valida padronização de specs
+```bash
+curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash
 ```
+
+Isso instala o DEVORQ em `~/.devorq/` e cria symlink em `~/.local/bin/devorq`.
+
+### Instalar em um Projeto
+
+```bash
+cd meu-projeto
+devorq install
+```
+
+Isso copia `bin/`, `lib/`, `.devorq/` para o projeto e cria `.devorq/version`.
+
+### Atualizar DEVORQ
+
+```bash
+devorq update
+```
+
+Atualiza a instalação global e replica nos projetos.
 
 ---
 

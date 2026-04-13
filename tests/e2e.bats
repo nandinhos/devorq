@@ -99,7 +99,7 @@ teardown() {
     run bash "$DEVORQ_ROOT/lib/core.sh"
     
     [ "$status" -eq 1 ]
-    [[ "$output" == *"Erro: Este arquivo deve ser incluído (sourced), não executado diretamente."* ]]
+    [[ "$output" == *"ERRO: Este módulo deve ser carregado via 'source', não executado"* ]]
 }
 
 @test "E2E: Carregamento de funções em subshells robusto (Bug 127)" {
