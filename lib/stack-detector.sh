@@ -17,28 +17,36 @@ _STACK_DETECTOR_REGISTRY="${_STACK_DETECTOR_REGISTRY:-.devorq/config/mcp-registr
 # ============================================================================
 stack_detect() {
     local project_dir="${1:-.}"
+
+    # Delegar para detection.sh (fonte canônica) se já carregado
+    if declare -f detect_stack > /dev/null 2>&1; then
+        local canonical
+        canonical=$(detect_stack "$project_dir")
+        # Mapear para nomenclatura de stack-detector (nodejs, laravel, python…)
+        case "$canonical" in
+            node|nextjs|react|vue) echo "nodejs"  ;;
+            filament|livewire)     echo "laravel"  ;;
+            django|fastapi)        echo "python"   ;;
+            *)                     echo "$canonical" ;;
+        esac
+        return
+    fi
+
+    # Fallback: lógica própria (detection.sh não carregado ainda)
     local detected="generic"
-    
-    # Laravel (verifica primeiro - mais específico)
     if _stack_check_laravel "$project_dir"; then
         detected="laravel"
-    # Node.js
     elif [ -f "$project_dir/package.json" ]; then
         detected="nodejs"
-    # Python
     elif [ -f "$project_dir/requirements.txt" ] || [ -f "$project_dir/pyproject.toml" ] || [ -f "$project_dir/poetry.lock" ]; then
         detected="python"
-    # Rust
     elif [ -f "$project_dir/Cargo.toml" ]; then
         detected="rust"
-    # Go
     elif [ -f "$project_dir/go.mod" ]; then
         detected="go"
-    # PHP genérico (sem framework)
     elif [ -f "$project_dir/composer.json" ]; then
         detected="php"
     fi
-    
     echo "$detected"
 }
 

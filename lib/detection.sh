@@ -687,15 +687,13 @@ detect_project_type() {
     local root="${1:-.}"
 
     # Indicadores de projeto em andamento (brownfield)
-    # Inclui projetos Bash/shell com bin/ e lib/ (ex: o próprio DEVORQ)
     local has_code=false
     [ -d "$root/vendor" ]       && has_code=true
     [ -d "$root/node_modules" ] && has_code=true
     [ -d "$root/app" ]          && has_code=true
     [ -d "$root/src" ]          && has_code=true
-    [ -d "$root/bin" ]          && has_code=true
-    [ -d "$root/lib" ]          && has_code=true
-    [ -f "$root/VERSION" ]      && has_code=true
+    # Projetos Bash/CLI estabelecidos: exige ambos bin/ + lib/ para evitar falso positivo
+    { [ -d "$root/bin" ] && [ -d "$root/lib" ]; } && has_code=true
 
     if [ "$has_code" = true ]; then
         echo "brownfield"
