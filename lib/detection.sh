@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - Detection Module
+# DEVORQ - Detection Module
 # ============================================================================
 # Funções para detecção de stack, plataforma e contexto do projeto
 # 
@@ -260,7 +260,6 @@ detect_runtime() {
     # 4. Fallback
     echo "terminal-cli"
 }
-export -f detect_runtime
 
 # ============================================================================
 # Detecção de Linguagem Principal
@@ -330,7 +329,8 @@ detect_project_name() {
     
     # Tenta extrair de package.json
     if [ -f "$path/package.json" ]; then
-        local name=$(grep -o '"name":[[:space:]]*"[^"]*"' "$path/package.json" 2>/dev/null | head -1 | sed 's/.*"name":[[:space:]]*"\([^"]*\)".*/\1/' || echo "")
+        local name
+        name=$(grep -o '"name":[[:space:]]*"[^"]*"' "$path/package.json" 2>/dev/null | head -1 | sed 's/.*"name":[[:space:]]*"\([^"]*\)".*/\1/' || echo "")
         if [ -n "$name" ]; then
             echo "$name"
             return
@@ -339,7 +339,8 @@ detect_project_name() {
     
     # Tenta extrair de composer.json
     if [ -f "$path/composer.json" ]; then
-        local name=$(grep -o '"name":[[:space:]]*"[^"]*"' "$path/composer.json" 2>/dev/null | head -1 | sed 's/.*"name":[[:space:]]*"\([^"]*\)".*/\1/' || echo "")
+        local name
+        name=$(grep -o '"name":[[:space:]]*"[^"]*"' "$path/composer.json" 2>/dev/null | head -1 | sed 's/.*"name":[[:space:]]*"\([^"]*\)".*/\1/' || echo "")
         if [ -n "$name" ]; then
             # Remove prefixo vendor/ se existir
             echo "${name##*/}"
@@ -349,7 +350,8 @@ detect_project_name() {
     
     # Tenta extrair de pyproject.toml
     if [ -f "$path/pyproject.toml" ]; then
-        local name=$(grep -o '^name[[:space:]]*=[[:space:]]*"[^"]*"' "$path/pyproject.toml" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/' || echo "")
+        local name
+        name=$(grep -o '^name[[:space:]]*=[[:space:]]*"[^"]*"' "$path/pyproject.toml" 2>/dev/null | sed 's/.*"\([^"]*\)".*/\1/' || echo "")
         if [ -n "$name" ]; then
             echo "$name"
             return
@@ -442,7 +444,8 @@ detect_maturity() {
 
     # Se não tem git, assume greenfield se tiver poucos arquivos
     if [ ! -d "$path/.git" ]; then
-        local file_count=$(find "$path" -maxdepth 2 -type f -not -path '*/.*' 2>/dev/null | wc -l)
+        local file_count
+        file_count=$(find "$path" -maxdepth 2 -type f -not -path '*/.*' 2>/dev/null | wc -l)
         if [ "$file_count" -lt 5 ]; then
             echo "greenfield"
             return
@@ -451,7 +454,8 @@ detect_maturity() {
     
     # Com git, verifica profundidade do histórico
     if command -v git >/dev/null 2>&1 && [ -d "$path/.git" ]; then
-         local commit_count=$(git -C "$path" rev-list --count HEAD 2>/dev/null || echo 0)
+         local commit_count
+         commit_count=$(git -C "$path" rev-list --count HEAD 2>/dev/null || echo 0)
          if [ "$commit_count" -lt 10 ]; then
              echo "greenfield"
              return
@@ -541,8 +545,10 @@ detect_framework_version() {
 detect_technical_debt() {
     local path="${1:-.}"
     
-    local todo_count=$(grep -r "TODO" "$path" 2>/dev/null | grep -v "node_modules" | grep -v "vendor" | wc -l)
-    local fixme_count=$(grep -r "FIXME" "$path" 2>/dev/null | grep -v "node_modules" | grep -v "vendor" | wc -l)
+    local todo_count
+    todo_count=$(grep -r "TODO" "$path" 2>/dev/null | grep -v "node_modules" | grep -v "vendor" | wc -l)
+    local fixme_count
+    fixme_count=$(grep -r "FIXME" "$path" 2>/dev/null | grep -v "node_modules" | grep -v "vendor" | wc -l)
     local has_tests=false
     
     if [ -d "$path/tests" ] || [ -d "$path/__tests__" ] || echo "$path"/*test* >/dev/null 2>&1; then
@@ -573,4 +579,220 @@ detect_mcp_compatibility() {
     
     echo "$mcps"
 }
-export -f detect_mcp_compatibility
+# ============================================================================
+# Funções migradas de detect.sh (compatibilidade)
+# ============================================================================
+
+# Detecção de qual LLM está ativo
+detect_llm() {
+    # 1. Variáveis de ambiente primárias (mais confiáveis)
+    if [[ "$CLAUDECODE" == "1" ]] || [[ "$CLAUDE_CODE_ENTRYPOINT" != "" ]]; then
+        echo "claude-code"
+        return
+    fi
+
+    if [[ "$OPENCODE" == "1" ]] || [[ "$OPENCODE" == "true" ]]; then
+        echo "opencode"
+        return
+    fi
+
+    if [[ "$ANTIGRAVITY" == "true" ]]; then
+        echo "antigravity"
+        return
+    fi
+
+    if [[ "$GEMINI" == "true" ]]; then
+        echo "gemini"
+        return
+    fi
+
+    if [[ "$CLAUDE" == "true" ]]; then
+        echo "claude"
+        return
+    fi
+
+    if [[ "$MINIMAX" == "true" ]]; then
+        echo "minimax"
+        return
+    fi
+
+    # 2. Detecção por $PROMPT (fallback para LLMs sem env dedicada)
+    if [[ "$PROMPT" == *"Antigravity"* ]]; then
+        echo "antigravity"
+        return
+    fi
+
+    if [[ "$PROMPT" == *"Gemini"* ]]; then
+        echo "gemini"
+        return
+    fi
+
+    if [[ "$PROMPT" == *"Claude"* ]]; then
+        echo "claude"
+        return
+    fi
+
+    if [[ "$PROMPT" == *"MiniMax"* ]]; then
+        echo "minimax"
+        return
+    fi
+
+    # 3. Verificar CLAUDE_TASK_ID (Claude Code)
+    if [ -n "$CLAUDE_TASK_ID" ]; then
+        if [[ "$CLAUDE_TASK_ID" == *"antigravity"* ]]; then
+            echo "antigravity"
+            return
+        fi
+    fi
+
+    # 4. Fallback: context.json persistido pelo devorq
+    local devorq_context="${DEVORQ_DIR:-.devorq}/state/context.json"
+    if [ -f "$devorq_context" ]; then
+        local llm_from_context
+        llm_from_context=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_context" 2>/dev/null | cut -d'"' -f4)
+        if [ -n "$llm_from_context" ] && [[ "$llm_from_context" != "unknown" ]]; then
+            echo "$llm_from_context"
+            return
+        fi
+    fi
+
+    # 5. Fallback: session.json
+    local devorq_session="${DEVORQ_DIR:-.devorq}/state/session.json"
+    if [ -f "$devorq_session" ]; then
+        local llm_from_session
+        llm_from_session=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_session" 2>/dev/null | head -1 | cut -d'"' -f4)
+        if [ -n "$llm_from_session" ] && [[ "$llm_from_session" != "unknown" ]]; then
+            echo "$llm_from_session"
+            return
+        fi
+    fi
+
+    # 6. Fallback: hostname do container (útil em Docker)
+    if [ -f "/.dockerenv" ]; then
+        if hostname | grep -qi "opencode"; then
+            echo "opencode"
+            return
+        fi
+        if hostname | grep -qi "claude"; then
+            echo "claude-code"
+            return
+        fi
+    fi
+
+    echo "unknown"
+}
+
+# Detecção de tipo de projeto (greenfield vs brownfield)
+detect_project_type() {
+    local root="${1:-.}"
+
+    # Indicadores de projeto em andamento (brownfield)
+    # Inclui projetos Bash/shell com bin/ e lib/ (ex: o próprio DEVORQ)
+    local has_code=false
+    [ -d "$root/vendor" ]       && has_code=true
+    [ -d "$root/node_modules" ] && has_code=true
+    [ -d "$root/app" ]          && has_code=true
+    [ -d "$root/src" ]          && has_code=true
+    [ -d "$root/bin" ]          && has_code=true
+    [ -d "$root/lib" ]          && has_code=true
+    [ -f "$root/VERSION" ]      && has_code=true
+
+    if [ "$has_code" = true ]; then
+        echo "brownfield"
+        return
+    fi
+
+    echo "greenfield"
+}
+
+# Detecção de banco de dados via .env
+detect_database() {
+    if [ -f ".env" ]; then
+        if grep -q "DB_CONNECTION=mysql" ".env" 2>/dev/null; then
+            echo "mysql"
+            return
+        fi
+        if grep -q "DB_CONNECTION=pgsql" ".env" 2>/dev/null; then
+            echo "postgres"
+            return
+        fi
+        if grep -q "DB_CONNECTION=sqlite" ".env" 2>/dev/null; then
+            echo "sqlite"
+            return
+        fi
+    fi
+    echo "unknown"
+}
+
+# Verifica se projeto é legado (sem testes ou Laravel < 9)
+is_legacy() {
+    local root="${1:-.}"
+
+    if [ -d "$root/tests" ]; then
+        local test_count
+        test_count=$(find "$root/tests" \( -name "*.php" -o -name "*.js" \) 2>/dev/null | wc -l)
+        if [ "$test_count" -eq 0 ]; then
+            return 0
+        fi
+    else
+        return 0
+    fi
+
+    if [ -f "$root/composer.json" ]; then
+        local version
+        version=$(grep -o '"laravel/framework": "[0-9]*' "$root/composer.json" | grep -o '[0-9]*' | head -1)
+        if [ -n "$version" ] && [ "$version" -lt 9 ] 2>/dev/null; then
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
+# Verifica existência de PRD no projeto
+check_prd_exists() {
+    local root="${1:-.}"
+
+    if [ -f "$root/docs/PRD.md" ]; then
+        echo "$root/docs/PRD.md"
+        return
+    fi
+
+    if [ -f "$root/PRD.md" ]; then
+        echo "$root/PRD.md"
+        return
+    fi
+
+    echo ""
+}
+
+# Verifica se cwd está num repositório git
+check_git_repo() {
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+# Retorna branch git atual
+get_git_branch() {
+    git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown"
+}
+
+# Exibe resumo do contexto detectado
+export_context() {
+    cat << EOF
+=== DEVORQ CONTEXT ===
+Stack: $(detect_stack)
+LLM: $(detect_llm)
+Tipo: $(detect_project_type)
+Runtime: $(detect_runtime)
+DB: $(detect_database)
+Git: $(get_git_branch)
+Legacy: $(is_legacy && echo "sim" || echo "não")
+PRD: $(check_prd_exists || echo "não encontrado")
+EOF
+}
+
+export -f detect_llm detect_stack detect_project_type detect_runtime detect_database is_legacy check_prd_exists get_git_branch export_context check_git_repo detect_mcp_compatibility detect_platform detect_language detect_project_name has_devorq_installed list_installed_agents list_installed_skills detect_maturity

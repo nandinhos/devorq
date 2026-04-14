@@ -39,9 +39,12 @@ increment_version() {
     local type="${2:-patch}"
     
     # Parse versão (x.y.z)
-    local major=$(echo "$current" | cut -d. -f1)
-    local minor=$(echo "$current" | cut -d. -f2)
-    local patch=$(echo "$current" | cut -d. -f3)
+    local major
+    major=$(echo "$current" | cut -d. -f1)
+    local minor
+    minor=$(echo "$current" | cut -d. -f2)
+    local patch
+    patch=$(echo "$current" | cut -d. -f3)
     
     case "$type" in
         major)
@@ -76,7 +79,8 @@ generate_changelog() {
     echo ""
     
     # Commits desde a última tag
-    local commits=$(git log --oneline "$current_tag"..HEAD 2>/dev/null || git log --oneline -20)
+    local commits
+    commits=$(git log --oneline "$current_tag"..HEAD 2>/dev/null || git log --oneline -20)
     
     if [ -z "$commits" ]; then
         echo "Nenhum commit desde $current_tag"
@@ -87,9 +91,12 @@ generate_changelog() {
     echo "## Mudanças"
     echo ""
     
-    local feats=$(echo "$commits" | grep "^.*feat" | sed 's/^[^ ]* //')
-    local fixes=$(echo "$commits" | grep "^.*fix" | sed 's/^[^ ]* //')
-    local others=$(echo "$commits" | grep -v "^.*feat" | grep -v "^.*fix" | sed 's/^[^ ]* //')
+    local feats
+    feats=$(echo "$commits" | grep "^.*feat" | sed 's/^[^ ]* //')
+    local fixes
+    fixes=$(echo "$commits" | grep "^.*fix" | sed 's/^[^ ]* //')
+    local others
+    others=$(echo "$commits" | grep -v "^.*feat" | grep -v "^.*fix" | sed 's/^[^ ]* //')
     
     if [ -n "$feats" ]; then
         echo "### Features"
@@ -167,18 +174,21 @@ cmd_release() {
     
     # 2. Obter versão atual
     echo "2. Obtendo versão atual..."
-    local current_version=$(get_current_version)
+    local current_version
+    current_version=$(get_current_version)
     echo "   Versão atual: $current_version"
     
     # 3. Calcular nova versão
     echo "3. Calculando nova versão..."
-    local new_version=$(increment_version "$current_version" "$release_type")
+    local new_version
+    new_version=$(increment_version "$current_version" "$release_type")
     echo "   Nova versão: $new_version"
     
     # 4. Gerar changelog
     echo "4. Gerando changelog..."
     local current_tag="v$current_version"
-    local changelog=$(generate_changelog "$current_tag" "$new_version")
+    local changelog
+    changelog=$(generate_changelog "$current_tag" "$new_version")
     echo "$changelog"
     
     # 5. Atualizar versão em arquivos
@@ -242,11 +252,13 @@ cmd_pre_release_check() {
     echo "=== Pré-Release Check ==="
     
     # Verificar versão
-    local version=$(get_current_version)
+    local version
+    version=$(get_current_version)
     echo "✅ Versão atual: $version"
     
     # Verificar tag
-    local tag_exists=$(git tag -l "v$version" 2>/dev/null)
+    local tag_exists
+    tag_exists=$(git tag -l "v$version" 2>/dev/null)
     if [ -n "$tag_exists" ]; then
         echo "⚠️  Tag v$version já existe"
     else

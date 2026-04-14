@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - MCP Module
+# DEVORQ - MCP Module
 # ============================================================================
 # Model Context Protocol - Configuração de servidores MCP para AIs
 # 
@@ -75,8 +75,10 @@ generate_claude_mcp_config() {
     if should_write_file "$mcp_file"; then
         # Normalização de path para portabilidade
         local display_path="$project_path"
-        local abs_project_path=$(cd "$project_path" 2>/dev/null && pwd || echo "$project_path")
-        local abs_pwd=$(pwd)
+        local abs_project_path
+        abs_project_path=$(cd "$project_path" 2>/dev/null && pwd || echo "$project_path")
+        local abs_pwd
+        abs_pwd=$(pwd)
         if [ "$abs_project_path" = "$abs_pwd" ]; then
             display_path="."
         fi

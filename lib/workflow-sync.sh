@@ -12,7 +12,8 @@ source "$DEVORQ_ROOT/lib/activation-snapshot.sh"
 # ============================================================================
 has_pending_changes() {
     if [ -d ".git" ]; then
-        local status=$(git status --porcelain 2>/dev/null)
+        local status
+        status=$(git status --porcelain 2>/dev/null)
         [ -n "$status" ]
         return $?
     fi
@@ -23,12 +24,16 @@ has_pending_changes() {
 # DETECTA TIPO DE ALTERAÇÃO
 # ============================================================================
 detect_change_type() {
-    local status=$(git status --porcelain 2>/dev/null)
+    local status
+    status=$(git status --porcelain 2>/dev/null)
     
     # Contar por tipo
-    local added=$(echo "$status" | grep "^??" | wc -l)
-    local modified=$(echo "$status" | grep "^.M" | wc -l)
-    local deleted=$(echo "$status" | grep "^.D" | wc -l)
+    local added
+    added=$(echo "$status" | grep "^??" | wc -l)
+    local modified
+    modified=$(echo "$status" | grep "^.M" | wc -l)
+    local deleted
+    deleted=$(echo "$status" | grep "^.D" | wc -l)
     
     # Detectar tipo baseado em padrões de arquivo
     if echo "$status" | grep -q "test"; then
@@ -58,14 +63,17 @@ sync_workflow() {
     # 1. Verificar se há changes pendentes (se for auto-sync)
     if [ "$task_name" = "auto" ] && has_pending_changes; then
         echo "⚠️  Alterações pendentes detectadas!"
-        local change_type=$(detect_change_type)
+        local change_type
+        change_type=$(detect_change_type)
         echo "   Tipo detectado: $change_type"
         echo "   Execute 'devorq commit <msg>' antes de sincronizar"
     fi
     
     # 2. Verificar unified.json (se precisa sync)
-    local unified_status=$(check_unified_sync)
-    local needs_sync=$(echo "$unified_status" | jq -r '.needs_sync')
+    local unified_status
+    unified_status=$(check_unified_sync)
+    local needs_sync
+    needs_sync=$(echo "$unified_status" | jq -r '.needs_sync')
     
     if [ "$needs_sync" = "true" ] || [ "$force" = "true" ]; then
         echo "⚠️  unified.json desatualizado, sincronizando..."
@@ -97,11 +105,13 @@ sync_unified_json() {
     local unified_file="$DEVORQ_ROOT/state/unified.json"
     local framework_version="${DEVORQ_VERSION:-$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
     framework_version="${framework_version:-4.5.1}"
-    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
     if [ -f "$unified_file" ]; then
         # Atualizar versão e timestamp
-        local updated=$(jq --arg version "$framework_version" \
+        local updated
+        updated=$(jq --arg version "$framework_version" \
                           --arg timestamp "$timestamp" \
                           '.version = $version | .session.last_activity = $timestamp' \
                           "$unified_file")
@@ -156,8 +166,10 @@ validate_conformity() {
     fi
     
     # 2. Verificar unified.json
-    local unified_status=$(check_unified_sync)
-    local needs_sync=$(echo "$unified_status" | jq -r '.needs_sync')
+    local unified_status
+    unified_status=$(check_unified_sync)
+    local needs_sync
+    needs_sync=$(echo "$unified_status" | jq -r '.needs_sync')
     if [ "$needs_sync" = "false" ]; then
         echo "✅ unified.json sincronizado"
     else
@@ -174,7 +186,8 @@ validate_conformity() {
     fi
     
     # 4. Verificar branch
-    local branch=$(git branch --show-current 2>/dev/null)
+    local branch
+    branch=$(git branch --show-current 2>/dev/null)
     echo "✅ Branch: $branch"
     
     echo ""

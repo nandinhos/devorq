@@ -4,38 +4,22 @@
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Carrega detection.sh se detect_llm não estiver disponível
+if ! declare -f detect_llm > /dev/null 2>&1; then
+    source "$_SCRIPT_DIR/detection.sh" 2>/dev/null || true
+fi
 DEVORQ_ROOT="${DEVORQ_ROOT:-$(cd "$_SCRIPT_DIR/.." && pwd)}"
 STATE_DIR="$DEVORQ_ROOT/state"
 SNAPSHOT_FILE="$STATE_DIR/activation_snapshot.json"
-
-# ============================================================================
-# DETECÇÃO DE RUNTIME LLM
-# ============================================================================
-detect_runtime() {
-    # OpenCode
-    [[ "$OPENCODE" == "1" ]] && echo "opencode" && return
-    
-    # Claude Code
-    [[ "$CLAUDE_CODE" == "1" ]] && echo "claude_code" && return
-    
-    # Gemini CLI
-    command -v gemini &>/dev/null && echo "gemini" && return
-    
-    # Antigravity (ambiente específico)
-    [[ "$ANTIGRAVITY" == "1" ]] && echo "antigravity" && return
-    
-    # Claude Desktop
-    [[ -n "$CLAUDE_DESKTOP" ]] && echo "claude_desktop" && return
-    
-    echo "unknown"
-}
 
 # ============================================================================
 # COLETA DE COMMITS RECENTES
 # ============================================================================
 get_recent_commits() {
     local limit="${1:-6}"
-    local commits=$(git log --oneline -"$limit" 2>/dev/null || echo "")
+    local commits
+    commits=$(git log --oneline -"$limit" 2>/dev/null || echo "")
     
     if [ -z "$commits" ]; then
         echo "[]"
@@ -47,8 +31,10 @@ get_recent_commits() {
     local first=true
     
     while IFS= read -r line; do
-        local hash=$(echo "$line" | awk '{print $1}')
-        local msg=$(echo "$line" | sed 's/^[^ ]* //')
+        local hash
+        hash=$(echo "$line" | awk '{print $1}')
+        local msg
+        msg=$(echo "$line" | sed 's/^[^ ]* //')
         
         # Detectar tipo de commit (padrão: tipo(escopo): mensagem)
         local type="chore"
@@ -89,12 +75,14 @@ get_recent_commits() {
 # ============================================================================
 get_commits_by_category() {
     local limit=20
-    local commits=$(git log --oneline -"$limit" 2>/dev/null || echo "")
+    local commits
+    commits=$(git log --oneline -"$limit" 2>/dev/null || echo "")
     
     local counts='{"feat":0,"fix":0,"chore":0,"docs":0,"refactor":0,"test":0,"release":0}'
     
     while IFS= read -r line; do
-        local msg=$(echo "$line" | sed 's/^[^ ]* //')
+        local msg
+        msg=$(echo "$line" | sed 's/^[^ ]* //')
         
         if [[ "$msg" =~ ^feat ]]; then
             counts=$(echo "$counts" | jq '.feat += 1')
@@ -122,7 +110,8 @@ get_commits_by_category() {
 get_issues_observed() {
     # Tenta usar gh CLI se disponível
     if command -v gh &>/dev/null; then
-        local open_count=$(gh issue list --state open 2>/dev/null | wc -l || echo "0")
+        local open_count
+        open_count=$(gh issue list --state open 2>/dev/null | wc -l || echo "0")
         echo "{\"open\":$open_count,\"source\":\"github\"}"
     else
         echo "{\"open\":0,\"source\":\"none\"}"
@@ -136,8 +125,10 @@ get_checkpoint_info() {
     local checkpoint_file="$STATE_DIR/checkpoint.md"
     
     if [ -f "$checkpoint_file" ]; then
-        local date=$(grep -m1 "^# Checkpoint" "$checkpoint_file" | sed 's/# Checkpoint - //')
-        local next_action=$(grep -A5 "Próxima Ação" "$checkpoint_file" | tail -1 | xargs)
+        local date
+        date=$(grep -m1 "^# Checkpoint" "$checkpoint_file" | sed 's/# Checkpoint - //')
+        local next_action
+        next_action=$(grep -A5 "Próxima Ação" "$checkpoint_file" | tail -1 | xargs)
         echo "{\"date\":\"$date\",\"next_action\":\"$next_action\"}"
     else
         echo "{\"date\":null,\"next_action\":null}"
@@ -184,7 +175,8 @@ check_unified_sync() {
         return
     fi
     
-    local unified_version=$(jq -r '.version' "$unified_file" 2>/dev/null || echo "unknown")
+    local unified_version
+    unified_version=$(jq -r '.version' "$unified_file" 2>/dev/null || echo "unknown")
     local needs_sync="false"
     
     if [ "$unified_version" != "$framework_version" ]; then
@@ -198,26 +190,38 @@ check_unified_sync() {
 # GERA SNAPSHOT COMPLETO
 # ============================================================================
 generate_activation_snapshot() {
-    local runtime=$(detect_runtime)
-    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    local runtime
+    runtime=$(detect_llm)
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     local framework_version="${DEVORQ_VERSION:-$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')}"
     framework_version="${framework_version:-4.5.1}"
     
     # Obter informações do git
-    local current_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-    local upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
+    local current_branch
+    current_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+    local upstream
+    upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
     
     # Obter dados
-    local recent_summaries=$(get_recent_commits 6)
-    local commits_by_category=$(get_commits_by_category)
-    local issues_observed=$(get_issues_observed)
-    local checkpoint_info=$(get_checkpoint_info)
-    local checksums=$(get_framework_checksums)
-    local unified_status=$(check_unified_sync)
+    local recent_summaries
+    recent_summaries=$(get_recent_commits 6)
+    local commits_by_category
+    commits_by_category=$(get_commits_by_category)
+    local issues_observed
+    issues_observed=$(get_issues_observed)
+    local checkpoint_info
+    checkpoint_info=$(get_checkpoint_info)
+    local checksums
+    checksums=$(get_framework_checksums)
+    local unified_status
+    unified_status=$(check_unified_sync)
     
     # Obter checkpoint_date do checkpoint_info
-    local checkpoint_date=$(echo "$checkpoint_info" | jq -r '.date // empty')
-    local next_action=$(echo "$checkpoint_info" | jq -r '.next_action // "none"')
+    local checkpoint_date
+    checkpoint_date=$(echo "$checkpoint_info" | jq -r '.date // empty')
+    local next_action
+    next_action=$(echo "$checkpoint_info" | jq -r '.next_action // "none"')
     
     # Obter sprint concluídos do checkpoint
     local sprint_completed=0
@@ -227,7 +231,8 @@ generate_activation_snapshot() {
     fi
     
     # Montar JSON final
-    local snapshot=$(cat <<EOF
+    local snapshot
+    snapshot=$(cat <<EOF
 {
   "version": "$framework_version",
   "generated_at": "$timestamp",
@@ -269,7 +274,8 @@ is_snapshot_valid() {
     fi
     
     # Verificar se tem menos de 1 hora
-    local generated_at=$(jq -r '.generated_at' "$SNAPSHOT_FILE" 2>/dev/null)
+    local generated_at
+    generated_at=$(jq -r '.generated_at' "$SNAPSHOT_FILE" 2>/dev/null)
     if [ "$generated_at" = "null" ] || [ -z "$generated_at" ]; then
         return 1
     fi
@@ -298,7 +304,8 @@ read_snapshot() {
 # EXPORTA RESUMO DO SNAPSHOT PARA INJEÇÃO EM LLM
 # ============================================================================
 export_snapshot_summary() {
-    local snapshot=$(read_snapshot)
+    local snapshot
+    snapshot=$(read_snapshot)
     
     echo "=== STATUS ATUAL ==="
     echo "Branch: $(echo "$snapshot" | jq -r '.git_context.current_branch')"

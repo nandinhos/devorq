@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - Feature Lifecycle CLI Module
+# DEVORQ - Feature Lifecycle CLI Module
 # ============================================================================
 # Automatiza transições do fluxo: backlog → features → current → history
 # Comandos: devorq plan | devorq start | devorq done | devorq complete

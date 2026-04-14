@@ -1,27 +1,21 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - Orchestration Module
+# DEVORQ - Orchestration Module
 # ============================================================================
 # Sistema de orquestracao inteligente: estado de skills, protocolo de agentes,
 # sistema de confianca e validacao
 #
 # Uso: source lib/orchestration.sh
-# Dependencias: lib/core.sh, lib/file-ops.sh, lib/kb.sh (opcional)
+# Dependencias: lib/core.sh, lib/file-ops.sh
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
-if [ -f "${CLI_INSTALL_PATH:-.}/lib/metrics.sh" ]; then
-    source "${CLI_INSTALL_PATH:-.}/lib/metrics.sh"
-elif [ -f "lib/metrics.sh" ]; then
-    source lib/metrics.sh
-fi
 
-# Carrega modulo de Knowledge Base para hooks automaticos de catalogacao
-if [ -f "${CLI_INSTALL_PATH:-.}/lib/kb.sh" ]; then
-    source "${CLI_INSTALL_PATH:-.}/lib/kb.sh"
-elif [ -f "lib/kb.sh" ]; then
-    source lib/kb.sh
+# Carrega lessons.sh com path absoluto se disponível, fallback para relativo
+_ORCH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$_ORCH_DIR/lessons.sh" ]; then
+    # shellcheck source=lib/lessons.sh
+    source "$_ORCH_DIR/lessons.sh"
 fi
-source lib/lessons.sh
 # ============================================================================
 
 # ============================================================================
@@ -59,7 +53,8 @@ skill_init() {
         echo '{"active_skill": null, "skill_states": {}}' > "$skills_file"
     fi
 
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
     local timer_id=""
     if command -v metrics_start_timer >/dev/null 2>&1; then
         timer_id=$(metrics_start_timer)
@@ -67,7 +62,8 @@ skill_init() {
     fi
 
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg skill "$skill_name" --arg ts "$timestamp" --arg tid "$timer_id" '
             .active_skill = $skill |
             .skill_states[$skill] = {
@@ -94,7 +90,8 @@ skill_set_steps() {
     local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg skill "$skill_name" --argjson steps "$total_steps" '
             .skill_states[$skill].total_steps = $steps
         ' "$skills_file" > "$tmp_file" && mv "$tmp_file" "$skills_file"
@@ -110,11 +107,14 @@ skill_advance() {
     local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
-        local current_step=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].current_step // 0' "$skills_file")
+        local current_step
+        current_step=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].current_step // 0' "$skills_file")
         local next_step=$((current_step + 1))
-        local timestamp=$(date -Iseconds)
+        local timestamp
+        timestamp=$(date -Iseconds)
 
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg skill "$skill_name" --argjson step "$next_step" --arg desc "$step_description" --arg ts "$timestamp" '
             .skill_states[$skill].current_step = $step |
             .skill_states[$skill].checkpoints += [{
@@ -137,7 +137,8 @@ skill_validate_checkpoint() {
     local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg skill "$skill_name" '
             .skill_states[$skill].checkpoints[-1].validated = true
         ' "$skills_file" > "$tmp_file" && mv "$tmp_file" "$skills_file"
@@ -154,8 +155,10 @@ skill_add_artifact() {
     local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
-        local timestamp=$(date -Iseconds)
-        local tmp_file=$(mktemp)
+        local timestamp
+        timestamp=$(date -Iseconds)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg skill "$skill_name" --arg path "$artifact_path" --arg type "$artifact_type" --arg ts "$timestamp" '
             .skill_states[$skill].artifacts += [{
                 "path": $path,
@@ -176,15 +179,18 @@ skill_complete() {
     local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
-        local timestamp=$(date -Iseconds)
+        local timestamp
+        timestamp=$(date -Iseconds)
         
         # Recupera metrics_id antes de limpar ou atualizar
-        local metrics_id=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].metrics_id // empty' "$skills_file")
+        local metrics_id
+        metrics_id=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].metrics_id // empty' "$skills_file")
         if [ -n "$metrics_id" ] && command -v metrics_stop_timer >/dev/null 2>&1; then
             metrics_stop_timer "$metrics_id" "skill_execution" "$skill_name" "completed"
         fi
 
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg skill "$skill_name" --arg ts "$timestamp" '
             .skill_states[$skill].status = "completed" |
             .skill_states[$skill].completed_at = $ts |
@@ -218,15 +224,18 @@ skill_fail() {
     local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
-        local timestamp=$(date -Iseconds)
+        local timestamp
+        timestamp=$(date -Iseconds)
 
         # Recupera metrics_id
-        local metrics_id=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].metrics_id // empty' "$skills_file")
+        local metrics_id
+        metrics_id=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].metrics_id // empty' "$skills_file")
         if [ -n "$metrics_id" ] && command -v metrics_stop_timer >/dev/null 2>&1; then
             metrics_stop_timer "$metrics_id" "skill_execution" "$skill_name" "failed" "{\"reason\": \"$reason\"}"
         fi
 
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg skill "$skill_name" --arg ts "$timestamp" --arg reason "$reason" '
             .skill_states[$skill].status = "failed" |
             .skill_states[$skill].failed_at = $ts |
@@ -264,8 +273,10 @@ skill_get_progress() {
     local skills_file="$install_path/.devorq/state/skills.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$skills_file" ]; then
-        local current=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].current_step // 0' "$skills_file")
-        local total=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].total_steps // 0' "$skills_file")
+        local current
+        current=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].current_step // 0' "$skills_file")
+        local total
+        total=$(jq -r --arg skill "$skill_name" '.skill_states[$skill].total_steps // 0' "$skills_file")
         echo "$current/$total"
     else
         echo "0/0"
@@ -298,10 +309,12 @@ agent_activate() {
         echo '{"active_agent": null, "handoff_queue": [], "agent_states": {}}' > "$agents_file"
     fi
 
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
 
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg agent "$agent_name" --arg task "$task_description" --arg ts "$timestamp" '
             .active_agent = $agent |
             .agent_states[$agent] = {
@@ -331,8 +344,10 @@ agent_output() {
     local agents_file="$install_path/.devorq/state/agents.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$agents_file" ]; then
-        local timestamp=$(date -Iseconds)
-        local tmp_file=$(mktemp)
+        local timestamp
+        timestamp=$(date -Iseconds)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg agent "$agent_name" --arg path "$output_path" --arg type "$output_type" --arg ts "$timestamp" '
             .agent_states[$agent].outputs += [{
                 "path": $path,
@@ -354,8 +369,10 @@ agent_handoff() {
     local agents_file="$install_path/.devorq/state/agents.json"
 
     if command -v jq >/dev/null 2>&1 && [ -f "$agents_file" ]; then
-        local timestamp=$(date -Iseconds)
-        local tmp_file=$(mktemp)
+        local timestamp
+        timestamp=$(date -Iseconds)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg from "$from_agent" --arg to "$to_agent" --arg task "$task_description" --arg artifact "$artifact_path" --arg ts "$timestamp" '
             .agent_states[$from].status = "completed" |
             .agent_states[$from].completed_at = $ts |
@@ -383,15 +400,20 @@ agent_process_handoff() {
 
     if command -v jq >/dev/null 2>&1 && [ -f "$agents_file" ]; then
         # Pega o primeiro handoff nao processado
-        local handoff=$(jq -r '.handoff_queue | map(select(.processed == false)) | .[0] // empty' "$agents_file")
+        local handoff
+        handoff=$(jq -r '.handoff_queue | map(select(.processed == false)) | .[0] // empty' "$agents_file")
 
         if [ -n "$handoff" ] && [ "$handoff" != "null" ]; then
-            local to_agent=$(echo "$handoff" | jq -r '.to')
-            local task=$(echo "$handoff" | jq -r '.task')
-            local artifact=$(echo "$handoff" | jq -r '.artifact')
+            local to_agent
+            to_agent=$(echo "$handoff" | jq -r '.to')
+            local task
+            task=$(echo "$handoff" | jq -r '.task')
+            local artifact
+            artifact=$(echo "$handoff" | jq -r '.artifact')
 
             # Marca como processado
-            local tmp_file=$(mktemp)
+            local tmp_file
+            tmp_file=$(mktemp)
             jq '(.handoff_queue | map(select(.processed == false)) | .[0]).processed = true' "$agents_file" > "$tmp_file" && mv "$tmp_file" "$agents_file"
 
             # Ativa o agente de destino
@@ -441,10 +463,12 @@ confidence_log() {
         fi
     fi
 
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
 
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg dec "$decision" --arg score "$score" --arg level "$level" --arg ts "$timestamp" '
             .decisions += [{
                 "decision": $dec,
@@ -549,7 +573,8 @@ validation_check() {
         "safe_path")
             # Verifica se nao e um path perigoso
             local dangerous_paths=("/" "$HOME" "/etc" "/usr" "/var" "/bin" "/sbin")
-            local resolved_path=$(realpath "$target" 2>/dev/null || echo "$target")
+            local resolved_path
+            resolved_path=$(realpath "$target" 2>/dev/null || echo "$target")
 
             for dangerous in "${dangerous_paths[@]}"; do
                 if [ "$resolved_path" = "$dangerous" ]; then
@@ -581,10 +606,12 @@ validation_log() {
         echo '{"validations": []}' > "$validation_file"
     fi
 
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
 
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
         jq --arg type "$validation_type" --arg target "$target" --arg result "$result" --arg ts "$timestamp" '
             .validations += [{
                 "type": $type,
@@ -605,7 +632,8 @@ validation_log() {
 # Uso: intent=$(orchestrator_classify_intent "quero criar uma nova feature de login")
 orchestrator_classify_intent() {
     local user_input="$1"
-    local input_lower=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
+    local input_lower
+    input_lower=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
 
     # Palavras-chave para cada categoria
     if echo "$input_lower" | grep -qE "(novo|nova|criar|adicionar|feature|funcionalidade)"; then
@@ -694,7 +722,8 @@ orchestrator_select_skill() {
 # Uso: lessons=$(orchestrator_get_lessons)
 orchestrator_get_lessons() {
     local query="${1:-}"
-    local lessons=$(lessons_search "$query")
+    local lessons
+    lessons=$(lessons_search "$query")
     echo "$lessons"
 }
 
@@ -703,12 +732,18 @@ orchestrator_get_lessons() {
 orchestrator_get_context() {
     local install_path="${CLI_INSTALL_PATH:-.}"
 
-    local active_skill=$(skill_get_status)
-    local stack=$(detect_stack "$install_path")
-    local platform=$(detect_platform)
-    local fase=$(get_state_value "current_fase" "1")
-    local sprint=$(get_state_value "current_sprint" "0")
-    local lessons=$(orchestrator_get_lessons)
+    local active_skill
+    active_skill=$(skill_get_status)
+    local stack
+    stack=$(detect_stack "$install_path")
+    local platform
+    platform=$(detect_platform)
+    local fase
+    fase=$(get_state_value "current_fase" "1")
+    local sprint
+    sprint=$(get_state_value "current_sprint" "0")
+    local lessons
+    lessons=$(orchestrator_get_lessons)
 
     cat << EOF
 {

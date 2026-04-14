@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - CLI Module
+# DEVORQ - CLI Module
 # ============================================================================
 # Funções para parsing de argumentos e interface de linha de comando
 # 

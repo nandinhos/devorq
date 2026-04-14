@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - File Operations Module
+# DEVORQ - File Operations Module
 # ============================================================================
 # Funções para operações de arquivo e diretório
 # 
@@ -121,7 +121,8 @@ file_exists() {
 # Uso: backup_file "/path/to/file"
 backup_file() {
     local file="$1"
-    local backup="${file}.bak.$(date +%Y%m%d%H%M%S)"
+    local backup
+    backup="${file}.bak.$(date +%Y%m%d%H%M%S)"
     
     if [ -f "$file" ]; then
         if [ "$DEVORQ_DRY_RUN" = "true" ]; then

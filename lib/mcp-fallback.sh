@@ -121,7 +121,8 @@ mcp_fallback_log() {
     local level="$1"
     local mcp_name="$2"
     local message="$3"
-    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
     echo "[$timestamp] [$level] mcp-fallback: $mcp_name - $message" >&2
     
@@ -138,7 +139,8 @@ mcp_fallback_update_status() {
     local mcp_name="$1"
     local status="$2"
     local message="$3"
-    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
     mkdir -p .devorq/state
     

@@ -82,7 +82,8 @@ error_recovery_analyze() {
     local error_msg="$1"
     local exit_code="${2:-1}"
     local command="${3:-}"
-    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
     local pattern_found=""
     local description=""
@@ -166,11 +167,16 @@ error_recovery_log() {
 error_recovery_suggest() {
     local analysis_json="$1"
     
-    local description=$(echo "$analysis_json" | jq -r '.description')
-    local solution=$(echo "$analysis_json" | jq -r '.solution')
-    local fix_cmd=$(echo "$analysis_json" | jq -r '.suggested_fix')
-    local confidence=$(echo "$analysis_json" | jq -r '.confidence')
-    local actionable=$(echo "$analysis_json" | jq -r '.actionable')
+    local description
+    description=$(echo "$analysis_json" | jq -r '.description')
+    local solution
+    solution=$(echo "$analysis_json" | jq -r '.solution')
+    local fix_cmd
+    fix_cmd=$(echo "$analysis_json" | jq -r '.suggested_fix')
+    local confidence
+    confidence=$(echo "$analysis_json" | jq -r '.confidence')
+    local actionable
+    actionable=$(echo "$analysis_json" | jq -r '.actionable')
     
     echo ""
     echo "💡 ANÁLISE DO ERRO:"
@@ -199,9 +205,12 @@ error_recovery_suggest() {
 # Uso: error_recovery_auto "$analysis_json"
 error_recovery_auto() {
     local analysis_json="$1"
-    local actionable=$(echo "$analysis_json" | jq -r '.actionable')
-    local fix_cmd=$(echo "$analysis_json" | jq -r '.suggested_fix')
-    local pattern=$(echo "$analysis_json" | jq -r '.pattern')
+    local actionable
+    actionable=$(echo "$analysis_json" | jq -r '.actionable')
+    local fix_cmd
+    fix_cmd=$(echo "$analysis_json" | jq -r '.suggested_fix')
+    local pattern
+    pattern=$(echo "$analysis_json" | jq -r '.pattern')
     
     if [ "$actionable" != "true" ]; then
         echo "⚠️  Recovery automático não disponível para este erro."
@@ -260,7 +269,8 @@ error_recovery_handler() {
     fi
     
     # Analisa o erro
-    local analysis=$(error_recovery_analyze "$error_msg" "$exit_code" "$command")
+    local analysis
+    analysis=$(error_recovery_analyze "$error_msg" "$exit_code" "$command")
     
     # Registra para análise futura
     error_recovery_log "$analysis"
@@ -282,7 +292,8 @@ error_recovery_stats() {
     echo "📊 ESTATÍSTICAS DE ERROS"
     echo ""
     
-    local total=$(jq '.errors | length' "$ERROR_LOG_FILE")
+    local total
+    total=$(jq '.errors | length' "$ERROR_LOG_FILE")
     echo "   Total de erros registrados: $total"
     echo ""
     
@@ -292,7 +303,8 @@ error_recovery_stats() {
         
         echo ""
         echo "   Taxa de sucesso do recovery:"
-        local high_conf=$(jq '[.errors[] | select(.confidence == "high")] | length' "$ERROR_LOG_FILE")
+        local high_conf
+        high_conf=$(jq '[.errors[] | select(.confidence == "high")] | length' "$ERROR_LOG_FILE")
         echo "      Alta confiança: $high_conf/$total ($(echo "scale=1; $high_conf * 100 / $total" | bc)%)"
     fi
 }

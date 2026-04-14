@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - Module Loader
+# DEVORQ - Module Loader
 # ============================================================================
 # Sistema de carregamento de módulos com verificação de dependências
 # 

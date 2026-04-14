@@ -55,11 +55,16 @@ cmd_init() {
     mkdir -p "$DEVORQ_DIR/docs"
     
     # Detectar contexto
-    local stack=$(detect_stack "$DEVORQ_ROOT")
-    local project_type=$(detect_project_type "$DEVORQ_ROOT")
-    local llm=$(detect_llm)
-    local runtime=$(detect_runtime)
-    local db=$(detect_database)
+    local stack
+    stack=$(detect_stack "$DEVORQ_ROOT")
+    local project_type
+    project_type=$(detect_project_type "$DEVORQ_ROOT")
+    local llm
+    llm=$(detect_llm)
+    local runtime
+    runtime=$(detect_runtime)
+    local db
+    db=$(detect_database)
     
     log_info "Stack: $stack"
     log_info "Tipo: $project_type"
@@ -68,7 +73,8 @@ cmd_init() {
     log_info "Banco: $db"
     
     # Detectar PRD
-    local prd=$(check_prd_exists "$DEVORQ_ROOT")
+    local prd
+    prd=$(check_prd_exists "$DEVORQ_ROOT")
     if [ -n "$prd" ]; then
         log_info "PRD: $prd"
     else
@@ -162,10 +168,14 @@ cmd_agent() {
     echo ""
     
     # Mostrar contexto atual
-    local stack=$(detect_stack "$DEVORQ_ROOT")
-    local project_type=$(detect_project_type "$DEVORQ_ROOT")
-    local llm=$(detect_llm)
-    local runtime=$(detect_runtime)
+    local stack
+    stack=$(detect_stack "$DEVORQ_ROOT")
+    local project_type
+    project_type=$(detect_project_type "$DEVORQ_ROOT")
+    local llm
+    llm=$(detect_llm)
+    local runtime
+    runtime=$(detect_runtime)
     
     cat << EOF
 Stack:     $stack
@@ -194,7 +204,8 @@ cmd_context() {
 }
 
 cmd_checkpoint() {
-    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local timestamp
+    timestamp=$(date +%Y%m%d_%H%M%S)
     local checkpoint_dir="$DEVORQ_DIR/state/checkpoints"
     
     mkdir -p "$checkpoint_dir"
@@ -319,14 +330,16 @@ cmd_spec_move() {
         return 1
     fi
     
-    local filename=$(basename "$spec_file")
+    local filename
+    filename=$(basename "$spec_file")
     local target_dir="$DEVORQ_ROOT/docs/specs/$new_status"
     local target_file="$target_dir/$filename"
     
     mkdir -p "$target_dir"
     git -C "$DEVORQ_ROOT" mv "$spec_file" "$target_file"
     
-    local today=$(date "+%Y-%m-%d")
+    local today
+    today=$(date "+%Y-%m-%d")
     sed_inplace "s/^updated_at:.*/updated_at: $today/" "$target_file"
     sed_inplace "s/^status:.*/status: $new_status/" "$target_file"
     
@@ -341,9 +354,12 @@ cmd_spec_new() {
         return 1
     fi
     
-    local next_num=$(get_next_spec_number)
-    local date=$(date "+%d-%m-%Y")
-    local slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | tr ' ' '-' | tr -s '-')
+    local next_num
+    next_num=$(get_next_spec_number)
+    local date
+    date=$(date "+%d-%m-%Y")
+    local slug
+    slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | tr ' ' '-' | tr -s '-')
     slug=${slug%%-}
     slug=${slug##-}
     
@@ -408,7 +424,8 @@ cmd_spec_find() {
         [ -f "$f" ] || continue
         [ "$(basename "$f")" == "_index.md" ] && continue
         
-        local basename=$(basename "$f")
+        local basename
+        basename=$(basename "$f")
         
         if echo "$basename" | grep -qi "$query"; then
             found=1
@@ -418,9 +435,12 @@ cmd_spec_find() {
         
         if [[ "$found" -eq 1 ]]; then
             count=$((count + 1))
-            local id=$(grep -m1 "^id:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
-            local title=$(grep -m1 "^title:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
-            local status=$(grep -m1 "^status:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+            local id
+            id=$(grep -m1 "^id:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+            local title
+            title=$(grep -m1 "^title:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+            local status
+            status=$(grep -m1 "^status:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
             local relative_path="${f#$DEVORQ_ROOT/}"
             
             echo "📄 $id"
@@ -460,7 +480,8 @@ cmd_spec_validate() {
         [ -f "$f" ] || continue
         [ "$(basename "$f")" == "_index.md" ] && continue
         
-        local basename=$(basename "$f")
+        local basename
+        basename=$(basename "$f")
         local relative_path="${f#$DEVORQ_ROOT/}"
         
         if [[ "$basename" =~ $old_pattern ]]; then
@@ -479,10 +500,12 @@ cmd_spec_validate() {
             echo ""
         fi
         
-        local status=$(grep -m1 "^status:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+        local status
+        status=$(grep -m1 "^status:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
         if [[ -n "$status" ]]; then
             local expected_dir="$specs_dir/$status"
-            local actual_dir=$(dirname "$f")
+            local actual_dir
+            actual_dir=$(dirname "$f")
             if [[ "$expected_dir" != "$actual_dir" ]]; then
                 issues=$((issues + 1))
                 echo "⚠ $basename: Status '$status' não corresponde à pasta"
@@ -944,10 +967,12 @@ cmd_install() {
     echo "Atualizando DEVORQ..."
     git -C "$HOME/.devorq" pull origin main
     
-    local version=$(cat "$HOME/.devorq/VERSION")
+    local version
+    version=$(cat "$HOME/.devorq/VERSION")
     
     if [ -f ".devorq/version" ]; then
-        local installed_version=$(cat ".devorq/version")
+        local installed_version
+        installed_version=$(cat ".devorq/version")
         if [ "$installed_version" = "$version" ]; then
             echo "DEVORQ já está na versão $version (mais recente)"
             return 0
@@ -987,7 +1012,8 @@ cmd_update() {
     echo "Atualizando DEVORQ..."
     git -C "$HOME/.devorq" pull origin main
     
-    local version=$(cat "$HOME/.devorq/VERSION")
+    local version
+    version=$(cat "$HOME/.devorq/VERSION")
     echo "DEVORQ atualizado para v$version"
     
     local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
@@ -995,7 +1021,8 @@ cmd_update() {
         echo "Atualizando projetos..."
         for proj in "$projects_dir"/*; do
             if [ -f "$proj/.devorq/version" ]; then
-                local proj_version=$(cat "$proj/.devorq/version" 2>/dev/null)
+                local proj_version
+                proj_version=$(cat "$proj/.devorq/version" 2>/dev/null)
                 if [ "$proj_version" != "$version" ]; then
                     echo "  - $(basename "$proj"): $proj_version → $version"
                     cp -r "$HOME/.devorq/bin/" "$proj/"
@@ -1018,14 +1045,17 @@ cmd_activate() {
         return 1
     fi
     
-    export DEVORQ_ROOT="$(pwd)/.devorq"
-    export PATH="$(pwd)/bin:$PATH"
+    DEVORQ_ROOT="$(pwd)/.devorq"
+    export DEVORQ_ROOT
+    PATH="$(pwd)/bin:$PATH"
+    export PATH
     
     if [ -f "$DEVORQ_ROOT/hooks/prepare-commit-msg" ]; then
         chmod +x "$DEVORQ_ROOT/hooks/"*.sh 2>/dev/null || true
     fi
     
-    local version=$(cat ".devorq/version" 2>/dev/null || echo "?")
+    local version
+    version=$(cat ".devorq/version" 2>/dev/null || echo "?")
     echo "DEVORQ ativado — v$version em $(pwd)"
 }
 
@@ -1034,7 +1064,8 @@ cmd_deactivate() {
         echo "DEVORQ desativado (era: $DEVORQ_ROOT)"
     fi
     unset DEVORQ_ROOT
-    export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "$(pwd)/bin" | tr '\n' ':' | sed 's/:$//')
+    PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "$(pwd)/bin" | tr '\n' ':' | sed 's/:$//')
+    export PATH
 }
 
 cmd_help() {

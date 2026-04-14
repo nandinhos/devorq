@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3.2 - Unified State Manager
+# DEVORQ - Unified State Manager
 # ============================================================================
 # Sistema de estado unificado com operacoes ACID-like, checkpoints e rollback.
 #
@@ -58,11 +58,16 @@ state_init() {
     ensure_dir "$(dirname "$STATE_FILE")"
     
     if [ ! -f "$STATE_FILE" ]; then
-        local session_id=$(uuidgen 2>/dev/null || echo "session-$(date +%s)")
-        local timestamp=$(date -Iseconds)
-        local project_name=$(detect_project_name "$install_path" 2>/dev/null || basename "$install_path")
-        local stack=$(detect_stack "$install_path" 2>/dev/null || echo "generic")
-        local maturity=$(detect_maturity "$install_path" 2>/dev/null || echo "unknown")
+        local session_id
+        session_id=$(uuidgen 2>/dev/null || echo "session-$(date +%s)")
+        local timestamp
+        timestamp=$(date -Iseconds)
+        local project_name
+        project_name=$(detect_project_name "$install_path" 2>/dev/null || basename "$install_path")
+        local stack
+        stack=$(detect_stack "$install_path" 2>/dev/null || echo "generic")
+        local maturity
+        maturity=$(detect_maturity "$install_path" 2>/dev/null || echo "unknown")
         
         cat > "$STATE_FILE" << EOF
 {
@@ -170,11 +175,14 @@ state_write() {
     state_ensure
     
     # Atualiza last_activity automaticamente
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
     
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
-        
+        local tmp_file
+        tmp_file=$(mktemp)
+        trap 'rm -f "$tmp_file"' RETURN
+
         # Determina se o valor e string, numero, booleano ou null
         local jq_value
         if [ "$value" = "null" ] || [ "$value" = "true" ] || [ "$value" = "false" ]; then
@@ -203,9 +211,12 @@ state_append() {
     state_ensure
     
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
-        local timestamp=$(date -Iseconds)
-        
+        local tmp_file
+        tmp_file=$(mktemp)
+        trap 'rm -f "$tmp_file"' RETURN
+        local timestamp
+        timestamp=$(date -Iseconds)
+
         jq --argjson item "$item_json" \
            --arg ts "$timestamp" \
            ".$array_key += [\$item] | .session.last_activity = \$ts" \
@@ -225,9 +236,12 @@ state_set_checkpoint() {
     state_ensure
     
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
-        local timestamp=$(date -Iseconds)
-        
+        local tmp_file
+        tmp_file=$(mktemp)
+        trap 'rm -f "$tmp_file"' RETURN
+        local timestamp
+        timestamp=$(date -Iseconds)
+
         jq --arg skill "$skill_name" \
            --arg step "$step_id" \
            --arg desc "$description" \
@@ -256,12 +270,17 @@ state_checkpoint() {
     state_ensure
     
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
-        local timestamp=$(date -Iseconds)
-        local checkpoint_id="cp-$(date +%s%N | cut -c1-13)-${RANDOM}"
-        
+        local tmp_file
+        tmp_file=$(mktemp)
+        trap 'rm -f "$tmp_file"' RETURN
+        local timestamp
+        timestamp=$(date -Iseconds)
+        local checkpoint_id
+        checkpoint_id="cp-$(date +%s%N | cut -c1-13)-${RANDOM}"
+
         # Captura snapshot do estado atual (exceto rollback_stack para evitar recursao)
-        local snapshot=$(jq 'del(.rollback_stack)' "$STATE_FILE")
+        local snapshot
+        snapshot=$(jq 'del(.rollback_stack)' "$STATE_FILE")
         
         # Adiciona ao rollback_stack
         jq --arg id "$checkpoint_id" \
@@ -299,9 +318,11 @@ state_rollback() {
     state_ensure
     
     if command -v jq >/dev/null 2>&1; then
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
+        trap 'rm -f "$tmp_file"' RETURN
         local snapshot
-        
+
         if [ -z "$checkpoint_id" ]; then
             # Rollback para o ultimo checkpoint
             snapshot=$(jq -r '.rollback_stack[0].state_snapshot // empty' "$STATE_FILE")
@@ -318,7 +339,8 @@ state_rollback() {
         fi
         
         # Preserva o rollback_stack atual
-        local current_rollback_stack=$(jq '.rollback_stack' "$STATE_FILE")
+        local current_rollback_stack
+        current_rollback_stack=$(jq '.rollback_stack' "$STATE_FILE")
         
         # Restaura o snapshot e adiciona o rollback_stack
         echo "$snapshot" | jq --argjson stack "$current_rollback_stack" \
@@ -355,8 +377,10 @@ state_validate() {
         fi
         
         # Verifica campos obrigatorios
-        local version=$(jq -r '.version // empty' "$STATE_FILE")
-        local session_id=$(jq -r '.session.id // empty' "$STATE_FILE")
+        local version
+        version=$(jq -r '.version // empty' "$STATE_FILE")
+        local session_id
+        session_id=$(jq -r '.session.id // empty' "$STATE_FILE")
         
         if [ -z "$version" ]; then
             print_warning "Campo 'version' ausente no estado"
@@ -424,7 +448,8 @@ state_log_confidence() {
         fi
     fi
     
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
     local item="{\"decision\": \"$decision\", \"score\": $score, \"level\": \"$level\", \"timestamp\": \"$timestamp\"}"
     
     state_append "confidence_log" "$item"
@@ -438,7 +463,8 @@ state_queue_handoff() {
     local task="$3"
     local artifact="${4:-}"
     
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
     local item="{\"from\": \"$from_agent\", \"to\": \"$to_agent\", \"task\": \"$task\", \"artifact\": \"$artifact\", \"timestamp\": \"$timestamp\", \"processed\": false}"
     
     state_append "agent_queue" "$item"
@@ -454,7 +480,8 @@ state_add_artifact() {
     local type="${2:-document}"
     local source="${3:-unknown}"
     
-    local timestamp=$(date -Iseconds)
+    local timestamp
+    timestamp=$(date -Iseconds)
     local item="{\"path\": \"$path\", \"type\": \"$type\", \"source\": \"$source\", \"created_at\": \"$timestamp\"}"
     
     state_append "artifacts" "$item"
@@ -504,9 +531,12 @@ state_migrate_legacy() {
     # Migra session.json
     if [ -f "$state_dir/session.json" ]; then
         if command -v jq >/dev/null 2>&1; then
-            local session_data=$(cat "$state_dir/session.json")
-            local tmp_file=$(mktemp)
-            
+            local session_data
+            session_data=$(cat "$state_dir/session.json")
+            local tmp_file
+            tmp_file=$(mktemp)
+            trap 'rm -f "$tmp_file"' RETURN
+
             # Mescla dados de sessao
             jq --argjson legacy "$session_data" \
                '.session = (.session * $legacy)' \
@@ -519,8 +549,10 @@ state_migrate_legacy() {
     # Migra skills.json
     if [ -f "$state_dir/skills.json" ]; then
         if command -v jq >/dev/null 2>&1; then
-            local skills_data=$(cat "$state_dir/skills.json")
-            local active=$(echo "$skills_data" | jq -r '.active_skill // empty')
+            local skills_data
+            skills_data=$(cat "$state_dir/skills.json")
+            local active
+            active=$(echo "$skills_data" | jq -r '.active_skill // empty')
             
             if [ -n "$active" ] && [ "$active" != "null" ]; then
                 state_write "active_skill" "$active"
@@ -533,15 +565,20 @@ state_migrate_legacy() {
     # Migra agents.json
     if [ -f "$state_dir/agents.json" ]; then
         if command -v jq >/dev/null 2>&1; then
-            local agents_data=$(cat "$state_dir/agents.json")
-            local active=$(echo "$agents_data" | jq -r '.active_agent // empty')
-            local queue=$(echo "$agents_data" | jq '.handoff_queue // []')
-            
+            local agents_data
+            agents_data=$(cat "$state_dir/agents.json")
+            local active
+            active=$(echo "$agents_data" | jq -r '.active_agent // empty')
+            local queue
+            queue=$(echo "$agents_data" | jq '.handoff_queue // []')
+
             if [ -n "$active" ] && [ "$active" != "null" ]; then
                 state_write "active_agent" "$active"
             fi
-            
-            local tmp_file=$(mktemp)
+
+            local tmp_file
+            tmp_file=$(mktemp)
+            trap 'rm -f "$tmp_file"' RETURN
             jq --argjson queue "$queue" \
                '.agent_queue = $queue' \
                "$STATE_FILE" > "$tmp_file" && mv "$tmp_file" "$STATE_FILE"
@@ -553,10 +590,14 @@ state_migrate_legacy() {
     # Migra confidence.json
     if [ -f "$state_dir/confidence.json" ]; then
         if command -v jq >/dev/null 2>&1; then
-            local conf_data=$(cat "$state_dir/confidence.json")
-            local decisions=$(echo "$conf_data" | jq '.decisions // []')
-            
-            local tmp_file=$(mktemp)
+            local conf_data
+            conf_data=$(cat "$state_dir/confidence.json")
+            local decisions
+            decisions=$(echo "$conf_data" | jq '.decisions // []')
+
+            local tmp_file
+            tmp_file=$(mktemp)
+            trap 'rm -f "$tmp_file"' RETURN
             jq --argjson decisions "$decisions" \
                '.confidence_log = $decisions' \
                "$STATE_FILE" > "$tmp_file" && mv "$tmp_file" "$STATE_FILE"
@@ -633,8 +674,11 @@ state_sync_legacy_session() {
     fi
 
     # Extrai session de unified.json e adiciona campos extras
-    local tmp_file=$(mktemp)
-    local timestamp=$(date -Iseconds 2>/dev/null || date +"%Y-%m-%dT%H:%M:%S%z")
+    local tmp_file
+    tmp_file=$(mktemp)
+    trap 'rm -f "$tmp_file"' RETURN
+    local timestamp
+    timestamp=$(date -Iseconds 2>/dev/null || date +"%Y-%m-%dT%H:%M:%S%z")
 
     jq '.session + {
         "agent_mode_active": true,

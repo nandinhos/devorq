@@ -23,7 +23,8 @@ source "$DEVORQ_ROOT/lib/workflow-sync.sh"
 # ============================================================================
 detect_commit_type() {
     local message="$1"
-    local message_lower=$(echo "$message" | tr '[:upper:]' '[:lower:]')
+    local message_lower
+    message_lower=$(echo "$message" | tr '[:upper:]' '[:lower:]')
     
     # Mapeamento para Português (Padrão DEVORQ)
     if [[ "$message_lower" == *"corrige"* ]] || [[ "$message_lower" == *"bug"* ]] || [[ "$message_lower" == *"fix"* ]] || [[ "$message_lower" == *"débito"* ]]; then
@@ -51,7 +52,8 @@ detect_commit_type() {
 # DETECTA ESCOPO BASEADO EM ARQUIVOS ALTERADOS
 # ============================================================================
 detect_scope() {
-    local files=$(git diff --name-only --cached 2>/dev/null || git diff --name-only 2>/dev/null)
+    local files
+    files=$(git diff --name-only --cached 2>/dev/null || git diff --name-only 2>/dev/null)
     
     if [ -z "$files" ]; then
         echo "Geral"
@@ -77,8 +79,10 @@ detect_scope() {
         echo "Dependências"
     else
         # Usar primeiro diretório capitalizado
-        local first_file=$(echo "$files" | head -1)
-        local scope=$(dirname "$first_file" | cut -d/ -f1)
+        local first_file
+        first_file=$(echo "$files" | head -1)
+        local scope
+        scope=$(dirname "$first_file" | cut -d/ -f1)
         if [[ "$scope" == "." ]]; then
             echo "Raiz"
         else
@@ -128,11 +132,13 @@ cmd_commit() {
     fi
     
     # Higienizar mensagem
-    local message=$(sanitize_message "$raw_message")
+    local message
+    message=$(sanitize_message "$raw_message")
     
     # Detectar componentes do padrão: Escopo (Fase): Descrição
     local category="${force_type:-$(detect_commit_type "$message")}"
-    local scope=$(detect_scope)
+    local scope
+    scope=$(detect_scope)
     local fase="Fase 1" # Default para transição, pode ser expandido
     
     # Formatar mensagem no padrão canônico
@@ -202,7 +208,8 @@ cmd_commit_push() {
 cmd_status() {
     echo "=== Status Pré-Commit ==="
     
-    local status=$(git status --porcelain 2>/dev/null)
+    local status
+    status=$(git status --porcelain 2>/dev/null)
     
     if [ -z "$status" ]; then
         echo "✓ Working tree limpo"

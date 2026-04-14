@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - Core Module
+# DEVORQ - Core Module
 # ============================================================================
 # Funções utilitárias de output e formatação
 # 
@@ -176,8 +176,10 @@ print_progress() {
     local filled=$(( (percent * width) / 100 ))
     local empty=$(( width - filled ))
     
-    local bar_char=$( [ "$style" = "full" ] && echo "█" || echo "=" )
-    local empty_char=$( [ "$style" = "full" ] && echo "░" || echo " " )
+    local bar_char
+    bar_char=$( [ "$style" = "full" ] && echo "█" || echo "=" )
+    local empty_char
+    empty_char=$( [ "$style" = "full" ] && echo "░" || echo " " )
     
     local bar=""
     for ((i=0; i<filled; i++)); do bar+="$bar_char"; done
@@ -265,11 +267,14 @@ set_state_value() {
     if command -v jq >/dev/null 2>&1; then
         local tmp_file
         tmp_file=$(mktemp)
+        trap 'rm -f "$tmp_file"' RETURN
         jq --arg key "$key" --arg val "$value" '.[$key] = $val' "$state_file" > "$tmp_file" && mv "$tmp_file" "$state_file"
     else
         # Fallback via sed/grep para casos ultra-mínimos (apenas para strings simples)
         # ALERTA: Não suporta arrays ou objetos complexos, apenas pares chave-valor simples
-        local tmp_file=$(mktemp)
+        local tmp_file
+        tmp_file=$(mktemp)
+        trap 'rm -f "$tmp_file"' RETURN
         if grep -q "\"$key\":" "$state_file"; then
             # Atualiza existente
             sed "s/\"$key\": \".*\"/\"$key\": \"$value\"/" "$state_file" > "$tmp_file"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# DEVORQ V3 - Checkpoint Manager Module
+# DEVORQ - Checkpoint Manager Module
 # ============================================================================
 # Gestao de checkpoints automaticos para preservacao de contexto
 # Cria, lista, restaura e exporta checkpoints de sessao
@@ -40,7 +40,8 @@ ckpt_create() {
     fi
 
     # Gera ID unico
-    local timestamp=$(date +%s)
+    local timestamp
+    timestamp=$(date +%s)
     local random_suffix=$((RANDOM % 100000))
     local ckpt_id="ckpt-${timestamp}-${random_suffix}"
 
@@ -160,7 +161,8 @@ ckpt_list() {
         return 0
     fi
 
-    local files=$(ls "$ckpt_dir"/ckpt-*.json 2>/dev/null)
+    local files
+    files=$(ls "$ckpt_dir"/ckpt-*.json 2>/dev/null)
     if [ -z "$files" ]; then
         echo ""
         return 0
@@ -216,31 +218,48 @@ ckpt_generate_restore_prompt() {
         return 1
     fi
 
-    local ckpt_id=$(jq -r '.checkpoint_id // "unknown"' "$ckpt_file")
-    local trigger=$(jq -r '.trigger // "unknown"' "$ckpt_file")
-    local desc=$(jq -r '.description // ""' "$ckpt_file")
-    local created=$(jq -r '.created_at // "unknown"' "$ckpt_file")
+    local ckpt_id
+    ckpt_id=$(jq -r '.checkpoint_id // "unknown"' "$ckpt_file")
+    local trigger
+    trigger=$(jq -r '.trigger // "unknown"' "$ckpt_file")
+    local desc
+    desc=$(jq -r '.description // ""' "$ckpt_file")
+    local created
+    created=$(jq -r '.created_at // "unknown"' "$ckpt_file")
 
     # Estado
-    local project=$(jq -r '.state_snapshot.session.project_name // ""' "$ckpt_file")
+    local project
+    project=$(jq -r '.state_snapshot.session.project_name // ""' "$ckpt_file")
     [ -z "$project" ] || [ "$project" = "null" ] && project=$(basename "$PWD")
-    local intent=$(jq -r '.state_snapshot.active_intent // "none"' "$ckpt_file")
-    local intent_desc=$(jq -r '.state_snapshot.intent_description // ""' "$ckpt_file")
+    local intent
+    intent=$(jq -r '.state_snapshot.active_intent // "none"' "$ckpt_file")
+    local intent_desc
+    intent_desc=$(jq -r '.state_snapshot.intent_description // ""' "$ckpt_file")
 
     # Sprint
-    local sprint_id=$(jq -r '.sprint_snapshot.sprint_id // "none"' "$ckpt_file")
-    local sprint_name=$(jq -r '.sprint_snapshot.sprint_name // ""' "$ckpt_file")
+    local sprint_id
+    sprint_id=$(jq -r '.sprint_snapshot.sprint_id // "none"' "$ckpt_file")
+    local sprint_name
+    sprint_name=$(jq -r '.sprint_snapshot.sprint_name // ""' "$ckpt_file")
     [ -z "$sprint_name" ] || [ "$sprint_name" = "null" ] && sprint_name="lifecycle-transition"
-    local sprint_status=$(jq -r '.sprint_snapshot.status // "unknown"' "$ckpt_file")
-    local current_task=$(jq -r '.sprint_snapshot.current_task // "none"' "$ckpt_file")
-    local completed=$(jq -r '.sprint_snapshot.overall_progress.completed // 0' "$ckpt_file")
-    local total=$(jq -r '.sprint_snapshot.overall_progress.total_tasks // 0' "$ckpt_file")
+    local sprint_status
+    sprint_status=$(jq -r '.sprint_snapshot.status // "unknown"' "$ckpt_file")
+    local current_task
+    current_task=$(jq -r '.sprint_snapshot.current_task // "none"' "$ckpt_file")
+    local completed
+    completed=$(jq -r '.sprint_snapshot.overall_progress.completed // 0' "$ckpt_file")
+    local total
+    total=$(jq -r '.sprint_snapshot.overall_progress.total_tasks // 0' "$ckpt_file")
 
     # Contexto cognitivo (Sprint 5 - Feature 5.1)
-    local cot=$(jq -r '.cognitive_context.chain_of_thought // ""' "$ckpt_file")
-    local hypothesis=$(jq -r '.cognitive_context.current_hypothesis // ""' "$ckpt_file")
-    local mental_model=$(jq -r '.cognitive_context.mental_model // ""' "$ckpt_file")
-    local observations=$(jq -r '.cognitive_context.observations // ""' "$ckpt_file")
+    local cot
+    cot=$(jq -r '.cognitive_context.chain_of_thought // ""' "$ckpt_file")
+    local hypothesis
+    hypothesis=$(jq -r '.cognitive_context.current_hypothesis // ""' "$ckpt_file")
+    local mental_model
+    mental_model=$(jq -r '.cognitive_context.mental_model // ""' "$ckpt_file")
+    local observations
+    observations=$(jq -r '.cognitive_context.observations // ""' "$ckpt_file")
 
     cat << EOF
 ============================================================

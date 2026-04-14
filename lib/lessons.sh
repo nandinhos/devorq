@@ -288,7 +288,8 @@ skill_rollback() {
     fi
 
     # Backup da versão atual antes de reverter
-    local current_backup="$skill_dir/VERSIONS/pre-rollback-$(date +%Y%m%d_%H%M%S).md"
+    local current_backup
+    current_backup="$skill_dir/VERSIONS/pre-rollback-$(date +%Y%m%d_%H%M%S).md"
     cp "$skill_dir/SKILL.md" "$current_backup"
 
     # Restaurar versão alvo
