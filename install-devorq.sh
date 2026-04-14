@@ -2,13 +2,13 @@
 # install-devorq.sh — Bootstrap do DEVORQ
 # Uso: curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash
 
-set -e
+set -eEo pipefail
 
 DEVORQ_HOME="${DEVORQ_HOME:-$HOME/.devorq}"
 DEVORQ_REPO="https://github.com/nandinhos/devorq.git"
 BIN_LINK="$HOME/.local/bin/devorq"
 
-echo "DEVORQ Installer v1.0"
+echo "DEVORQ Installer"
 
 # Se já existe, informar
 if [ -d "$DEVORQ_HOME" ]; then

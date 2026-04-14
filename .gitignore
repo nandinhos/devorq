@@ -39,6 +39,8 @@ node_modules/
 
 # DEVORQ - Arquivos de estado em runtime (nao versionados)
 .devorq/state/session.json
+.devorq/state/context.json
+.devorq/state/prd_analysis.json
 .devorq/state/skills.json
 .devorq/state/agents.json
 .devorq/state/validations.json
@@ -49,6 +51,9 @@ node_modules/
 .devorq/state/activation_snapshot.json
 .devorq/backups/
 .devorq/analysis/
+.devorq/state/brainstorms/
+.devorq/state/handoffs/
+.devorq/state/pre-flight/
 .devorq/state/sprints/
 .devorq/state/tasklist/
 .devorq/state/lessons-pending/

@@ -28,7 +28,7 @@ DEVORQ_DRY_RUN=false
 # Deve ser chamado após parse_args
 sync_session_state() {
     local install_path="${CLI_INSTALL_PATH:-.}"
-    if has_aidev_installed "$install_path"; then
+    if has_devorq_installed "$install_path"; then
         # Variáveis globais de progresso (lidas do estado)
         current_fase=$(get_state_value "current_fase" "1")
         current_sprint=$(get_state_value "current_sprint" "0")

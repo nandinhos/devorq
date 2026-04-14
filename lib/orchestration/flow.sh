@@ -6,7 +6,6 @@ set -eEo pipefail
 
 DEVORQ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
 DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
-DOCS_DIR="$DEVORQ_ROOT/docs"
 
 # Carregar módulos
 source "$DEVORQ_ROOT/lib/detect.sh"
@@ -81,7 +80,8 @@ phase2_analysis() {
     log_step "FASE 2: ANÁLISE DE PROJETO"
     
     # Verificar PRD
-    local prd_file=$(check_prd_exists "$DEVORQ_ROOT")
+    local prd_file
+    prd_file=$(check_prd_exists "$DEVORQ_ROOT")
     
     if [ -n "$prd_file" ]; then
         log_info "PRD encontrado: $prd_file"
@@ -113,20 +113,23 @@ analyze_prd() {
     
     log_info "Analisando PRD..."
     
-    local project_name=$(grep -m1 "^# " "$prd_file" 2>/dev/null | sed 's/^# //' || echo "Projeto")
-    local features_count=$(grep -c "^- " "$prd_file" 2>/dev/null || echo "0")
-    
+    local project_name
+    project_name=$(grep -m1 "^# " "$prd_file" 2>/dev/null | sed 's/^# //' || echo "Projeto")
+    local features_count
+    features_count=$(grep -c "^- " "$prd_file" 2>/dev/null || echo "0")
+
     log_info "Projeto: $project_name"
     log_info "Features: $features_count"
-    
+
     mkdir -p "$DEVORQ_DIR/state"
-    cat > "$DEVORQ_DIR/state/prd_analysis.json" << EOF
-{
-  "project_name": "$project_name",
-  "features_count": $features_count,
-  "analyzed_at": "$(date -Iseconds)"
-}
-EOF
+    local analyzed_at
+    analyzed_at=$(date -Iseconds)
+    jq -n \
+      --arg name "$project_name" \
+      --argjson count "$features_count" \
+      --arg at "$analyzed_at" \
+      '{"project_name": $name, "features_count": $count, "analyzed_at": $at}' \
+      > "$DEVORQ_DIR/state/prd_analysis.json"
 }
 
 # =====================================================
@@ -217,7 +220,8 @@ phase4_brainstorm() {
     
     log_info "Intent: $user_intent"
     
-    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local timestamp
+    timestamp=$(date +%Y%m%d_%H%M%S)
     local brainstorm_file="$DEVORQ_DIR/state/brainstorms/br_${timestamp}.md"
     mkdir -p "$DEVORQ_DIR/state/brainstorms"
     
@@ -279,7 +283,8 @@ phase5_contract() {
     
     log_step "FASE 5: REFINAMENTO E CONTRATO"
     
-    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local timestamp
+    timestamp=$(date +%Y%m%d_%H%M%S)
     local contract_file="$DEVORQ_DIR/state/contracts/ct_${timestamp}.md"
     mkdir -p "$DEVORQ_DIR/state/contracts"
     
@@ -331,7 +336,8 @@ phase6_spec() {
     
     log_step "FASE 6: SPEC DETALHADA"
     
-    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local timestamp
+    timestamp=$(date +%Y%m%d_%H%M%S)
     local spec_file="$DEVORQ_DIR/state/specs/sp_${timestamp}.md"
     mkdir -p "$DEVORQ_DIR/state/specs"
     
@@ -376,26 +382,33 @@ run_full_flow() {
     echo ""
     
     # FASE 1
-    local context=$(phase1_detection)
-    local stack=$(echo "$context" | cut -d: -f1)
-    local project_type=$(echo "$context" | cut -d: -f2)
-    
+    local context
+    context=$(phase1_detection)
+    local stack
+    stack=$(echo "$context" | cut -d: -f1)
+    local project_type
+    project_type=$(echo "$context" | cut -d: -f2)
+
     # FASE 2
-    local analysis=$(phase2_analysis "$stack" "$project_type")
-    
+    local analysis
+    analysis=$(phase2_analysis "$stack" "$project_type")
+
     # FASE 3
     phase3_rules "$analysis" "$stack"
-    
+
     # Se há intent
     if [ -n "$user_intent" ]; then
         # FASE 4
-        local brainstorm=$(phase4_brainstorm "$user_intent")
-        
+        local brainstorm
+        brainstorm=$(phase4_brainstorm "$user_intent")
+
         # FASE 5
-        local contract=$(phase5_contract "$brainstorm" "$user_intent")
-        
+        local contract
+        contract=$(phase5_contract "$brainstorm" "$user_intent")
+
         # FASE 6
-        local spec=$(phase6_spec "$contract" "$user_intent")
+        local spec
+        spec=$(phase6_spec "$contract" "$user_intent")
         
         log_step "✅ FLUXO COMPLETO FINALIZADO"
         log_info "Artifacts gerados:"
