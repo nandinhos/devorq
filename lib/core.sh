@@ -9,6 +9,9 @@
 # ============================================================================
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then echo "ERRO: Este módulo deve ser carregado via 'source', não executado." >&2; exit 1; fi
 
+# Aceita DEVORQ_ROOT (definido pelo CLI) como alias para DEVORQ_ROOT_DIR
+DEVORQ_ROOT_DIR="${DEVORQ_ROOT_DIR:-${DEVORQ_ROOT:-}}"
+
 # Lê a versão do SSOT (arquivo VERSION na raiz do projeto)
 # Protege contra re-definição quando o módulo é sourced múltiplas vezes
 if [ -z "${DEVORQ_VERSION:-}" ]; then

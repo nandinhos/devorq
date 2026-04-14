@@ -18,12 +18,12 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-log() { echo -e "${CYAN}[DEVORQ]${NC} $1"; }
-log_step() { echo -e "\n${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n${GREEN}► $1${NC}\n"; }
-log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
-log_success() { echo -e "${GREEN}✓${NC} $1"; }
+log() { echo -e "${CYAN}[DEVORQ]${NC} $1" >&2; }
+log_step() { echo -e "\n${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n${GREEN}► $1${NC}\n" >&2; }
+log_info() { echo -e "${BLUE}[INFO]${NC} $1" >&2; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $1" >&2; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+log_success() { echo -e "${GREEN}✓${NC} $1" >&2; }
 
 # =====================================================
 # FASE 1: DETECÇÃO DE CONTEXTO

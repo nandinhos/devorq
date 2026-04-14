@@ -369,16 +369,22 @@ cmd_spec_new() {
     
     mkdir -p "$target_dir"
     
+    local today
+    today=$(date "+%Y-%m-%d")
     cat > "$target_file" << EOF
 ---
 id: SPEC-${next_num}-${date}-${slug}
 title: ${title}
 domain: arquitetura
 status: draft
-created_at: ${date}
-updated_at: ${date}
+priority: medium
 author: Nando Dev
+owner: ""
+source: ""
+created_at: ${today}
+updated_at: ${today}
 related_files: []
+related_tasks: []
 ---
 
 # ${title}
