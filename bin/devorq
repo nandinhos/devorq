@@ -1140,7 +1140,7 @@ case "${1:-help}" in
     spec)        cmd_spec "$@" ;;
     upgrade)     cmd_upgrade "$@" ;;
     install)     cmd_install "$2" ;;
-    update)      cmd_update ;;
+    update|self-upgrade) cmd_update ;;
     activate)    cmd_activate ;;
     deactivate)  cmd_deactivate ;;
     help|--help|-h) cmd_help ;;
