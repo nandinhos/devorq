@@ -27,7 +27,6 @@ jobs:
         run: bats tests/
 
   detect:
-    needs: quality-bash
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
