@@ -1,14 +1,12 @@
-# Regras do Projeto - DEVORQ Framework
+# Regras do Projeto - Brownfield
 
 ## Contexto
-- **Stack:** Bash Puro (4.0+) / Shell Scripting
-- **Padrão:** Orquestração Multi-LLM baseada em Gates de Aprovação.
+- Tipo: Projeto em andamento
+- Stack: generic
+- Regra: "First, do no harm"
 
-## Arquitetura Primeiro
-1. **Especificação:** Toda feature ou bugfix deve ser documentada em `docs/specs/` antes de qualquer código ser escrito.
-2. **Handoff:** Trocas de contexto entre chats devem usar o comando `handoff generate`.
-
-## Padrões de Código
-- **Shell:** `set -eEo pipefail`, trap para erros em `lib/error-recovery.sh`.
-- **Mensagens de Commit:** Convencionais em pt-BR (ex: `feat(lib): descrição`).
-- **Documentação:** Markdown com Front Matter YAML canônico.
+## Regras de Ouro
+1. Consistência com padrões existentes
+2. TDD para novas funcionalidades
+3. Minimalismo
+4. Documentar com /learned-lesson
