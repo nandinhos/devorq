@@ -31,6 +31,26 @@ if ! command -v jq >/dev/null 2>&1; then
     exit 1
 fi
 
+# Verificar versão (avisa se desatualizado)
+check_devorq_version() {
+    if [ ! -f "$HOME/.devorq/VERSION" ]; then
+        return 0
+    fi
+
+    local global_version
+    global_version=$(cat "$HOME/.devorq/VERSION")
+
+    if [ -f ".devorq/version" ]; then
+        local local_version
+        local_version=$(cat ".devorq/version")
+        if [ "$local_version" != "$global_version" ]; then
+            echo -e "${YELLOW}[WARN]${NC} Nova versão disponível: $global_version (você tem: $local_version)"
+            echo "Execute: devorq update"
+            echo ""
+        fi
+    fi
+}
+
 # Cores
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -58,6 +78,11 @@ source "$DEVORQ_ROOT/lib/core.sh"
 source "$DEVORQ_ROOT/lib/detect.sh"
 source "$DEVORQ_ROOT/lib/lessons.sh"
 source "$DEVORQ_ROOT/lib/handoff.sh"
+
+# Verificar versão (só em projetos com .devorq)
+if [ -d ".devorq" ] && [ -f ".devorq/version" ]; then
+    check_devorq_version
+fi
 
 # =====================================================
 # COMANDOS
