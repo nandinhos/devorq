@@ -1177,34 +1177,58 @@ cmd_update() {
         echo "ERRO: DEVORQ não instalado localmente"
         return 1
     fi
-    
+
     echo "Atualizando DEVORQ..."
     git -C "$HOME/.devorq" pull origin main
-    
+
     local version
     version=$(cat "$HOME/.devorq/VERSION")
     echo "DEVORQ atualizado para v$version"
-    
+
     local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
+    local updated_count=0
+    local already_updated_count=0
+    local found_count=0
+
     if [ -d "$projects_dir" ]; then
-        echo "Atualizando projetos..."
+        echo ""
+        echo "Projetos DEVORQ encontrados:"
+
         for proj in "$projects_dir"/*; do
+            [ -d "$proj" ] || continue
             if [ -f "$proj/.devorq/version" ]; then
+                found_count=$((found_count + 1))
                 local proj_version
                 proj_version=$(cat "$proj/.devorq/version" 2>/dev/null)
                 if [ "$proj_version" != "$version" ]; then
-                    echo "  - $(basename "$proj"): $proj_version → $version"
+                    echo "  📦 $(basename "$proj"): $proj_version → $version"
                     cp -r "$HOME/.devorq/bin/" "$proj/"
                     cp -r "$HOME/.devorq/lib/" "$proj/"
                     cp -r "$HOME/.devorq/.devorq/"* "$proj/.devorq/"
                     rm -rf "$proj/.devorq/state" "$proj/.devorq/logs"
                     mkdir -p "$proj/.devorq/state" "$proj/.devorq/logs"
                     echo "$version" > "$proj/.devorq/version"
+                    updated_count=$((updated_count + 1))
+                else
+                    echo "  ✓ $(basename "$proj"): já na versão $version"
+                    already_updated_count=$((already_updated_count + 1))
                 fi
             fi
         done
+
+        if [ "$found_count" -eq 0 ]; then
+            echo "  Nenhum projeto com DEVORQ instalado encontrado"
+            echo ""
+            echo "Para instalar DEVORQ num projeto:"
+            echo "  cd ~/projects/seu-projeto"
+            echo "  devorq install"
+        else
+            echo ""
+            echo "Resumo: $updated_count atualizado(s), $already_updated_count já atualizado(s)"
+        fi
     fi
-    
+
+    echo ""
     echo "Concluído."
 }
 
