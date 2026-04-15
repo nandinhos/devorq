@@ -1276,11 +1276,59 @@ cmd_update() {
         else
             echo ""
             echo "Resumo: $updated_count atualizado(s), $already_updated_count ja atualizado(s), $legacy_count instalacao antiga(s)"
+
+            local cleanup_count=0
+            for proj in "$projects_dir"/*; do
+                [ -d "$proj" ] || continue
+                proj_name=$(basename "$proj")
+                [ "$proj_name" = "devorq" ] && continue
+
+                if [ -d "$proj/bin" ] || [ -d "$proj/lib" ]; then
+                    if [ -d "$proj/.devorq" ]; then
+                        echo "  🧹 $proj_name: bin/lib órfãos detectados"
+                        rm -rf "$proj/bin" "$proj/lib"
+                        cleanup_count=$((cleanup_count + 1))
+                    fi
+                fi
+            done
+
+            if [ "$cleanup_count" -gt 0 ]; then
+                echo ""
+                echo "Limpeza: $cleanup_count projeto(s) limpo(s)"
+            fi
         fi
     fi
 
     echo ""
     echo "Concluido."
+}
+
+cmd_clean() {
+    echo "=== DEVORQ Clean ==="
+    echo "Removendo bin/lib órfãos de projetos..."
+
+    local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
+    local cleaned=0
+
+    for proj in "$projects_dir"/*; do
+        [ -d "$proj" ] || continue
+
+        local proj_name
+        proj_name=$(basename "$proj")
+
+        [ "$proj_name" = "devorq" ] && continue
+
+        if [ -d "$proj/.devorq" ]; then
+            if [ -d "$proj/bin" ] || [ -d "$proj/lib" ]; then
+                echo "  🧹 $proj_name: removendo bin/lib"
+                rm -rf "$proj/bin" "$proj/lib"
+                cleaned=$((cleaned + 1))
+            fi
+        fi
+    done
+
+    echo ""
+    echo "Concluido: $cleaned projeto(s) limpo(s)"
 }
 
 cmd_activate() {
@@ -1365,6 +1413,7 @@ Manutenção:
   upgrade <path>                Atualizar DEVORQ em outro projeto
   install [path]                Instalar DEVORQ no projeto atual
   update|self-upgrade           Atualizar DEVORQ local
+  clean                         Remover bin/lib órfãos dos projetos
   activate                     Ativar DEVORQ no projeto atual
   deactivate                   Desativar DEVORQ no projeto atual
 
@@ -1405,6 +1454,7 @@ case "${1:-help}" in
     upgrade)     cmd_upgrade "$@" ;;
     install)     cmd_install "$2" ;;
     update|self-upgrade) cmd_update ;;
+    clean)        cmd_clean ;;
     activate)    cmd_activate ;;
     deactivate)  cmd_deactivate ;;
     help|--help|-h) cmd_help ;;
