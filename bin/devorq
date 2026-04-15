@@ -1253,23 +1253,47 @@ Comandos principais:
   checkpoint                    Criar checkpoint de continuidade
   info                          Mostrar info resumida
   skills                        Listar skills disponíveis com versões
-  upgrade <path>                Atualizar DEVORQ instalado em outro projeto
+
+Context-Mode (Modo Monstro):
+  context-mode status           Verificar status do Modo Monstro
+  context-mode stats            Estatísticas do DB de sessão
+  context-mode doctor           Diagnóstico do context-mode
+  context-mode init             Inicializar sessão de indexação
+  context-mode index [path]     Re-indexar projeto no contexto
+  context-mode search "<query>" Buscar no índice de contexto
+
+Specs:
+  spec index                    Gerar índice de todas as specs
+  spec list                     Listar specs (do índice)
+  spec status                   Analisar status das specs
+  spec new "<titulo>"           Criar nova spec em draft/
+  spec find "<busca>"           Buscar specs por termo
+  spec move <id> <status>        Mover spec para outro status
+  spec validate [--fix]         Validar padronização das specs
+  spec migrate                  Migrar specs para novo padrão
 
 Handoff multi-LLM:
   handoff generate              Gerar spec padronizada para próximo LLM (Gate 4)
   handoff status                Mostrar status do handoff atual
   handoff list                  Listar histórico de handoffs
-  handoff update <status>       Atualizar status (em_andamento|aguardando_merge|concluido)
+  handoff update <status>      Atualizar status (em_andamento|aguardando_merge|concluido)
 
 Pipeline de aprendizado:
   lessons list                  Listar lições pendentes, validadas e aplicadas
   lessons validate              Exibir lições para validação via Context7 (Gate 6)
-  lessons apply <nome>          Aplicar lição numa skill (Gate 7)
+  lessons apply <nome>         Aplicar lição numa skill (Gate 7)
 
 Versionamento de skills:
-  skill rollback <skill> <v>    Reverter skill para versão anterior
+  skill rollback <skill> <v>   Reverter skill para versão anterior
   skill version <skill> <bump>  Criar snapshot de nova versão (patch|minor|major)
-  skill versions <skill>        Listar versões disponíveis de uma skill
+  skill versions <skill>       Listar versões disponíveis de uma skill
+
+Manutenção:
+  upgrade <path>                Atualizar DEVORQ em outro projeto
+  install [path]                Instalar DEVORQ no projeto atual
+  update|self-upgrade           Atualizar DEVORQ local
+  activate                     Ativar DEVORQ no projeto atual
+  deactivate                   Desativar DEVORQ no projeto atual
 
 Fluxo obrigatório:
   1. devorq init
@@ -1282,6 +1306,9 @@ Fluxo obrigatório:
   8. /learned-lesson         [Gate 5: salvar lições?]
   9. devorq lessons validate [Gate 6: validação Context7]
  10. devorq lessons apply    [Gate 7: aplicar nas skills]
+
+Ver também:
+  devorq --version            Mostrar versão
 EOF
 }
 
