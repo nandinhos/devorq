@@ -4,8 +4,25 @@
 
 set -eEo pipefail
 
-DEVORQ_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+
+if [ -d "$HOME/.devorq" ]; then
+    DEVORQ_ROOT="$HOME/.devorq"
+else
+    DEVORQ_ROOT="$SCRIPT_DIR"
+fi
+
 DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
+
+if [ ! -d "$DEVORQ_ROOT/lib" ]; then
+    echo "ERRO: Diretório de libs não encontrado: $DEVORQ_ROOT/lib" >&2
+    exit 1
+fi
+
+if [ ! -d "$DEVORQ_DIR" ]; then
+    mkdir -p "$DEVORQ_DIR"
+fi
 
 # Verificar dependência obrigatória: jq
 if ! command -v jq >/dev/null 2>&1; then
@@ -1080,71 +1097,49 @@ cmd_upgrade() {
         exit 1
     fi
 
+    if [ ! -d "$HOME/.devorq" ]; then
+        log_error "DEVORQ global não instalado. Execute: curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash"
+        exit 1
+    fi
+
     local version
-    version=$(cat "$DEVORQ_ROOT/VERSION")
+    version=$(cat "$HOME/.devorq/VERSION")
 
     log "Atualizando DEVORQ em: $target"
 
-    # Garantir que bin/ e lib/ existam no destino
-    mkdir -p "$target/bin" "$target/lib"
+    mkdir -p "$target/.devorq/state"
 
-    # Copiar CLI (devorq principal primeiro, depois auxiliares)
-    cp "$DEVORQ_ROOT/bin/devorq" "$target/bin/devorq"
-    for f in "$DEVORQ_ROOT/bin/"*; do
-        fname=$(basename "$f")
-        if [ "$fname" != "devorq" ] && [ -f "$f" ]; then
-            cp "$f" "$target/bin/"
+    if [ -f "$target/.devorq/version" ]; then
+        local old_version
+        old_version=$(cat "$target/.devorq/version")
+        if [ "$old_version" != "$version" ]; then
+            echo "  📦 $old_version → $version"
         fi
-    done
-    chmod +x "$target/bin/devorq"
-
-    # Copiar apenas os módulos shell (não sobrescrever .py específicos do projeto)
-    for f in "$DEVORQ_ROOT/lib"/*.sh; do
-        cp "$f" "$target/lib/"
-    done
-
-    # Copiar subdiretório orchestration se existir
-    if [ -d "$DEVORQ_ROOT/lib/orchestration" ]; then
-        mkdir -p "$target/lib/orchestration"
-        cp "$DEVORQ_ROOT/lib/orchestration/"*.sh "$target/lib/orchestration/" 2>/dev/null || true
     fi
 
-    # Criar version file
     echo "$version" > "$target/.devorq/version"
 
-    log_success "DEVORQ atualizado em: $target"
-
-    # Verificar padronização de specs (se docs/specs/ existir)
-    if [ -d "$target/docs/specs" ]; then
-        echo ""
-        if "$target/bin/devorq" spec validate >/dev/null 2>&1; then
-            echo "✓ Specs padronizadas"
-        else
-            echo "⚠ Specs fora do padrão detectadas"
-            echo "  Execute '$target/bin/devorq spec validate' para ver detalhes"
-            echo "  Execute '$target/bin/devorq spec validate --fix' para corrigir"
-        fi
-    fi
-
-    log_info "Execute './bin/devorq init' no projeto para reinicializar o contexto."
+    log_success "DEVORQ $version atualizado em: $target"
+    echo ""
+    echo "Estrutura: minimal (usa ~/.devorq/ global)"
 }
 
 cmd_install() {
     local target_dir="${1:-.}"
-    
+
     if [ ! -d "$HOME/.devorq" ]; then
-        echo "ERRO: DEVORQ não instalado. Execute: curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash"
+        echo "ERRO: DEVORQ não instalado globalmente."
+        echo "Execute: curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash"
         return 1
     fi
-    
+
     cd "$target_dir" || return 1
-    
-    echo "Atualizando DEVORQ..."
-    git -C "$HOME/.devorq" pull origin main
-    
+
+    echo "Instalando DEVORQ..."
+
     local version
     version=$(cat "$HOME/.devorq/VERSION")
-    
+
     if [ -f ".devorq/version" ]; then
         local installed_version
         installed_version=$(cat ".devorq/version")
@@ -1152,30 +1147,27 @@ cmd_install() {
             echo "DEVORQ já está na versão $version (mais recente)"
             return 0
         fi
-        echo "Atualizando de $installed_version para $version..."
+        echo "Atualizando version file de $installed_version para $version..."
     fi
-    
-    echo "Instalando no projeto..."
-    cp -r "$HOME/.devorq/bin/" .
-    cp -r "$HOME/.devorq/lib/" .
-    
-    mkdir -p .devorq
-    cp -r "$HOME/.devorq/.devorq/"* .devorq/
-    rm -rf .devorq/state .devorq/logs
+
     mkdir -p .devorq/state .devorq/logs
-    
+
     echo "$version" > .devorq/version
-    
+
     if [ ! -d ".git" ]; then
         git init
         echo ".devorq/" >> .gitignore
         echo ".devorq/logs/" >> .gitignore
         echo "Projeto inicializado com git"
     fi
-    
+
     echo ""
     echo "DEVORQ $version instalado em $(pwd)"
-    echo "Rode 'devorq activate' para ativar"
+    echo "Estrutura: minimal (usa ~/.devorq/ global)"
+    echo ""
+    echo "Para adicionar devorq ao PATH global, execute:"
+    echo "  echo 'export PATH=\"\$HOME/.devorq/bin:\$PATH\"' >> ~/.bashrc"
+    echo "  source ~/.bashrc"
 }
 
 cmd_update() {
@@ -1220,11 +1212,7 @@ cmd_update() {
                     proj_version=$(cat "$proj/.devorq/version" 2>/dev/null)
                     if [ "$proj_version" != "$version" ]; then
                         echo "  📦 $proj_name: v$proj_version → v$version"
-                        cp -r "$HOME/.devorq/bin/" "$proj/"
-                        cp -r "$HOME/.devorq/lib/" "$proj/"
-                        cp -r "$HOME/.devorq/.devorq/"* "$proj/.devorq/"
-                        rm -rf "$proj/.devorq/state" "$proj/.devorq/logs"
-                        mkdir -p "$proj/.devorq/state" "$proj/.devorq/logs"
+                        mkdir -p "$proj/.devorq/state"
                         echo "$version" > "$proj/.devorq/version"
                         updated_count=$((updated_count + 1))
                     else
@@ -1233,6 +1221,8 @@ cmd_update() {
                     fi
                 else
                     echo "  🔶 $proj_name: .devorq sem version (instalacao antiga)"
+                    mkdir -p "$proj/.devorq/state"
+                    echo "$version" > "$proj/.devorq/version"
                     legacy_count=$((legacy_count + 1))
                 fi
             fi
@@ -1259,19 +1249,17 @@ cmd_activate() {
         echo "ERRO: DEVORQ não instalado neste projeto. Rode: devorq install"
         return 1
     fi
-    
+
     DEVORQ_ROOT="$(pwd)/.devorq"
     export DEVORQ_ROOT
-    PATH="$(pwd)/bin:$PATH"
-    export PATH
-    
-    if [ -f "$DEVORQ_ROOT/hooks/prepare-commit-msg" ]; then
-        chmod +x "$DEVORQ_ROOT/hooks/"*.sh 2>/dev/null || true
+
+    if [ ! -d "$HOME/.devorq" ]; then
+        echo "AVISO: DEVORQ global não encontrado. Instale com:"
+        echo "  curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash"
     fi
-    
-    local version
-    version=$(cat ".devorq/version" 2>/dev/null || echo "?")
-    echo "DEVORQ ativado — v$version em $(pwd)"
+
+    echo "DEVORQ ativado — v$(cat ".devorq/version" 2>/dev/null || echo "?") em $(pwd)"
+    echo "Usando: ${HOME}/.devorq/ global"
 }
 
 cmd_deactivate() {
