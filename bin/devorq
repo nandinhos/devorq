@@ -1197,6 +1197,13 @@ cmd_update() {
 
         for proj in "$projects_dir"/*; do
             [ -d "$proj" ] || continue
+
+            local proj_name
+            proj_name=$(basename "$proj")
+
+            if [ "$proj_name" = "devorq" ]; then
+                continue
+            fi
             if [ -d "$proj/.devorq" ]; then
                 found_count=$((found_count + 1))
                 local proj_name
