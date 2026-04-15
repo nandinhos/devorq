@@ -194,16 +194,20 @@ O sistema usa critérios híbridos:
 ## Estrutura
 
 ```
-.devorq/
-├── agents/          # 6 agentes especializados (laravel, filament, php, python, shell, general)
-├── skills/          # 19 skills de workflow
-├── rules/           # Regras por stack (laravel-tall, python, php)
-├── state/           # Persistência local (context, contracts, specs)
-└── templates/       # Padrões universais
+~/.devorq/                    ← GLOBAL (source único)
+├── bin/devorq               ← CLI Engine
+├── lib/                     ← Bibliotecas Bash
+├── skills/                  ← 19 skills
+├── agents/                  ← 6 agentes
+├── rules/                   ← Regras globais
+├── hooks/                   ← Hooks pre-commit
+└── VERSION                  ← 2.1
 
-bin/
-├── devorq           # CLI Engine em Bash
-└── spec-index       # Gerador automático do índice de specs
+projeto/.devorq/             ← LOCAL (minimal)
+├── state/                   ← checkpoints, audits, handoffs
+├── rules/                   ← regras específicas do projeto
+└── version                  ← tracking de versão
+```
 
 docs/specs/          # Specs com front matter canônico
 ├── _index.md        # Índice automático (gerado por bin/spec-index)
@@ -221,12 +225,33 @@ docs/specs/          # Specs com front matter canônico
 
 ---
 
-## Projetos com DEVORQ Integrado
+## Arquitetura Global v2.1
 
-- `gacpac-ti` — Sistema de gestão militar (Laravel + Filament)
-- `eventos-control` — Laravel + Filament
-- `nandorag` — App de notas com IA
-- `transcriptor` — Automação de transcrição
+### Modelo Anterior (local por projeto)
+- `bin/`, `lib/`, `.devorq/skills`, `.devorq/agents` copiados para cada projeto
+- Duplicação, difícil atualização
+
+### Modelo Novo (global)
+```
+~/.devorq/                    ← SOURCE GLOBAL (uma instalação)
+├── bin/devorq               ← CLI único
+├── lib/                     ← libs compartilhadas
+├── skills/                  ← 19 skills centralizados
+├── agents/                  ← 6 agentes centralizados
+├── rules/                   ← regras globais
+└── VERSION                  ← 2.1
+
+projeto/.devorq/             ← MINIMAL LOCAL (por projeto)
+├── state/                   ← persistência específica
+├── rules/                   ← regras do projeto (se houver)
+└── version                  ← 2.1 (tracking)
+```
+
+### Vantagens
+- **Skills atualizados uma vez** → todos os projetos usam
+- **Agents centralizados** → manutenção simplificada
+- **Limpeza automática** → `devorq update` remove órfãos
+- **Versionamento por projeto** → cada projeto sabe sua versão
 
 ---
 
@@ -238,7 +263,7 @@ docs/specs/          # Specs com front matter canônico
 curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq/main/install-devorq.sh | bash
 ```
 
-Isso instala o DEVORQ em `~/.devorq/` e cria symlink em `~/.local/bin/devorq`.
+Isso instala o DEVORQ em `~/.devorq/` e adiciona ao PATH.
 
 ### Instalar em um Projeto
 
@@ -247,7 +272,7 @@ cd meu-projeto
 devorq install
 ```
 
-Isso copia `bin/`, `lib/`, `.devorq/` para o projeto e cria `.devorq/version`.
+Isso cria `.devorq/state/`, `.devorq/version` — estrutura minimal (não copia bin/lib/skills).
 
 ### Atualizar DEVORQ
 
@@ -255,7 +280,14 @@ Isso copia `bin/`, `lib/`, `.devorq/` para o projeto e cria `.devorq/version`.
 devorq update
 ```
 
-Atualiza a instalação global e replica nos projetos.
+Atualiza o global (`~/.devorq/`) e sincroniza version files em todos os projetos.
+Também limpa bin/lib e .devorq/agents, skills, docs órfãos automaticamente.
+
+### Limpeza Manual
+
+```bash
+devorq clean    # Remove bin/lib e .devorq/agents, skills, docs órfãos
+```
 
 ---
 
