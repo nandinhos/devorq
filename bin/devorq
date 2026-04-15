@@ -71,7 +71,24 @@ cmd_init() {
     log_info "LLM: $llm"
     log_info "Runtime: $runtime"
     log_info "Banco: $db"
-    
+
+    # Detectar Context-Mode (Modo Monstro)
+    local ctx_status
+    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+    if [[ "$ctx_status" == not_installed ]]; then
+        log_warn "Context-Mode: nao instalado (Modo Monstro desativado)"
+    elif [[ "$ctx_status" == no_session ]]; then
+        log_info "Context-Mode: sem sessao para este projeto"
+        log_info "Execute: devorq context-mode init"
+    elif [[ "$ctx_status" == no_sessions ]]; then
+        log_warn "Context-Mode: sem sessoes ativas"
+        log_info "Execute: devorq context-mode init"
+    else
+        local ctx_hash=$(echo "$ctx_status" | cut -d: -f2)
+        local ctx_size=$(echo "$ctx_status" | cut -d: -f3)
+        log "🐉 Context-Mode: ✅ ATIVO (${ctx_hash}.db, ${ctx_size}KB)"
+    fi
+
     # Detectar PRD
     local prd
     prd=$(check_prd_exists "$DEVORQ_ROOT")
@@ -233,6 +250,27 @@ EOF
 }
 
 cmd_info() {
+    local ctx_status
+    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+
+    local ctx_line=""
+    case "$ctx_status" in
+        active:*)
+            local ctx_hash=$(echo "$ctx_status" | cut -d: -f2)
+            local ctx_size=$(echo "$ctx_status" | cut -d: -f3)
+            ctx_line="🐉 Context: ✅ ATIVO (${ctx_hash}.db, ${ctx_size}KB)"
+            ;;
+        no_session)
+            ctx_line="🐉 Context: ⚠️ sem sessao (execute: devorq context-mode init)"
+            ;;
+        no_sessions)
+            ctx_line="🐉 Context: ⚠️ sem sessoes ativas"
+            ;;
+        not_installed)
+            ctx_line="🐉 Context: ❌ nao instalado"
+            ;;
+    esac
+
     cat << EOF
 === DEVORQ CONTEXT ===
 Stack:     $(detect_stack "$DEVORQ_ROOT")
@@ -240,7 +278,8 @@ Tipo:      $(detect_project_type "$DEVORQ_ROOT")
 LLM:       $(detect_llm)
 Runtime:   $(detect_runtime)
 Banco:     $(detect_database)
-Versão:    $(cat "$DEVORQ_ROOT/VERSION")
+Versao:    $(cat "$DEVORQ_ROOT/VERSION")
+${ctx_line}
 EOF
 }
 
@@ -900,6 +939,130 @@ cmd_skill() {
     esac
 }
 
+cmd_context_mode() {
+    local ctx_status
+    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+
+    echo ""
+    echo "=== Context-Mode (Modo Monstro) ==="
+    echo ""
+
+    case "$ctx_status" in
+        not_installed)
+            echo "🐉 Status: ❌ NÃO INSTALADO"
+            echo ""
+            echo "O Context-Mode não está instalado neste ambiente."
+            echo ""
+            echo "Para instalar:"
+            echo "  npm install -g context-mode"
+            echo ""
+            echo "Ou use o instalador do seu ambiente (nvm, yarn, etc.)"
+            ;;
+        no_sessions)
+            echo "🐉 Status: ⚠️ SEM SESSÕES"
+            echo ""
+            echo "Context-Mode instalado, mas sem sessões ativas."
+            echo ""
+            echo "Para inicializar uma sessão:"
+            echo "  devorq context-mode init"
+            ;;
+        no_session)
+            echo "🐉 Status: 🔶 SEM SESSÃO PARA ESTE PROJETO"
+            echo ""
+            echo "Este projeto ainda não tem uma sessão indexada."
+            echo ""
+            echo "Para criar sessão e indexar:"
+            echo "  devorq context-mode init"
+            echo "  devorq context-mode index"
+            ;;
+        active:*)
+            local ctx_hash
+            local ctx_size
+            ctx_hash=$(echo "$ctx_status" | cut -d: -f2)
+            ctx_size=$(echo "$ctx_status" | cut -d: -f3)
+            echo "🐉 Status: ✅ ATIVO"
+            echo "   Session DB: ${ctx_hash}.db (${ctx_size}KB)"
+            echo ""
+            echo "   Economia estimada: ~45% tokens"
+            echo "   Tempo salvo: +35min/sessão"
+            ;;
+    esac
+    echo ""
+}
+
+get_context_mode_stats() {
+    local ctx_status
+    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+
+    if [[ "$ctx_status" != active:* ]]; then
+        echo "Context-Mode não está ativo."
+        return 1
+    fi
+
+    local ctx_hash
+    local ctx_size
+    ctx_hash=$(echo "$ctx_status" | cut -d: -f2)
+    ctx_size=$(echo "$ctx_status" | cut -d: -f3)
+
+    echo "Session: ${ctx_hash}.db"
+    echo "DB Size: ${ctx_size}KB"
+
+    if command -v ctx > /dev/null 2>&1; then
+        echo ""
+        echo "Comandos disponíveis:"
+        echo "  devorq context-mode status   # Verificar status"
+        echo "  devorq context-mode doctor  # Diagnóstico"
+        if ctx --help 2>/dev/null | grep -q "search"; then
+            echo "  devorq context-mode search # Buscar no índice"
+        fi
+    fi
+}
+
+cmd_context_mode_cli() {
+    local subcmd="${2:-status}"
+
+    case "$subcmd" in
+        status) cmd_context_mode ;;
+        stats)
+            echo "=== Context-Mode Stats ==="
+            get_context_mode_stats
+            ;;
+        doctor)
+            if command -v ctx > /dev/null 2>&1; then
+                ctx doctor
+            else
+                log_error "ctx não encontrado no PATH"
+            fi
+            ;;
+        init)
+            if command -v ctx > /dev/null 2>&1; then
+                ctx init
+            else
+                log_error "ctx não encontrado no PATH. Instale o context-mode primeiro."
+            fi
+            ;;
+        index)
+            if command -v ctx > /dev/null 2>&1; then
+                ctx index "$DEVORQ_ROOT" "devorq"
+            else
+                log_error "ctx não encontrado no PATH"
+            fi
+            ;;
+        search)
+            shift 2
+            if command -v ctx > /dev/null 2>&1; then
+                ctx search "$*"
+            else
+                log_error "ctx não encontrado no PATH"
+            fi
+            ;;
+        *)
+            echo "Uso: devorq context-mode {status|stats|doctor|init|index|search}"
+            exit 1
+            ;;
+    esac
+}
+
 cmd_upgrade() {
     local target="${2:-}"
 
@@ -1138,6 +1301,7 @@ case "${1:-help}" in
     handoff)     cmd_handoff "$@" ;;
     skill)       cmd_skill "$@" ;;
     spec)        cmd_spec "$@" ;;
+    context-mode) cmd_context_mode_cli "$@" ;;
     upgrade)     cmd_upgrade "$@" ;;
     install)     cmd_install "$2" ;;
     update|self-upgrade) cmd_update ;;

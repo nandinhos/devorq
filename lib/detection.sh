@@ -793,4 +793,69 @@ PRD: $(check_prd_exists || echo "não encontrado")
 EOF
 }
 
-export -f detect_llm detect_stack detect_project_type detect_runtime detect_database is_legacy check_prd_exists get_git_branch export_context check_git_repo detect_mcp_compatibility detect_platform detect_language detect_project_name has_devorq_installed list_installed_agents list_installed_skills detect_maturity
+# ============================================================================
+# DETECÇÃO DE CONTEXT-MODE (Modo Monstro)
+# ============================================================================
+
+detect_context_mode() {
+    local root="${1:-.}"
+    local home="${HOME:-/root}"
+
+    if command -v ctx > /dev/null 2>&1; then
+        ctx_bin="ctx"
+    else
+        local ctx_bin_paths=(
+            "$home/.nvm/versions/node/v22.22.1/bin/context-mode"
+            "$home/.npm-global/bin/context-mode"
+            "$home/.local/bin/context-mode"
+            "/usr/local/bin/context-mode"
+        )
+        for bin_path in "${ctx_bin_paths[@]}"; do
+            if [ -f "$bin_path" ]; then
+                ctx_bin="$bin_path"
+                break
+            fi
+        done
+    fi
+
+    [ -z "$ctx_bin" ] && echo "not_installed" && return
+
+    local session_dir="$home/.config/opencode/context-mode/sessions"
+    [ ! -d "$session_dir" ] && echo "no_sessions" && return
+
+    local project_hash
+    project_hash=$(echo -n "$(cd "$root" && pwd)" | sha256sum | cut -c1-16)
+    local db_path="$session_dir/$project_hash.db"
+
+    if [ -f "$db_path" ]; then
+        local db_size
+        db_size=$(du -k "$db_path" 2>/dev/null | cut -f1 || echo "0")
+        echo "active:$project_hash:$db_size"
+    else
+        echo "no_session"
+    fi
+}
+
+# Retorna hash do projeto context-mode atual
+get_context_mode_hash() {
+    local ctx_status
+    ctx_status=$(detect_context_mode "$1")
+    if [[ "$ctx_status" == active:* ]]; then
+        echo "$ctx_status" | cut -d: -f2
+    fi
+}
+
+# Retorna tamanho do DB context-mode
+get_context_mode_size() {
+    local ctx_status
+    ctx_status=$(detect_context_mode "$1")
+    if [[ "$ctx_status" == active:* ]]; then
+        echo "$ctx_status" | cut -d: -f3
+    fi
+}
+
+# ============================================================================
+# FIM DETECÇÃO CONTEXT-MODE
+# ============================================================================
+
+export -f detect_llm detect_stack detect_project_type detect_runtime detect_database is_legacy check_prd_exists get_git_branch export_context check_git_repo detect_mcp_compatibility detect_platform detect_language detect_project_name has_devorq_installed list_installed_agents list_installed_skills detect_maturity detect_context_mode get_context_mode_hash get_context_mode_size
