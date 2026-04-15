@@ -44,31 +44,52 @@ devorq activate
 ## CLI Commands
 
 ```bash
-./bin/devorq init                        # Inicializar projeto
-./bin/devorq context                     # Mostrar contexto detectado
-./bin/devorq flow "<intenção>"           # Executar workflow completo
-./bin/devorq checkpoint                  # Criar checkpoint
+# Contexto e Info
+devorq init                        # Inicializar projeto
+devorq info                        # Mostrar contexto detectado
+devorq context                     # Exportar contexto
+devorq checkpoint                  # Criar checkpoint de continuidade
 
-./bin/devorq install                     # Instalar DEVORQ no projeto
-./bin/devorq update                      # Atualizar DEVORQ global e replicar nos projetos
-./bin/devorq activate                     # Ativar DEVORQ no projeto atual
-./bin/devorq deactivate                  # Desativar DEVORQ
+# Manutenção (Global)
+devorq install [path]              # Instalar DEVORQ no projeto (estrutura minimal)
+devorq update                      # Atualizar global + sincronizar projetos + limpar órfãos
+devorq clean                       # Limpar bin/lib e .devorq/agents,skills,docs órfãos
+devorq upgrade <path>             # Atualizar DEVORQ em projeto específico
 
-./bin/devorq upgrade <path>              # Atualizar DEVORQ em outro projeto
+# Context-Mode (Modo Monstro)
+devorq context-mode status         # Verificar status do Modo Monstro
+devorq context-mode stats           # Estatísticas do DB de sessão
+devorq context-mode doctor          # Diagnóstico do context-mode
+devorq context-mode init            # Inicializar sessão de indexação
+devorq context-mode index [path]    # Re-indexar projeto no contexto
+devorq context-mode search "<q>"    # Buscar no índice de contexto
 
-./bin/devorq spec new "título"          # Criar spec com numeração sequencial
-./bin/devorq spec find "busca"          # Buscar specs por título ou ID
-./bin/devorq spec status                 # Listar specs e verificar implementação
-./bin/devorq spec update                # Atualizar status approved → implemented
-./bin/devorq spec validate [--fix]      # Validar/Corrigir padronização
-./bin/devorq spec migrate                # Migrar specs para novo padrão
-./bin/devorq spec index                  # Gerar índice de specs
+# Specs
+devorq spec index                  # Gerar índice de todas as specs
+devorq spec list                   # Listar specs (do índice)
+devorq spec status                 # Analisar status das specs
+devorq spec new "<título>"         # Criar nova spec em draft/
+devorq spec find "<busca>"         # Buscar specs por termo
+devorq spec move <id> <status>     # Mover spec para outro status
+devorq spec validate [--fix]       # Validar/Corrigir padronização
+devorq spec migrate                 # Migrar specs para novo padrão
 
-./bin/devorq handoff generate            # Gerar spec para próximo LLM
-./bin/devorq handoff list                 # Histórico de handoffs
+# Handoff multi-LLM
+devorq handoff generate            # Gerar spec padronizada para próximo LLM
+devorq handoff status               # Mostrar status do handoff atual
+devorq handoff list                 # Listar histórico de handoffs
+devorq handoff update <status>     # Atualizar status
 
-./bin/devorq skills                      # Listar skills disponíveis
-./bin/devorq skill versions <skill>     # Listar versões de uma skill
+# Pipeline de Aprendizado
+devorq lessons list                # Listar lições pendentes, validadas e aplicadas
+devorq lessons validate           # Exibir lições para validação
+devorq lessons apply <nome>        # Aplicar lição numa skill
+
+# Skills
+devorq skills                      # Listar skills disponíveis
+devorq skill versions <skill>     # Listar versões de uma skill
+devorq skill version <skill> <bump> # Criar snapshot de nova versão
+devorq skill rollback <skill> <v>  # Reverter skill para versão anterior
 ```
 
 ---
