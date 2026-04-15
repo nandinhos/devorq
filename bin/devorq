@@ -1278,17 +1278,30 @@ cmd_update() {
             echo "Resumo: $updated_count atualizado(s), $already_updated_count ja atualizado(s), $legacy_count instalacao antiga(s)"
 
             local cleanup_count=0
+            local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
             for proj in "$projects_dir"/*; do
                 [ -d "$proj" ] || continue
                 proj_name=$(basename "$proj")
                 [ "$proj_name" = "devorq" ] && continue
 
+                local needs_cleanup=0
+
                 if [ -d "$proj/bin" ] || [ -d "$proj/lib" ]; then
                     if [ -d "$proj/.devorq" ]; then
                         echo "  🧹 $proj_name: bin/lib órfãos detectados"
                         rm -rf "$proj/bin" "$proj/lib"
-                        cleanup_count=$((cleanup_count + 1))
+                        needs_cleanup=1
                     fi
+                fi
+
+                if [ -d "$proj/.devorq/agents" ] || [ -d "$proj/.devorq/skills" ] || [ -d "$proj/.devorq/docs" ]; then
+                    echo "  🧹 $proj_name: .devorq/agents, skills, docs órfãos"
+                    rm -rf "$proj/.devorq/agents" "$proj/.devorq/skills" "$proj/.devorq/docs"
+                    needs_cleanup=1
+                fi
+
+                if [ "$needs_cleanup" -eq 1 ]; then
+                    cleanup_count=$((cleanup_count + 1))
                 fi
             done
 
@@ -1305,7 +1318,7 @@ cmd_update() {
 
 cmd_clean() {
     echo "=== DEVORQ Clean ==="
-    echo "Removendo bin/lib órfãos de projetos..."
+    echo "Removendo bin/lib e .devorq/agents, skills, docs órfãos..."
 
     local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
     local cleaned=0
@@ -1319,11 +1332,21 @@ cmd_clean() {
         [ "$proj_name" = "devorq" ] && continue
 
         if [ -d "$proj/.devorq" ]; then
+            local cleaned_this=0
+
             if [ -d "$proj/bin" ] || [ -d "$proj/lib" ]; then
                 echo "  🧹 $proj_name: removendo bin/lib"
                 rm -rf "$proj/bin" "$proj/lib"
-                cleaned=$((cleaned + 1))
+                cleaned_this=1
             fi
+
+            if [ -d "$proj/.devorq/agents" ] || [ -d "$proj/.devorq/skills" ] || [ -d "$proj/.devorq/docs" ]; then
+                echo "  🧹 $proj_name: removendo .devorq/agents, skills, docs"
+                rm -rf "$proj/.devorq/agents" "$proj/.devorq/skills" "$proj/.devorq/docs"
+                cleaned_this=1
+            fi
+
+            [ "$cleaned_this" -eq 1 ] && cleaned=$((cleaned + 1))
         fi
     done
 
