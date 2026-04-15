@@ -1080,6 +1080,9 @@ cmd_upgrade() {
         exit 1
     fi
 
+    local version
+    version=$(cat "$DEVORQ_ROOT/VERSION")
+
     log "Atualizando DEVORQ em: $target"
 
     # Garantir que bin/ e lib/ existam no destino
@@ -1105,6 +1108,9 @@ cmd_upgrade() {
         mkdir -p "$target/lib/orchestration"
         cp "$DEVORQ_ROOT/lib/orchestration/"*.sh "$target/lib/orchestration/" 2>/dev/null || true
     fi
+
+    # Criar version file
+    echo "$version" > "$target/.devorq/version"
 
     log_success "DEVORQ atualizado em: $target"
 
