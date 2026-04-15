@@ -1186,13 +1186,27 @@ cmd_install() {
         echo "Projeto inicializado com git"
     fi
 
-    echo ""
+echo ""
     echo "DEVORQ $version instalado em $(pwd)"
     echo "Estrutura: minimal (usa ~/.devorq/ global)"
     echo ""
-    echo "Para adicionar devorq ao PATH global, execute:"
-    echo "  echo 'export PATH=\"\$HOME/.devorq/bin:\$PATH\"' >> ~/.bashrc"
-    echo "  source ~/.bashrc"
+
+    local shell_rc=""
+    if [ -f "$HOME/.bashrc" ]; then
+        shell_rc="$HOME/.bashrc"
+    elif [ -f "$HOME/.zshrc" ]; then
+        shell_rc="$HOME/.zshrc"
+    fi
+
+    if [ -n "$shell_rc" ]; then
+        if ! grep -q 'HOME/.devorq/bin' "$shell_rc" 2>/dev/null; then
+            echo 'export PATH="$HOME/.devorq/bin:$PATH"' >> "$shell_rc"
+            echo "PATH atualizado em $shell_rc"
+        fi
+    else
+        echo "Adicione manualmente ao seu shell RC:"
+        echo "  export PATH=\"\$HOME/.devorq/bin:\$PATH\""
+    fi
 }
 
 cmd_update() {
