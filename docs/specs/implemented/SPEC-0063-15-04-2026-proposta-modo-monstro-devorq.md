@@ -1,8 +1,23 @@
+---
+id: SPEC-0063-15-04-2026-proposta-modo-monstro-devorq
+title: Modo Monstro para DEVORQ
+domain: arquitetura
+status: implemented
+priority: high
+author: Nando Dev
+owner: team-core
+source: manual
+created_at: 2026-04-15
+updated_at: 2026-04-15
+related_files: [bin/devorq, lib/detection.sh, .devorq/rules/context-mode.md]
+related_tasks: []
+---
+
 # SPEC-0063-FINAL: Proposta — Modo Monstro para DEVORQ
 
 **Projeto:** DEVORQ — Enhancement Proposal
 **Data:** 2026-04-15
-**Status:** 📋 PROPOSTA (protótipo funcional em Eventos Control)
+**Status:** ✅ IMPLEMENTADO
 **Versão:** 1.1.0 (Correções: ROI break-even, status badge, WAL mitigação, shell hooks)
 **Escopo:** Adicionar detecção automática de context-mode e ativar "Modo Monstro" quando instalado
 
