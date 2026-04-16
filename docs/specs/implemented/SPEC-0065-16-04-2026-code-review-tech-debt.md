@@ -278,6 +278,7 @@ rmdir docs/specs/brainstorming/ docs/specs/approved/ docs/specs/validated/ 2>/de
 |------|-------|---------|
 | 2026-04-16 | Nando Dev | Criação desta spec |
 | 2026-04-16 | Nando Dev | Sprint 1 + 2.1-2.3 implementados (commit 7e43a5f) |
+| 2026-04-16 | Nando Dev | Sprint 3 completo — hooks verificados, architecture doc criado (commit 8d2d55a) |
 
 ---
 
@@ -293,4 +294,4 @@ rmdir docs/specs/brainstorming/ docs/specs/approved/ docs/specs/validated/ 2>/de
 | 2.4 | ⚠️ não aplicável | Pasta draft deletada (SPEC-0065 em draft por design) |
 | 3.1 | pendente | - |
 | 3.2 | pendente | - |
-| 3.3 | pendente | - |
+| 3.3 | ✅ implementada | docs/architecture/context-mode.md criado (341 linhas) |
