@@ -43,14 +43,17 @@ jobs:
         run: |
           if [ -f "composer.json" ] && grep -q "laravel" composer.json; then
             echo "stack=laravel" >> $GITHUB_OUTPUT
+            echo "stack=laravel"
           elif [ -f "package.json" ]; then
             echo "stack=node" >> $GITHUB_OUTPUT
+            echo "stack=node"
           elif [ -f "requirements.txt" ]; then
             echo "stack=python" >> $GITHUB_OUTPUT
+            echo "stack=python"
           else
             echo "stack=generic" >> $GITHUB_OUTPUT
+            echo "stack=generic"
           fi
-          echo "Detected: ${{ steps.detect.outputs.stack }}"
 
   quality-laravel:
     needs: detect
