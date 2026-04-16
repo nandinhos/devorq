@@ -1,5 +1,7 @@
 ---
-id: SPEC-0021
+related_tasks: []
+related_files: []
+id: SPEC-0068-16-04-2026-spec0021-devorq-installer
 title: DEVORQ Installer — Bootstrap e Deploy Multi-Projeto
 domain: operacao
 status: implemented
@@ -9,8 +11,6 @@ source: manual
 author: nandodev
 created_at: 2026-04-13
 updated_at: 2026-04-15
-related_tasks: []
-related_files: []
 ---
 
 # SPEC-0021: DEVORQ Installer

@@ -200,6 +200,9 @@ get_missing_fields() {
             local value
             value=$(extract_field "$file" "$field")
             if [ -z "$value" ]; then
+                if grep -A1 "^${field}:$" "$file" 2>/dev/null | tail -1 | grep -q "^[[:space:]]"; then
+                    continue
+                fi
                 [ -n "$missing" ] && missing="$missing,"
                 missing="$missing$field"
             fi
