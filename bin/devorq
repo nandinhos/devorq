@@ -889,9 +889,17 @@ cmd_lessons() {
         apply)
             lessons_apply "$DEVORQ_DIR" "${3:-}"
             ;;
+        diff)
+            lessons_diff "$DEVORQ_DIR" "${3:-}"
+            ;;
         *)
-            log_error "Subcomando desconhecido: $subcmd"
-            echo "Uso: devorq lessons <list|validate|apply> [nome]"
+            echo "Uso: devorq lessons <list|validate|apply|diff> [nome]"
+            echo ""
+            echo "Comandos:"
+            echo "  list                  Listar lições em todos os estágios"
+            echo "  validate              Validar lições via Context7 (Gate 6)"
+            echo "  apply <nome>          Aplicar diff na skill (Gate 7)"
+            echo "  diff <nome>           Mostrar diff sem aplicar (preview)"
             exit 1
             ;;
     esac
@@ -1424,8 +1432,9 @@ Handoff multi-LLM:
 
 Pipeline de aprendizado:
   lessons list                  Listar lições pendentes, validadas e aplicadas
-  lessons validate              Exibir lições para validação via Context7 (Gate 6)
-  lessons apply <nome>         Aplicar lição numa skill (Gate 7)
+  lessons validate              Validar lições via Context7 (Gate 6)
+  lessons apply <nome>         Aplicar diff na skill (Gate 7)
+  lessons diff <nome>          Mostrar diff sem aplicar (preview)
 
 Versionamento de skills:
   skill rollback <skill> <v>   Reverter skill para versão anterior
