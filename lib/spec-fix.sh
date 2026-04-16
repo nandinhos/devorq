@@ -25,12 +25,13 @@ readonly VALID_STATUSES="backlog|brainstorming|draft|approved|planning|in_progre
 readonly REQUIRED_SPEC_FIELDS=(id title domain status priority owner created_at updated_at source related_tasks related_files)
 readonly REQUIRED_LESSON_FIELDS=(id title skill_target status created_at)
 
-readonly FIELD_DEFAULTS=(
+declare -A FIELD_DEFAULTS=(
     ["domain"]="arquitetura"
     ["priority"]="medium"
     ["owner"]="team-core"
     ["source"]="manual"
 )
+readonly FIELD_DEFAULTS
 
 # ----------------------------------------------------------------------------
 # HELPERS
@@ -52,17 +53,19 @@ detect_artifact_type() {
     local file="$1"
     local type="unknown"
 
-    if [[ "$file" =~ lessons-(learned|pending|validated|applied) ]]; then
+    if grep -q "^id: SPEC-" "$file" 2>/dev/null; then
+        type="spec"
+    elif grep -q "^id: LESSON-" "$file" 2>/dev/null; then
         type="lesson"
     elif grep -q "^skill_target:" "$file" 2>/dev/null; then
         type="lesson"
     elif grep -q "^# Lição" "$file" 2>/dev/null; then
         type="lesson"
-    elif grep -q "^id: SPEC-" "$file" 2>/dev/null; then
-        type="spec"
     elif grep -qE "^# (Spec|Proposta)" "$file" 2>/dev/null; then
         type="spec"
-    elif [[ "$file" =~ ^docs/specs/ ]]; then
+    elif [[ "$file" =~ /lessons-(learned|pending|validated|applied)/ ]]; then
+        type="lesson"
+    elif [[ "$file" =~ /docs/specs/ ]]; then
         type="spec"
     fi
 
@@ -252,9 +255,9 @@ detect_cross_contamination() {
     local file="$1"
     local type="$2"
 
-    if [[ "$type" == "lesson" ]] && [[ "$file" =~ ^docs/specs/ ]]; then
+    if [[ "$type" == "lesson" ]] && [[ "$file" =~ /docs/specs/ ]]; then
         echo "LESSON_IN_SPECS"
-    elif [[ "$type" == "spec" ]] && [[ "$file" =~ \.devorq/state/lessons- ]]; then
+    elif [[ "$type" == "spec" ]] && [[ "$file" =~ /lessons- ]]; then
         echo "SPEC_IN_LESSONS"
     else
         echo ""
