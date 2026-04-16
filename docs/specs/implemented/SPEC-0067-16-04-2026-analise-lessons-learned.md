@@ -2,7 +2,7 @@
 id: SPEC-0067-16-04-2026-analise-lessons-learned
 title: Análise de Lições em lessons-learned/ — Destino e Migração
 domain: qualidade
-status: draft
+status: implemented
 priority: high
 author: Nando Dev
 owner: team-core
@@ -274,20 +274,22 @@ Usar este formulário para cada lição:
 
 ## Tabela de Decisão Final
 
-Preencher após análise manual:
+**Execução em 2026-04-16:**
 
 | Lição | Relevante | Solução OK | Skill Target | Destino | Notas |
 |-------|----------|-----------|-------------|---------|-------|
-| LESSON-0012 | ✅ | ✅ | quality-gate | Pipeline | — |
-| LESSON-0014 | ⚠️ | ⚠️ | handoff | Pipeline | Verificar se Antigravity ainda ignora |
-| LESSON-0015 | ⚠️ | ⚠️ | handoff | Pipeline | Verificar se MiniMax ainda é usado |
-| LESSON-0016 | ⚠️ | ⚠️ | scope-guard | Pipeline | Verificar Antigravity atual |
-| LESSON-0018 | ⚠️ | ⚠️ | handoff | Pipeline | Verificar Gemini CLI |
-| 2026-04-07-upg | ⚠️ | ⚠️ | — | TBD | — |
-| 2026-04-08-align | ⚠️ | ⚠️ | — | TBD | — |
-| 2026-04-08-homol | ⚠️ | ⚠️ | — | TBD | — |
-| 2026-04-06-corr | ❌ | ❌ | — | Descartar | Genérico |
-| 2026-04-06-spec | ⚠️ | ⚠️ | — | Descartar | spec-manager já existe |
+| LESSON-0012 | ✅ | ✅ | quality-gate | lessons-learned | Permanece (já aplicada anteriormente) |
+| LESSON-0014 | ✅ | ✅ | handoff | **specs/implemented** | Migrada como SPEC-0014-07-04-2026 |
+| LESSON-0015 | ✅ | ✅ | handoff | **specs/implemented** | Migrada como SPEC-0015-07-04-2026 |
+| LESSON-0016 | ✅ | ✅ | scope-guard | **specs/implemented** | Migrada como SPEC-0016-07-04-2026 |
+| LESSON-0018 | ⚠️ | ⚠️ | handoff | **specs/implemented** | Migrada como SPEC-0018-09-04-2026 (draft) |
+| 2026-04-07-upg | ✅ | ✅ | spec-manager | **specs/implemented** | Migrada como SPEC-2026-04-07-upgrade-multiproject |
+| 2026-04-08-align | ✅ | ✅ | brainstorming | **specs/implemented** | Migrada como SPEC-2026-04-08-align-slash-commands |
+| 2026-04-08-homol | ✅ | ✅ | spec-manager | **specs/implemented** | Migrada como SPEC-2026-04-08-homologacao-multi-llm |
+| 2026-04-06-corr | ❌ | ❌ | — | **Descartada** | Arquivo removido |
+| 2026-04-06-spec | ❌ | ❌ | — | **Descartada** | Arquivo removido |
+
+**Resultado:** 7 SPECs criadas em `docs/specs/implemented/`, 2 notas descartadas, 1 lição permanece em `lessons-learned/`.
 
 ---
 
