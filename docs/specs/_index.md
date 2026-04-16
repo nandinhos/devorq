@@ -1,23 +1,22 @@
 # Índice de Specs DEVORQ
 
-_Gerado automaticamente em 2026-04-16 01:22:39_
+_Gerado automaticamente em 2026-04-16 09:20:33_
 
 ## Resumo por Status
 
 | Status | Total |
 |--------|-------|
-| draft | 3 |
-| approved | 1 |
-| validated | 2 |
-| implemented | 20 |
+| draft | 2 |
+| validated | 1 |
+| implemented | 23 |
 
 ## Resumo por Domínio
 
 | Domínio | Total |
 |---------|-------|
-| arquitetura | 18 |
+| arquitetura | 17 |
 | refactor | 2 |
-| operacao | 2 |
+| operacao | 4 |
 
 ## Todas as Specs
 
@@ -36,18 +35,18 @@ _Gerado automaticamente em 2026-04-16 01:22:39_
 | SPEC-0013-07-04-2026 | Suíte de Testes E2E DEVORQ | arquitetura | implemented | high | 2026-04-07 |
 | SPEC-0014-07-04-2026 | Governança de Handoff Adaptativo — Estudo de Caso Antigravity | arquitetura | implemented | critical | 2026-04-07 |
 | SPEC-0015-07-04-2026 | Handoff Adaptativo MiniMax — Estudo de Caso de Governança DEVORQ v2.1 | arquitetura | implemented | critical | 2026-04-07 |
-| SPEC-0016-07-04-2026 | Comportamento do Antigravity em Governança de Front Matter | arquitetura | validated | medium | 2026-04-07 |
+| SPEC-0016-07-04-2026 | Comportamento do Antigravity em Governança de Front Matter | arquitetura | implemented | medium | 2026-04-07 |
 | SPEC-0017-07-04-2026 | Normatização de Commits e Padronização de Fluxo DEVORQ | operacao | implemented | high | 2026-04-07 |
-| SPEC-0018-09-04-2026 | Handoff Adaptativo Gemini CLI — Estudo de Caso de Governança DEVORQ v2.1 | operacao | draft | medium | 2026-04-09 |
+| SPEC-0018-09-04-2026 | Handoff Adaptativo Gemini CLI — Estudo de Caso de Governança DEVORQ v2.1 | operacao | implemented | medium | 2026-04-09 |
 | SPEC-0019-09-04-2026 | Padronização de Arquivos de Governança Local (AGENTS.md, GEMINI.md, CLAUDE.md) | arquitetura | implemented | high | 2026-04-09 |
-| SPEC-0021 | DEVORQ Installer — Bootstrap e Deploy Multi-Projeto | N/A | implemented | N/A | 2026-04-15 |
-| SPEC-0063-15-04-2026-proposta-modo-monstro-devorq | Modo Monstro para DEVORQ | arquitetura | implemented | high | 2026-04-15 |
+| SPEC-0020-07-04-2026 | Upgrade Multi-Projeto DEVORQ v2.1 | arquitetura | draft | medium | 2026-04-07 |
+| SPEC-0021 | DEVORQ Installer — Bootstrap e Deploy Multi-Projeto | operacao | implemented | high | 2026-04-15 |
+| SPEC-0022-08-04-2026 | Alinhamento Slash Commands v2.1 | arquitetura | draft | medium | 2026-04-08 |
+| SPEC-0023-08-04-2026 | Homologação Multi-LLM v2.1 | operacao | implemented | medium | 2026-04-08 |
+| SPEC-0063-15-04-2026 | Modo Monstro para DEVORQ | arquitetura | implemented | high | 2026-04-15 |
 | SPEC-0065-16-04-2026-code-review-tech-debt | Code Review DEVORQ — Correção de Débitos Técnicos e CI/CD | qualidade | implemented | high | 2026-04-16 |
 | SPEC-0066-16-04-2026-pipeline-lessons-learned-gates-67 | Pipeline de Lições Aprendidas — Gates 6 e 7 com Validação Automática | arquitetura | implemented | high | 2026-04-16 |
 | SPEC-0067-16-04-2026-analise-lessons-learned | Análise de Lições em lessons-learned/ — Destino e Migração | qualidade | implemented | high | 2026-04-16 |
-| SPEC-2026-04-07-upgrade-multiproject | Upgrade Multi-Projeto DEVORQ v2.1 | arquitetura | draft | medium | 2026-04-07 |
-| SPEC-2026-04-08-align-slash-commands | Alinhamento Slash Commands v2.1 | arquitetura | draft | medium | 2026-04-08 |
-| SPEC-2026-04-08-homologacao-multi-llm | Homologação Multi-LLM v2.1 | arquitetura | approved | medium | 2026-04-08 |
 
 ## Alertas
 

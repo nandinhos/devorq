@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-07-upgrade-multiproject
+id: SPEC-0020-07-04-2026
 title: Upgrade Multi-Projeto DEVORQ v2.1
 domain: arquitetura
 status: draft

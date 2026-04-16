@@ -1,5 +1,5 @@
 ---
-id: SPEC-0063-15-04-2026-proposta-modo-monstro-devorq
+id: SPEC-0063-15-04-2026
 title: Modo Monstro para DEVORQ
 domain: arquitetura
 status: implemented

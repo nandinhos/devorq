@@ -1,5 +1,5 @@
 ---
-id: SPEC-2026-04-08-align-slash-commands
+id: SPEC-0022-08-04-2026
 title: Alinhamento Slash Commands v2.1
 domain: arquitetura
 status: draft

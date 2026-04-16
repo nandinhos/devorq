@@ -2,7 +2,7 @@
 id: SPEC-0016-07-04-2026
 title: Comportamento do Antigravity em Governança de Front Matter
 domain: arquitetura
-status: validated
+status: implemented
 priority: medium
 owner: team-core
 created_at: 2026-04-07

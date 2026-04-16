@@ -1,8 +1,8 @@
 ---
-id: SPEC-2026-04-08-homologacao-multi-llm
+id: SPEC-0023-08-04-2026
 title: Homologação Multi-LLM v2.1
-domain: arquitetura
-status: approved
+domain: operacao
+status: implemented
 priority: medium
 owner: team-core
 created_at: 2026-04-08

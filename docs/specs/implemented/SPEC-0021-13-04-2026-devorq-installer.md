@@ -1,9 +1,13 @@
 ---
 id: SPEC-0021
 title: DEVORQ Installer — Bootstrap e Deploy Multi-Projeto
+domain: operacao
 status: implemented
+priority: high
+owner: team-core
+source: manual
 author: nandodev
-created: 2026-04-13
+created_at: 2026-04-13
 updated_at: 2026-04-15
 ---
 
