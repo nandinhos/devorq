@@ -2,7 +2,7 @@
 id: SPEC-0022-08-04-2026
 title: Alinhamento Slash Commands v2.1
 domain: arquitetura
-status: draft
+status: implemented
 priority: medium
 owner: team-core
 created_at: 2026-04-08

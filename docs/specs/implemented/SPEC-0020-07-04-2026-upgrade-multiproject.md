@@ -2,7 +2,7 @@
 id: SPEC-0020-07-04-2026
 title: Upgrade Multi-Projeto DEVORQ v2.1
 domain: arquitetura
-status: draft
+status: implemented
 priority: medium
 owner: team-core
 created_at: 2026-04-07
