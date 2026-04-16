@@ -32,7 +32,10 @@ jobs:
           shellcheck --severity=error lib/**/*.sh 2>/dev/null || shellcheck --severity=error lib/orchestration/*.sh
 
       - name: Bats — suite completa
-        run: bats tests/
+        run: |
+          bats tests/flow.bats tests/functional.bats tests/hooks.bats \
+              tests/paths.bats tests/skills.bats tests/sourcing.bats \
+              tests/sprint1.bats tests/sprint2.bats tests/sprint3.bats tests/sprint4.bats
 
   quality-generic:
     runs-on: ubuntu-latest
