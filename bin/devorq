@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 if [ -d "$HOME/.devorq" ]; then
     DEVORQ_ROOT="$HOME/.devorq"
 else
-    DEVORQ_ROOT="$SCRIPT_DIR"
+    DEVORQ_ROOT="$(dirname "$SCRIPT_DIR")"
 fi
 
 DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
