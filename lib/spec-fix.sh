@@ -242,7 +242,7 @@ check_status_directory_mismatch() {
 
     local expected_dir="$specs_dir/$status"
     local actual_dir
-    actual_dir=$(dirname "$file")
+    actual_dir=$(readlink -f "$(dirname "$file")")
 
     if [[ "$expected_dir" != "$actual_dir" ]]; then
         echo "$expected_dir"
