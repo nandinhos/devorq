@@ -276,18 +276,27 @@ spec_fix_add_fields() {
         return 0
     fi
 
-    for field in domain priority owner source; do
+    for field in domain priority owner source related_tasks related_files; do
         local current
         current=$(extract_field "$file" "$field")
 
         if [ -z "$current" ]; then
-            local default="${FIELD_DEFAULTS[$field]}"
+            local default="${FIELD_DEFAULTS[$field]:-}"
             if [ -n "$default" ]; then
                 awk -v field="$field" -v value="$default" '
-                    /^---$/ { n++; next }
-                    n == 1 && $0 !~ "^" field ":" && $0 !~ "^---" {
-                        print field ": " value
+                    BEGIN { in_fm = 0 }
+                    /^---$/ {
+                        if (in_fm == 0) {
+                            in_fm = 1
+                            print
+                            next
+                        } else {
+                            print field ": " value
+                            print
+                            next
+                        }
                     }
+                    in_fm == 1 { print; next }
                     { print }
                 ' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
                 spec_fix_log "  + Adicionado $field: $default"
