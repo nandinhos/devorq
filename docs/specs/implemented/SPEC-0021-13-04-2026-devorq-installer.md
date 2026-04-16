@@ -9,6 +9,8 @@ source: manual
 author: nandodev
 created_at: 2026-04-13
 updated_at: 2026-04-15
+related_tasks: []
+related_files: []
 ---
 
 # SPEC-0021: DEVORQ Installer

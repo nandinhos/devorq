@@ -8,6 +8,9 @@ created_at: 2026-04-12
 updated_at: 2026-04-12
 author: Nando Dev
 related_files: ["bin/devorq", "bin/spec-index", "bin/upgrade"]
+owner: team-core
+source: manual
+related_tasks: []
 ---
 
 # SPEC-0002-12-04-2026: Nomenclatura Sequencial Global e Comandos spec new/find

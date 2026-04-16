@@ -30,6 +30,8 @@ declare -A FIELD_DEFAULTS=(
     ["priority"]="medium"
     ["owner"]="team-core"
     ["source"]="manual"
+    ["related_tasks"]="[]"
+    ["related_files"]="[]"
 )
 readonly FIELD_DEFAULTS
 
@@ -281,20 +283,29 @@ spec_fix_add_fields() {
         current=$(extract_field "$file" "$field")
 
         if [ -z "$current" ]; then
+            if grep -A1 "^${field}:$" "$file" 2>/dev/null | tail -1 | grep -q '^[[:space:]]'; then
+                continue
+            fi
             local default="${FIELD_DEFAULTS[$field]:-}"
             if [ -n "$default" ]; then
                 awk -v field="$field" -v value="$default" '
-                    BEGIN { in_fm = 0 }
+                    BEGIN { in_fm = 0; modified = 0 }
                     /^---$/ {
                         if (in_fm == 0) {
                             in_fm = 1
                             print
                             next
-                        } else {
+                        } else if (modified == 0) {
                             print field ": " value
-                            print
-                            next
+                            modified = 1
                         }
+                        print
+                        next
+                    }
+                    in_fm == 1 && $0 ~ "^" field ":.*$" {
+                        print field ": " value
+                        modified = 1
+                        next
                     }
                     in_fm == 1 { print; next }
                     { print }

@@ -16,6 +16,7 @@ related_files:
   - .devorq/state/lessons-validated/
   - .devorq/state/lessons-applied/
   - .devorq/state/lessons-learned/
+source: manual
 ---
 
 # SPEC-0066: Pipeline de Lições Aprendidas — Gates 6 e 7
@@ -28,6 +29,7 @@ O sistema de lições aprendidas do DEVORQ (SPEC-0004 Seção 3) foi parcialment
 
 **Solução:** Implementar Gates 6 e 7 completos conforme SPEC-0004 Seção 3.
 
+source: manual
 ---
 
 ## Arquitetura do Pipeline
@@ -74,6 +76,7 @@ lessons-validated/
 [GIT COMMIT MANUAL]
 ```
 
+source: manual
 ---
 
 ## Gate 6: Validação Automática — `devorq lessons validate`
@@ -133,6 +136,7 @@ Diff Proposto:
   [q]     - Sair sem aplicar
 ```
 
+source: manual
 ---
 
 ## Gate 7: Aplicação Híbrida — `devorq lessons apply <nome>`
@@ -191,6 +195,7 @@ Lição movida para: .devorq/state/lessons-applied/
    git add -A && git commit -m "feat(skill): incorpora lição LESSON-0012 - bash source guard"
 ```
 
+source: manual
 ---
 
 ## Estrutura de Lição Atualizada
@@ -198,12 +203,14 @@ Lição movida para: .devorq/state/lessons-applied/
 ### Lição em lessons-pending/
 
 ```markdown
+source: manual
 ---
 id: LESSON-XXXX
 title: Bash Source Guard
 skill_target: quality-gate
 status: pending
 created_at: 2026-04-07
+source: manual
 ---
 
 ## SINTOMA
@@ -222,6 +229,7 @@ quality-gate
 ### Lição em lessons-validated/
 
 ```markdown
+source: manual
 ---
 id: LESSON-XXXX
 title: Bash Source Guard
@@ -235,6 +243,7 @@ diff_proposed: |
   + Verificação: shellcheck passa.
 created_at: 2026-04-07
 validated_at: 2026-04-16
+source: manual
 ---
 
 ## SINTOMA
@@ -250,6 +259,7 @@ validated_at: 2026-04-16
 ### Lição em lessons-applied/
 
 ```markdown
+source: manual
 ---
 id: LESSON-XXXX
 title: Bash Source Guard
@@ -260,11 +270,13 @@ diff_applied: true
 applied_version: 2.1.0
 applied_at: 2026-04-16
 skill_snapshot: VERSIONS/v2.1.0.md
+source: manual
 ---
 
 [conteúdo original]
 ```
 
+source: manual
 ---
 
 ## Comandos CLI
@@ -299,6 +311,7 @@ Executa Gate 7 — aplicação de diff.
 
 Mostra diff sem aplicar (preview).
 
+source: manual
 ---
 
 ## Implementação em `lib/lessons.sh`
@@ -324,6 +337,7 @@ echo "## v<x.y+1.z> ($(date +%Y-%m-%d))" >> CHANGELOG.md
 echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 ```
 
+source: manual
 ---
 
 ## Skill `learned-lesson` v2
@@ -343,6 +357,7 @@ echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 
 3. **Exemplos de diff gerado**
 
+source: manual
 ---
 
 ## Critérios de Aceite
@@ -357,6 +372,7 @@ echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 | 6 | Lição movida para lessons-applied/ | ls lessons-applied/ |
 | 7 | Usuário consegue commitar manualmente | git status shows changes |
 
+source: manual
 ---
 
 ## Riscos e Mitigações
@@ -367,6 +383,7 @@ echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 | Diff quebra skill | Média | Alto | Snapshot + rollback disponíveis |
 | Conflito de versão | Baixa | Baixo | Semantic versioning + snapshots |
 
+source: manual
 ---
 
 ## Tarefas de Implementação
@@ -379,6 +396,7 @@ echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 | T4 | Testar pipeline completo | média | pendente |
 | T5 | Migração das lições existentes | média | pendente |
 
+source: manual
 ---
 
 ## Decisões
@@ -388,6 +406,7 @@ echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 3. **Commit manual**: Após checagem funcional do usuário
 4. **Semantic versioning**: patch/minor/major conforme lição
 
+source: manual
 ---
 
 ## Histórico de Alterações

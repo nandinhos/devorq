@@ -13,6 +13,7 @@ related_files:
   - .devorq/state/lessons-learned/
   - .devorq/state/lessons-pending/
   - SPEC-0066
+source: manual
 ---
 
 # SPEC-0067: Análise de Lições em lessons-learned/ — Destino e Migração
@@ -23,6 +24,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Objetivo:** Avaliar cada lição e definir destino: pipeline de Gates 6/7 ou descarte.
 
+source: manual
 ---
 
 ## Avaliação das Lições
@@ -42,6 +44,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 | 9 | `2026-04-06-correcoes-debitos-tecnicos.md` | Correções Débitos | — | — | Baixa | **Descartar** |
 | 10 | `2026-04-06-spec-manager.md` | Spec Manager | — | — | Baixa | **Descartar** |
 
+source: manual
 ---
 
 ## Detalhamento por Lição
@@ -62,6 +65,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Migrar para lessons-pending → Pipeline Gates 6/7
 
+source: manual
 ---
 
 ### Lição 2: LESSON-0014 — Antigravity Handoff
@@ -80,6 +84,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Migrar para lessons-pending → Pipeline Gates 6/7
 
+source: manual
 ---
 
 ### Lição 3: LESSON-0015 — MiniMax Handoff
@@ -98,6 +103,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Migrar para lessons-pending → Pipeline Gates 6/7
 
+source: manual
 ---
 
 ### Lição 4: LESSON-0016 — Antigravity Governança
@@ -115,6 +121,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Migrar para lessons-pending → Pipeline Gates 6/7
 
+source: manual
 ---
 
 ### Lição 5: LESSON-0018 — Gemini CLI Handoff
@@ -132,6 +139,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Migrar para lessons-pending → Pipeline Gates 6/7
 
+source: manual
 ---
 
 ### Lição 6: LESSON-2026-04-07 — Upgrade Multiproject
@@ -146,6 +154,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Análise manual antes de decidir
 
+source: manual
 ---
 
 ### Lição 7: LESSON-2026-04-08 — Align Slash Commands
@@ -160,6 +169,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Análise manual antes de decidir
 
+source: manual
 ---
 
 ### Lição 8: LESSON-2026-04-08 — Homologação Multi-LLM
@@ -174,6 +184,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Análise manual antes de decidir
 
+source: manual
 ---
 
 ### Lição 9: 2026-04-06-correcoes-debitos-tecnicos
@@ -189,6 +200,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Descartar (mover para lessons-applied/ como "descartada")
 
+source: manual
 ---
 
 ### Lição 10: 2026-04-06-spec-manager
@@ -204,6 +216,7 @@ As lições em `.devorq/state/lessons-learned/` foram criadas antes da implement
 
 **Ação:** Descartar ou verificar se já foi aplicada
 
+source: manual
 ---
 
 ## Plano de Ação
@@ -237,6 +250,7 @@ mv LESSON-*.md .devorq/state/lessons-pending/
 mv 2026-04-06-*.md .devorq/state/lessons-applied/
 ```
 
+source: manual
 ---
 
 ## Formulário de Avaliação
@@ -270,6 +284,7 @@ Usar este formulário para cada lição:
 [Observações adicionais]
 ```
 
+source: manual
 ---
 
 ## Tabela de Decisão Final
@@ -291,6 +306,7 @@ Usar este formulário para cada lição:
 
 **Resultado:** 7 SPECs criadas em `docs/specs/implemented/`, 2 notas descartadas, 1 lição permanece em `lessons-learned/`.
 
+source: manual
 ---
 
 ## Próximos Passos
@@ -301,6 +317,7 @@ Usar este formulário para cada lição:
 4. [ ] Executar migração conforme decisão
 5. [ ] Executar pipeline Gates 6/7 para lições migradas
 
+source: manual
 ---
 
 ## Critérios de Aceite
@@ -310,6 +327,7 @@ Usar este formulário para cada lição:
 - [ ] Migração executada
 - [ ] SPEC-0066 implementada com lições migradas
 
+source: manual
 ---
 
 ## Histórico de Alterações

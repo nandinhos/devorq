@@ -8,6 +8,9 @@ created_at: 2026-04-12
 updated_at: 2026-04-12
 author: Nando Dev
 related_files: ["bin/spec-index", "bin/devorq", ".devorq/hooks/pre-commit", "AGENTS.md", "GEMINI.md", "README.md"]
+owner: team-core
+source: manual
+related_tasks: []
 ---
 
 # SPEC-0003-12-04-2026-spec-manager-skill: Estrutura de Specs com Subpastas por Status
