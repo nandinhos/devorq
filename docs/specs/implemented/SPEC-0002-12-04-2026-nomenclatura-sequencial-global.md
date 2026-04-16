@@ -2,7 +2,7 @@
 id: SPEC-0002-12-04-2026-nomenclatura-sequencial-global
 title: Nomenclatura Sequencial Global e Comandos spec new/find
 domain: arquitetura
-status: draft
+status: implemented
 priority: high
 created_at: 2026-04-12
 updated_at: 2026-04-12
