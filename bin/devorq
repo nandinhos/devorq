@@ -77,6 +77,7 @@ validate_spec_id() {
 source "$DEVORQ_ROOT/lib/core.sh"
 source "$DEVORQ_ROOT/lib/detect.sh"
 source "$DEVORQ_ROOT/lib/lessons.sh"
+source "$DEVORQ_ROOT/lib/spec-fix.sh"
 source "$DEVORQ_ROOT/lib/handoff.sh"
 
 # Verificar versão (só em projetos com .devorq)
@@ -548,76 +549,80 @@ cmd_spec_find() {
 }
 
 cmd_spec_validate() {
-    local fix=0
-    if [[ "$1" == "--fix" ]]; then
-        fix=1
+    local dry_run=false
+    local force=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --dry-run)
+                dry_run=true
+                shift
+                ;;
+            --force)
+                force=true
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    if [[ "$dry_run" == "true" ]]; then
+        spec_fix_dry_run "$DEVORQ_ROOT"
+        return $?
+    elif [[ "$force" == "true" ]]; then
+        spec_fix_execute "$DEVORQ_ROOT" "false"
+        return $?
     fi
-    
-    local specs_dir="$DEVORQ_ROOT/docs/specs"
-    local issues=0
-    
+
     echo "[DEVORQ] Validando padronização de specs..."
     echo ""
-    
-    local new_pattern='^SPEC-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}-'
-    local old_pattern='^SPEC-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{3}$'
-    
-    shopt -s globstar
-    for f in "$specs_dir"/**/SPEC-*.md; do
-        [ -f "$f" ] || continue
-        [ "$(basename "$f")" == "_index.md" ] && continue
-        
-        local basename
-        basename=$(basename "$f")
-        local relative_path="${f#$DEVORQ_ROOT/}"
-        
-        if [[ "$basename" =~ $old_pattern ]]; then
-            issues=$((issues + 1))
-            echo "⚠ $basename: Nomenclatura não padronizada"
-            echo "  → Era: SPEC-YYYY-MM-DD-NNN"
-            echo "  → Deve ser: SPEC-NNNN-DD-MM-AAAA-slug"
-            echo "  → Path: $relative_path"
-            echo ""
-        fi
-        
-        if ! grep -q "^id:" "$f" 2>/dev/null; then
-            issues=$((issues + 1))
-            echo "⚠ $basename: Front matter sem 'id'"
-            echo "  → Path: $relative_path"
-            echo ""
-        fi
-        
-        local status
-        status=$(grep -m1 "^status:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
-        if [[ -n "$status" ]]; then
-            local expected_dir="$specs_dir/$status"
-            local actual_dir
-            actual_dir=$(dirname "$f")
-            if [[ "$expected_dir" != "$actual_dir" ]]; then
-                issues=$((issues + 1))
-                echo "⚠ $basename: Status '$status' não corresponde à pasta"
-                echo "  → Pasta atual: $actual_dir"
-                echo "  → Deveria estar em: $expected_dir"
-                echo ""
-            fi
-        fi
-    done
-    
+    echo "Uso: devorq spec validate [--dry-run|--force]"
     echo ""
-    if [[ "$issues" -gt 0 ]]; then
-        echo "[DEVORQ] Encontrados $issues problema(s)"
-        if [[ "$fix" -eq 0 ]]; then
-            echo ""
-            echo "Para corrigir automaticamente, execute:"
-            echo "  ./bin/devorq spec validate --fix"
-        else
-            echo "[DEVORQ] Correção automática não implementada ainda"
-        fi
-        return 1
-    else
-        echo "[DEVORQ] Todas as specs padronizadas ✓"
-        return 0
+    echo "  --dry-run  Preview das correções sem aplicar"
+    echo "  --force    Aplicar correções com confirmação"
+    echo ""
+    echo "Ou use: devorq spec fix [--dry-run|--force]"
+    return 1
+}
+
+cmd_spec_fix() {
+    local dry_run=false
+    local force=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --dry-run)
+                dry_run=true
+                shift
+                ;;
+            --force)
+                force=true
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    if [[ "$dry_run" == "true" ]]; then
+        spec_fix_dry_run "$DEVORQ_ROOT"
+        return $?
+    elif [[ "$force" == "true" ]]; then
+        spec_fix_execute "$DEVORQ_ROOT" "false"
+        return $?
     fi
+
+    echo "[DEVORQ] Sistema de auto-correção de specs"
+    echo ""
+    echo "Uso: devorq spec fix [--dry-run|--force]"
+    echo ""
+    echo "  --dry-run  Preview das correções sem aplicar"
+    echo "  --force    Aplicar correções com confirmação"
+    echo ""
+    spec_fix_dry_run "$DEVORQ_ROOT"
 }
 
 cmd_spec() {
@@ -664,9 +669,19 @@ cmd_spec() {
         migrate)
             spec_migrate
             ;;
+        fix)
+            shift 2
+            cmd_spec_fix "$@"
+            ;;
         *)
             log_error "Subcomando desconhecido: $subcmd"
-            echo "Uso: devorq spec [index|list|status|update|move|new|find|validate|migrate]"
+            echo "Uso: devorq spec [index|list|status|update|move|new|find|validate|migrate|fix]"
+            echo ""
+            echo "Comandos de correção:"
+            echo "  validate --dry-run    Preview das correções"
+            echo "  validate --force     Aplicar correções (com confirmação)"
+            echo "  fix --dry-run        Alias para validate --dry-run"
+            echo "  fix --force          Alias para validate --force"
             return 1
             ;;
     esac
