@@ -902,7 +902,7 @@ cmd_lessons() {
             lessons_validate "$DEVORQ_DIR"
             ;;
         apply)
-            lessons_apply "$DEVORQ_DIR" "${3:-}"
+            lessons_apply "$DEVORQ_DIR" "${3:-}" "${4:-}"
             ;;
         diff)
             lessons_diff "$DEVORQ_DIR" "${3:-}"
@@ -1448,7 +1448,7 @@ Handoff multi-LLM:
 Pipeline de aprendizado:
   lessons list                  Listar lições pendentes, validadas e aplicadas
   lessons validate              Validar lições via Context7 (Gate 6)
-  lessons apply <nome>         Aplicar diff na skill (Gate 7)
+  lessons apply <nome> [--target=skill|new-skill|memory-global|memory-local]  Aplicar lição (Gate 7)
   lessons diff <nome>          Mostrar diff sem aplicar (preview)
 
 Versionamento de skills:
