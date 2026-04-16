@@ -71,7 +71,7 @@ devorq spec status                 # Analisar status das specs
 devorq spec new "<título>"         # Criar nova spec em draft/
 devorq spec find "<busca>"         # Buscar specs por termo
 devorq spec move <id> <status>     # Mover spec para outro status
-devorq spec validate [--fix]       # Validar/Corrigir padronização
+devorq spec fix [--dry-run|--force] # Validar/Corrigir padronização
 devorq spec migrate                 # Migrar specs para novo padrão
 
 # Handoff multi-LLM
@@ -143,7 +143,7 @@ SPEC-NUM-DD-MM-AAAA-TITLE.md
 ---
 id: SPEC-NUM-DD-MM-AAAA-titulo-em-kebab-case
 title: Título legível da spec
-domain: arquitetura | database | devops | actions | authorization | livewire | models | notifications | services | ui | backlog
+domain: arquitetura | importacao | ui_ux | refactor | seguranca | operacao
 status: backlog | brainstorming | draft | approved | planning | in_progress | validated | implemented | blocked | archived
 priority: low | medium | high | critical
 owner: team-core
@@ -160,14 +160,14 @@ related_files: []
 ### Comandos de Spec
 
 ```bash
-./bin/devorq spec new "título da spec"    # Cria spec com próximo NUM sequencial
-./bin/devorq spec find "busca"             # Busca fuzzy por título ou ID
-./bin/devorq spec status                    # Lista todas as specs com warnings de ID
-./bin/devorq spec update                   # Promove approved → implemented
-./bin/devorq spec validate [--fix]         # Valida padronização (opção --fix para corrigir)
-./bin/devorq spec migrate                  # Migra specs do formato antigo para novo padrão
-./bin/devorq spec move <id> <status>      # Move spec para pasta de status
-./bin/devorq spec index                    # Gera/regexera índice
+./bin/devorq spec new "título da spec"       # Cria spec com próximo NUM sequencial
+./bin/devorq spec find "busca"                # Busca fuzzy por título ou ID
+./bin/devorq spec status                     # Lista todas as specs com warnings de ID
+./bin/devorq spec update                     # Promove approved → implemented
+./bin/devorq spec fix [--dry-run|--force]    # Valida padronização (--force para corrigir)
+./bin/devorq spec migrate                    # Migra specs do formato antigo para novo padrão
+./bin/devorq spec move <id> <status>         # Move spec para pasta de status
+./bin/devorq spec index                      # Gera/regexera índice
 ```
 
 ### Detecção de Implementação
@@ -180,11 +180,11 @@ O sistema usa critérios híbridos:
 ### Validação e Migração
 
 ```bash
-# Validar todas as specs
-./bin/devorq spec validate
+# Validar todas as specs (dry-run)
+./bin/devorq spec fix --dry-run
 
-# Corrigir automaticamente
-./bin/devorq spec validate --fix
+# Corrigir automaticamente (com confirmação)
+./bin/devorq spec fix --force
 
 # Migrar specs do padrão antigo (SPEC-YYYY-MM-DD-NNN) para novo
 ./bin/devorq spec migrate
