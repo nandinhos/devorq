@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   quality-bash:
     runs-on: ubuntu-latest
@@ -25,87 +28,13 @@ jobs:
 
       - name: Bats — suite completa
         run: |
-          # E2E tests desabilitados temporariamente (SPEC-0065 Sprint 1)
-          # Bug: devorq ignora DEVORQ_ROOT do ambiente e usa $HOME/.devorq
           bats tests/flow.bats tests/functional.bats tests/hooks.bats \
               tests/paths.bats tests/skills.bats tests/sourcing.bats \
               tests/sprint1.bats tests/sprint2.bats tests/sprint3.bats tests/sprint4.bats
 
-  detect:
-    runs-on: ubuntu-latest
-    outputs:
-      stack: ${{ steps.detect.outputs.stack }}
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Detect Stack
-        id: detect
-        run: |
-          if [ -f "composer.json" ] && grep -q "laravel" composer.json; then
-            echo "stack=laravel" >> $GITHUB_OUTPUT
-            echo "stack=laravel"
-          elif [ -f "package.json" ]; then
-            echo "stack=node" >> $GITHUB_OUTPUT
-            echo "stack=node"
-          elif [ -f "requirements.txt" ]; then
-            echo "stack=python" >> $GITHUB_OUTPUT
-            echo "stack=python"
-          else
-            echo "stack=generic" >> $GITHUB_OUTPUT
-            echo "stack=generic"
-          fi
-
-  quality-laravel:
-    needs: detect
-    if: needs.detect.outputs.stack == 'laravel'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: pdo_mysql, pdo_pgsql
-      
-      - name: Install Dependencies
-        run: composer install --no-interaction
-      
-      - name: Run Pint (Linter)
-        run: ./vendor/bin/pint --test
-      
-      - name: Run PHPStan (Type Check)
-        run: ./vendor/bin/phpstan analyse --level=6
-      
-      - name: Run Pest (Tests)
-        run: ./vendor/bin/pest --coverage
-
-  quality-python:
-    needs: detect
-    if: needs.detect.outputs.stack == 'python'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
-      
-      - name: Run MyPy
-        run: mypy src/
-      
-      - name: Run Pytest
-        run: pytest tests/ --cov
-
   quality-generic:
-    needs: detect
-    if: needs.detect.outputs.stack == 'generic'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - name: No specific quality gates for generic stack
-        run: echo "Generic stack - no specific gates defined"
+        run: echo "Generic stack - no additional gates defined"
