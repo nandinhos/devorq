@@ -2,7 +2,7 @@
 id: SPEC-0003-12-04-2026-spec-manager-skill
 title: Estrutura de Specs com Subpastas por Status
 domain: arquitetura
-status: draft
+status: implemented
 priority: high
 created_at: 2026-04-12
 updated_at: 2026-04-12
