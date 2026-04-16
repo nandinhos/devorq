@@ -2,7 +2,7 @@
 id: SPEC-0066-16-04-2026-pipeline-lessons-learned-gates-67
 title: Pipeline de Lições Aprendidas — Gates 6 e 7 com Validação Automática
 domain: arquitetura
-status: draft
+status: implemented
 priority: high
 author: Nando Dev
 owner: team-core
@@ -371,13 +371,13 @@ echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 
 ## Tarefas de Implementação
 
-| # | Tarefa | Prioridade |
-|---|--------|------------|
-| T1 | Atualizar `lib/lessons.sh` com Gates 6/7 | alta |
-| T2 | Atualizar skill `learned-lesson` v2 | alta |
-| T3 | Criar SPEC de análise das 9 lições | alta |
-| T4 | Testar pipeline completo | média |
-| T5 | Migração das lições existentes | média |
+| # | Tarefa | Prioridade | Status |
+|---|--------|------------|--------|
+| T1 | Atualizar `lib/lessons.sh` com Gates 6/7 | alta | ✅ implementada |
+| T2 | Atualizar skill `learned-lesson` v2 | alta | pendente |
+| T3 | Criar SPEC de análise das 9 lições | alta | ✅ SPEC-0067 criada |
+| T4 | Testar pipeline completo | média | pendente |
+| T5 | Migração das lições existentes | média | pendente |
 
 ---
 
@@ -395,3 +395,4 @@ echo "- [Descrição da lição incorporada]" >> CHANGELOG.md
 | Data | Autor | Mudança |
 |------|-------|---------|
 | 2026-04-16 | Nando Dev | Criação desta spec |
+| 2026-04-16 | Nando Dev | T1 implementada (commit eecaa09) |
