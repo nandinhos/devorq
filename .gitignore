@@ -58,6 +58,7 @@ node_modules/
 .devorq/state/tasklist/
 .devorq/state/lessons-pending/
 .devorq/state/lessons-learned/
+/state/
 .devorq/state/contracts/
 .devorq/state/checkpoints/
 .devorq/state/specs/

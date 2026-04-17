@@ -1,36 +1,18 @@
 {
   "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp@latest"
-      ],
-      "env": {
-        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
-      },
-      "description": "Context7 server for documentation lookups"
-    },
     "serena": {
       "command": "uvx",
       "args": [
         "serena",
         "--project=."
-      ],
-      "description": "Serena server for intelligent code navigation"
+      ]
     },
     "basic-memory": {
       "command": "uvx",
       "args": [
         "basic-memory",
         "mcp"
-      ],
-      "description": "Persistent memory for cross-session knowledge"
+      ]
     }
-  },
-  "projectConfig": {
-    "name": "aidev-superpowers-v3-1",
-    "stack": "generic",
-    "version": "1.0.0"
   }
 }
