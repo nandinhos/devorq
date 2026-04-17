@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+# DEVORQ - Git Hook: Post-Commit
+# Detecta SPEC movida para implemented/ e propõe captura de lição aprendida.
+# Não-bloqueante: nunca impede o commit de completar.
+# Dual-use: pode ser executado diretamente ou carregado via source (para testes).
+
+# set -eEo pipefail é aplicado dentro de main() para não interferir com source em testes
+
+# ─────────────────────────────────────────────────────────────────────────────
+# detect_spec_implemented <diff_output>
+# Analisa o output de `git diff --name-status HEAD~1..HEAD`.
+# Retorna: "<SPEC-ID> <basename-sem-.md>" para a primeira SPEC encontrada, ou vazio.
+# ─────────────────────────────────────────────────────────────────────────────
+detect_spec_implemented() {
+    local diff_output="$1"
+    local line spec_file spec_basename spec_id
+
+    while IFS= read -r line; do
+        # Linhas Added (A) ou Renamed-destination (R100) em docs/specs/implemented/
+        if echo "$line" | grep -qE $'^(A|R[0-9]+)\t.*docs/specs/implemented/SPEC-[0-9]'; then
+            spec_file=$(echo "$line" | awk -F'\t' '{print $NF}')
+            spec_basename=$(basename "$spec_file" .md)
+            spec_id=$(echo "$spec_basename" | grep -oP '^SPEC-\d+-\d+-\d+-\d+')
+            [ -n "$spec_id" ] && echo "$spec_id $spec_basename" && return 0
+        fi
+    done <<< "$diff_output"
+    return 0
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# create_spec_lesson_skeleton <devorq_dir> <spec_id> <title> <domain>
+# Cria skeleton de lição em lessons-pending/ com template de spec-completion.
+# Retorna: path do arquivo criado.
+# ─────────────────────────────────────────────────────────────────────────────
+create_spec_lesson_skeleton() {
+    local devorq_dir="$1"
+    local spec_id="$2"
+    local title="$3"
+    local domain="${4:-arquitetura}"
+    local pending_dir="$devorq_dir/state/lessons-pending"
+
+    mkdir -p "$pending_dir"
+
+    # Calcular próximo número usando get_next_lesson_number se disponível
+    local next_num
+    if declare -f get_next_lesson_number >/dev/null 2>&1; then
+        next_num=$(get_next_lesson_number "$devorq_dir")
+    else
+        local last=0
+        for f in "$devorq_dir"/state/lessons-{pending,validated,applied}/LESSON-*.md; do
+            [ -f "$f" ] || continue
+            local n
+            n=$(basename "$f" | grep -oP 'LESSON-\K\d+' || true)
+            [ -n "$n" ] && [ "$n" -gt "$last" ] 2>/dev/null && last="$n"
+        done
+        next_num=$(printf "%04d" $((last + 1)))
+    fi
+
+    local today created_date slug lesson_file
+    today=$(date +%d-%m-%Y)
+    created_date=$(date +%Y-%m-%d)
+    slug=$(echo "$title" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]' | cut -c1-40)
+    lesson_file="$pending_dir/LESSON-${next_num}-${today}-${slug}.md"
+
+    cat > "$lesson_file" << EOF
+---
+id: LESSON-${next_num}-${today}
+title: ${title}
+domain: ${domain}
+status: pending
+priority: medium
+owner: team-core
+created_at: ${created_date}
+updated_at: ${created_date}
+source: spec-completion
+related_tasks: []
+related_files: []
+applied_to: ""
+spec_origin: ${spec_id}
+---
+
+# Lição Aprendida — LESSON-${next_num}-${today}
+
+## O QUE FOI IMPLEMENTADO
+
+[Breve descrição do que a SPEC entregou]
+
+## DESAFIOS ENCONTRADOS
+
+[Principais dificuldades durante a implementação]
+
+## DOCUMENTAÇÃO DE REFERÊNCIA
+
+[Links, comandos, recursos consultados]
+
+## LIÇÕES PRINCIPAIS
+
+- [ ]
+- [ ]
+
+## PRÓXIMOS PASSOS (se aplicável)
+
+[O que poderia ser feito a partir daqui]
+EOF
+
+    echo "$lesson_file"
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ask_capture_lesson <devorq_dir> <spec_id> <title> <domain>
+# Fluxo interativo: pergunta S/N e depois A(gora)/D(epois). Lê de stdin.
+# ─────────────────────────────────────────────────────────────────────────────
+ask_capture_lesson() {
+    local devorq_dir="$1"
+    local spec_id="$2"
+    local title="$3"
+    local domain="$4"
+    local resposta scheduling lesson_file
+
+    echo ""
+    echo "╔══════════════════════════════════════════════════════╗"
+    echo "║  DEVORQ — SPEC implementada detectada               ║"
+    echo "╚══════════════════════════════════════════════════════╝"
+    echo "  SPEC: $spec_id"
+    echo "  Título: $title"
+    echo ""
+    printf "  Capturar lição aprendida desta SPEC? [S/N]: "
+    read -r resposta
+
+    case "${resposta^^}" in
+        S|SIM)
+            lesson_file=$(create_spec_lesson_skeleton "$devorq_dir" "$spec_id" "$title" "$domain")
+            echo "  ✓ Skeleton criado: $(basename "$lesson_file")"
+            echo ""
+            printf "  Iniciar validação AGORA ou deixar para DEPOIS? [A/D]: "
+            read -r scheduling
+            case "${scheduling^^}" in
+                A|AGORA)
+                    echo ""
+                    echo "  Iniciando Gate 6 (validação Context7)..."
+                    local devorq_bin
+                    devorq_bin="$(dirname "$(dirname "$devorq_dir")")/bin/devorq"
+                    if [ -x "$devorq_bin" ]; then
+                        "$devorq_bin" lessons validate 2>/dev/null || \
+                            echo "  [AVISO] Execute manualmente: devorq lessons validate"
+                    else
+                        echo "  [AVISO] Execute manualmente: devorq lessons validate"
+                    fi
+                    ;;
+                *)
+                    echo "  Lição em pending. Execute quando quiser: devorq lessons validate"
+                    ;;
+            esac
+            ;;
+        *)
+            echo "  Nenhuma lição capturada."
+            ;;
+    esac
+    echo ""
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# main — executado apenas quando o script é chamado diretamente (não via source)
+# Todos os guards de ambiente ficam aqui para não interferir com source em testes.
+# ─────────────────────────────────────────────────────────────────────────────
+main() {
+    set -eEo pipefail
+
+    # Guard 1 — sai silenciosamente em ambientes não-interativos (CI, IDEs)
+    [ -t 1 ] || exit 0
+
+    local devorq_root devorq_dir diff_output spec_info spec_id spec_basename title domain
+
+    devorq_root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+    devorq_dir="$devorq_root/.devorq"
+
+    # Guard 2 — primeiro commit do repo (sem HEAD~1)
+    git rev-parse HEAD~1 >/dev/null 2>&1 || exit 0
+
+    # Carregar pipeline de lições se disponível
+    # shellcheck source=lib/lessons.sh
+    [ -f "$devorq_root/lib/lessons.sh" ] && source "$devorq_root/lib/lessons.sh"
+
+    diff_output=$(git diff --name-status HEAD~1..HEAD 2>/dev/null) || return 0
+
+    spec_info=$(detect_spec_implemented "$diff_output")
+    [ -z "$spec_info" ] && return 0
+
+    spec_id=$(echo "$spec_info" | awk '{print $1}')
+    spec_basename=$(echo "$spec_info" | awk '{print $2}')
+
+    # Extrair title e domain do front matter da SPEC
+    local spec_file="$devorq_root/docs/specs/implemented/${spec_basename}.md"
+    if [ -f "$spec_file" ]; then
+        title=$(grep -m1 "^title:" "$spec_file" | cut -d: -f2- | xargs)
+        domain=$(grep -m1 "^domain:" "$spec_file" | cut -d: -f2- | xargs)
+    fi
+    title="${title:-$spec_basename}"
+    domain="${domain:-arquitetura}"
+
+    ask_capture_lesson "$devorq_dir" "$spec_id" "$title" "$domain"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then main "$@"; fi

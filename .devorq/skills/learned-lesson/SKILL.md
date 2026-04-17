@@ -73,7 +73,7 @@ priority: low | medium | high | critical
 owner: team-core
 created_at: YYYY-MM-DD
 updated_at: YYYY-MM-DD
-source: manual | session-audit | code-review
+source: manual | session-audit | code-review | spec-completion
 related_tasks: []
 related_files: []
 applied_to: ""    # preenchido no Gate 7. Ex: "skill:quality-gate", "memory:local", "memory:global", "skill:nova/<nome>"
