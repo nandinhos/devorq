@@ -7,13 +7,14 @@ set -eEo pipefail
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 
-if [ -d "$HOME/.devorq" ]; then
-    DEVORQ_ROOT="$HOME/.devorq"
-else
-    DEVORQ_ROOT="$(dirname "$SCRIPT_DIR")"
+if [[ -z "${DEVORQ_ROOT:-}" ]]; then
+    if [ -d "$HOME/.devorq" ]; then
+        DEVORQ_ROOT="$HOME/.devorq"
+    else
+        DEVORQ_ROOT="$(dirname "$SCRIPT_DIR")"
+    fi
 fi
-
-DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
+DEVORQ_DIR="$(pwd)/.devorq"
 
 if [ ! -d "$DEVORQ_ROOT/lib" ]; then
     echo "ERRO: Diretório de libs não encontrado: $DEVORQ_ROOT/lib" >&2

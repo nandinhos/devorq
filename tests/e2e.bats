@@ -17,7 +17,7 @@ setup() {
     chmod +x "$TEST_SANDBOX/bin/devorq"
     
     # Definir DEVORQ_ROOT como o sandbox para os testes
-    DEVORQ_ROOT="$TEST_SANDBOX"
+    export DEVORQ_ROOT="$TEST_SANDBOX"
     
     cd "$TEST_SANDBOX" || exit 1
 }
