@@ -1,5 +1,11 @@
 # CHANGELOG — quality-gate
 
+## v1.4.0 (2026-04-17)
+
+- Passo 8 (Bash Dual-use Scripts): adicionadas regras para `set -eEo pipefail` dentro de `main()` e source guard com `if/fi`
+- Previne falhas silenciosas ao fazer source de hooks em testes bats
+- Referência: LESSON-0014-17-04-2026
+
 ## v1.3.0 (2026-04-16)
 
 - Adição de Etapa 9 (validação manual da feature) com diálogo canônico
