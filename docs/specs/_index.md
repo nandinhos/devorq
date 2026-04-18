@@ -1,12 +1,13 @@
 # Índice de Specs DEVORQ
 
-_Gerado automaticamente em 2026-04-17 00:14:45_
+_Gerado automaticamente em 2026-04-17 00:14:45 — atualizado manualmente em 2026-04-18_
 
 ## Resumo por Status
 
 | Status | Total |
 |--------|-------|
 | draft | 5 |
+| approved | 3 |
 | validated | 1 |
 | implemented | 27 |
 
@@ -54,6 +55,9 @@ _Gerado automaticamente em 2026-04-17 00:14:45_
 | SPEC-0072-16-04-2026-teste-template-canonico-sprint4 | teste template canonico sprint4 | arquitetura | draft | medium | 2026-04-16 |
 | SPEC-0073-16-04-2026-teste-template-canonico-sprint4 | teste template canonico sprint4 | arquitetura | draft | medium | 2026-04-16 |
 | SPEC-0074-17-04-2026-teste-template-canonico-sprint4 | teste template canonico sprint4 | arquitetura | draft | medium | 2026-04-17 |
+| SPEC-0075-18-04-2026-melhorias-rastreabilidade-workflow | Melhorias de Rastreabilidade e Robustez do Workflow DEVORQ | arquitetura | approved | medium | 2026-04-18 |
+| SPEC-0076-18-04-2026-context7-fluxo-automatico | Context7 no Fluxo Automático — Integração nas Skills | arquitetura | approved | high | 2026-04-18 |
+| SPEC-0077-18-04-2026-grafo-dependencias-skills | Grafo de Dependências das Skills DEVORQ | arquitetura | approved | medium | 2026-04-18 |
 
 ## Alertas
 
