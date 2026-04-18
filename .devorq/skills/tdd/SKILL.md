@@ -8,6 +8,8 @@ triggers:
 globs:
   - "tests/**/*.php"
   - "tests/**/*.js"
+depends_on:
+  - pre-flight
 ---
 
 # TDD - Test-Driven Development

@@ -9,6 +9,8 @@ triggers:
   - "criar issues"
 globs:
   - "docs/spec/*.md"
+depends_on:
+  - spec
 ---
 
 # /break — Decomposição de Spec em Tasks

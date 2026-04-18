@@ -20,6 +20,7 @@ fields:
   - related_tasks
   - related_files
   - applied_to
+depends_on: []
 ---
 
 # learned-lesson v3 — Lições Aprendidas
@@ -108,10 +109,16 @@ Cria `.devorq/state/lessons-pending/LESSON-NNNN-DD-MM-YYYY-titulo-kebab.md` com 
 devorq lessons validate
 ```
 
-1. Context7 consulta automaticamente quando aplicável
-2. Classifica: CONFIRMADO | PARCIAL | INCORRETO | NÃO_APLICÁVEL
-3. Aguarda aprovação humana (ENTER para mover para `lessons-validated/`)
-4. Atualiza front matter com `status: validated`
+1. **Validação Context7** (quando a lição envolve framework/biblioteca):
+   - `mcp__context7__resolve-library-id` → identificar a biblioteca relevante para a lição
+   - `mcp__context7__query-docs` com `topic` = conceito central da lição
+   - Classificar conforme resultado da consulta:
+     - **CONFIRMADO** — documentação confirma a lição como correta e atual
+     - **PARCIAL** — documentação confirma parte; diverge em algum ponto
+     - **INCORRETO** — documentação contradiz a lição (revisar antes de aplicar)
+     - **NÃO_APLICÁVEL** — lição é sobre processo/negócio, não framework externo
+   - Registrar no front matter da lição: `context7_result: CONFIRMADO`
+   - Se Context7 não disponível: classificar como `NÃO_APLICÁVEL` e prosseguir
 
 ## Gate 7 — Decisão de Destino (lessons-applied/)
 

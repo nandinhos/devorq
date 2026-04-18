@@ -10,6 +10,8 @@ triggers:
 globs:
   - ".devorq/state/context.json"
   - ".devorq/state/contracts/"
+depends_on:
+  - spec
 ---
 
 # /handoff — Transferência Multi-LLM

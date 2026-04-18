@@ -9,6 +9,9 @@ globs:
   - "**/*.php"
   - "**/*.js"
   - "**/*.sh"
+depends_on:
+  - systematic-debugging
+  - code-review
 ---
 
 # /quality-gate - Verificação Pré-Commit

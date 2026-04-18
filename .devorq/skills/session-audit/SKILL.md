@@ -7,6 +7,8 @@ triggers:
   - "eficiência"
 globs:
   - ".git"
+depends_on:
+  - learned-lesson
 ---
 
 # /session-audit - Métricas de Eficiência

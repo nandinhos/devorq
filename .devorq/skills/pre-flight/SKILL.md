@@ -12,6 +12,8 @@ globs:
   - "**/*.js"
   - "**/*.ts"
   - "**/*.sh"
+depends_on:
+  - constraint-loader
 ---
 
 # /pre-flight - Validação Pré-Implementação
@@ -63,6 +65,26 @@ Para cada tipo usado no código:
 - ✅ Campo existe com esse tipo?
 - ✅ Foreign key aponta para tabela existente?
 - ✅ Scripts Bash dual-use contêm o guard `[[ "${BASH_SOURCE[0]}" != "$0" ]] && return 0`?
+
+### Step 3b: Validar contra Documentação Oficial (Context7)
+
+Se a stack usa framework externo (Laravel, Livewire, React, Next.js, etc.):
+
+1. Resolver o ID da biblioteca:
+   - `mcp__context7__resolve-library-id` com query = nome do framework (ex: "laravel", "livewire", "react")
+   - Usar o `libraryId` retornado no próximo passo
+
+2. Consultar documentação para cada enum/método/classe usada:
+   - `mcp__context7__query-docs` com `libraryId` + `topic` = enum ou método em análise
+   - Confirmar: existe na versão usada? Valores são os corretos?
+
+3. Registrar no PRE-FLIGHT REPORT:
+   ```
+   Context7 — [Enum/Método]: confirmado em [Framework] docs ✅
+   Context7 — [Enum/Método]: não encontrado — verificar manualmente ⚠️
+   ```
+
+Se stack = Bash/Shell puro ou Context7 não disponível: pular esta etapa silenciosamente.
 
 ### Step 4: Report
 ```markdown

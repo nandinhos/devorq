@@ -47,6 +47,22 @@ Se nada encontrado relevante: registrar "Nenhum código reutilizável identifica
 
 **Objetivo**: eliminar duplicação antes de começar. Código duplicado = dívida de manutenção.
 
+#### Step 0b: Buscar Padrão Oficial (Context7)
+
+Se a task envolve um framework externo (Laravel, Livewire, Next.js, React, etc.):
+
+1. `mcp__context7__resolve-library-id` → obter `libraryId` do framework
+2. `mcp__context7__query-docs` com `topic` = padrão de implementação da task
+   - Ex: "Livewire form component", "Laravel Eloquent query builder", "React useEffect"
+3. Adicionar ao output `=== CONSTRAINT LOADER ===`:
+   ```
+   Context7: [padrão X] validado em [Framework] docs — usar abordagem Y
+   ```
+
+Objetivo: garantir que a implementação segue o padrão oficial atual, não código legado ou memória de treinamento desatualizada.
+
+Se Context7 não disponível: pular e registrar "Context7: não disponível".
+
 ## Tipos de Task e Artefatos
 
 ### Feature Livewire

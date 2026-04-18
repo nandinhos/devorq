@@ -327,7 +327,7 @@ ${ctx_line}
 EOF
 }
 
-cmd_skills() {
+cmd_skills_list() {
     local skills_dir="$DEVORQ_DIR/skills"
 
     if [ ! -d "$skills_dir" ]; then
@@ -349,6 +349,66 @@ cmd_skills() {
         fi
         echo "  - $skill ${version:-v?}"
     done
+}
+
+cmd_skills_graph() {
+    local skills_dir="$DEVORQ_DIR/skills"
+
+    echo "Grafo de Dependências das Skills DEVORQ"
+    echo "======================================="
+    echo ""
+
+    local has_deps=false
+    for skill_dir in "$skills_dir"/*/; do
+        [ -d "$skill_dir" ] || continue
+        local skill skill_md
+        skill=$(basename "$skill_dir")
+        skill_md="$skill_dir/SKILL.md"
+        [ -f "$skill_md" ] || continue
+
+        local deps
+        deps=$(awk '
+            /^---$/ { delim_count++; next }
+            delim_count == 1 && /^depends_on:/ { in_deps=1; next }
+            delim_count == 1 && in_deps && /^  - / { print $2; next }
+            delim_count == 1 && in_deps && /^[^ ]/ { in_deps=0 }
+            delim_count == 2 { exit }
+        ' "$skill_md" 2>/dev/null)
+
+        if [ -n "$deps" ]; then
+            has_deps=true
+            while IFS= read -r dep; do
+                [ -n "$dep" ] && echo "  $skill → $dep"
+            done <<< "$deps"
+        fi
+    done
+
+    if [ "$has_deps" = false ]; then
+        echo "  (nenhuma dependência declarada)"
+    fi
+
+    echo ""
+    echo "Skills sem dependências declaradas:"
+    for skill_dir in "$skills_dir"/*/; do
+        [ -d "$skill_dir" ] || continue
+        local skill skill_md
+        skill=$(basename "$skill_dir")
+        skill_md="$skill_dir/SKILL.md"
+        [ -f "$skill_md" ] || continue
+
+        local has_dep_field
+        has_dep_field=$(grep -c "^depends_on:" "$skill_md" 2>/dev/null) || has_dep_field=0
+        [ "$has_dep_field" -eq 0 ] && echo "  - $skill"
+    done
+}
+
+cmd_skills() {
+    shift
+    local subcommand="${1:-list}"
+    case "$subcommand" in
+        graph) cmd_skills_graph ;;
+        list|*) cmd_skills_list ;;
+    esac
 }
 
 # =====================================================
@@ -1489,6 +1549,7 @@ Comandos principais:
   checkpoint                    Criar checkpoint de continuidade
   info                          Mostrar info resumida
   skills                        Listar skills disponíveis com versões
+  skills graph                  Exibir grafo de dependências entre skills
 
 Context-Mode (Modo Monstro):
   context-mode status           Verificar status do Modo Monstro
@@ -1562,7 +1623,7 @@ case "${1:-help}" in
     context)     cmd_context ;;
     checkpoint)  cmd_checkpoint ;;
     info)        cmd_info ;;
-    skills)      cmd_skills ;;
+    skills)      cmd_skills "$@" ;;
     lessons)     cmd_lessons "$@" ;;
     handoff)     cmd_handoff "$@" ;;
     skill)       cmd_skill "$@" ;;

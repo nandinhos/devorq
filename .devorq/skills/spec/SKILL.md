@@ -9,6 +9,7 @@ triggers:
   - "especificar projeto"
 globs:
   - "**/*.md"
+depends_on: []
 ---
 
 # /spec — Especificação de Projeto
