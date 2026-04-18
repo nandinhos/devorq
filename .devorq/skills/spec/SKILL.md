@@ -94,6 +94,20 @@ related_files: []
 
 - `[NomeModelo]` — [campos principais e relacionamentos]
 - `[NomeModelo]` — [campos principais e relacionamentos]
+
+## RESOLUÇÕES DE PANES
+
+> Preencher durante o desenvolvimento sempre que um bug bloquear o progresso desta SPEC.
+
+### Pane #001
+- **Data:** DD/MM/YYYY HH:MM
+- **Sintoma:** [O que foi reportado / o que o usuário viu]
+- **Causa Raiz:** [Por que ocorreu — usar /systematic-debugging]
+- **Localização:** [Arquivo:linha ou componente]
+- **Decisão Técnica:** [Como foi corrigido e por quê]
+- **Lição Aprendida:** [Conhecimento extraído — candidato para /learned-lesson]
+- **Referência:** [Commit hash ou N/A]
+- **Status:** Resolvido | Em análise | Pendente
 ```
 
 ### Step 3: Salvar Documento

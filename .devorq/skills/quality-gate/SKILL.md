@@ -19,6 +19,18 @@ globs:
 
 **OBRIGATÓRIO** após qualquer implementação, ANTES de commit
 
+## Pré-requisito — Code Review
+
+Se as mudanças incluem:
+- Novas funções ou módulos
+- Alteração de arquitetura ou fluxo
+- Mudanças em mais de 3 arquivos
+
+→ Executar `/code-review` antes deste checklist.
+→ Registrar resultado (Aprovado | Pendências resolvidas) antes de prosseguir.
+
+Para mudanças mínimas (typo, comentário, config de 1 linha): pode pular.
+
 ## Checklist
 
 ```
@@ -28,6 +40,9 @@ globs:
 - [ ] Todos passando
 - [ ] Novos testes adicionados
 - [ ] Sem regressão
+
+> **Se testes falham**: Invocar `/systematic-debugging` ANTES de tentar corrigir.
+> Nunca corrigir um teste falhando sem identificar a causa raiz.
 
 ### 2. Lint
 - [ ] Pint/ESLint passou

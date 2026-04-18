@@ -41,5 +41,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: No specific quality gates for generic stack
-        run: echo "Generic stack - no additional gates defined"
+
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+
+      - name: Bash syntax check — todos os scripts
+        run: |
+          bash -n bin/devorq
+          for f in lib/*.sh lib/**/*.sh; do
+            [[ -f "$f" ]] && bash -n "$f"
+          done
+
+      - name: Shellcheck — severity warning (não-erro)
+        run: |
+          shellcheck --severity=warning bin/devorq || true
+          shellcheck --severity=warning lib/*.sh || true
+
+      - name: Validar estrutura de skills
+        run: |
+          for skill_dir in .devorq/skills/*/; do
+            skill_name=$(basename "$skill_dir")
+            if [[ ! -f "${skill_dir}SKILL.md" ]]; then
+              echo "ERRO: skill '$skill_name' sem SKILL.md"
+              exit 1
+            fi
+            if [[ ! -f "${skill_dir}CHANGELOG.md" ]]; then
+              echo "AVISO: skill '$skill_name' sem CHANGELOG.md"
+            fi
+          done
+          echo "Estrutura de skills OK"

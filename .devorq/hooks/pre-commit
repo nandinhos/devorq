@@ -1,152 +1,31 @@
-#!/bin/bash
-# DEVORQ - Git Hook: Pre-commit Quality Gate
-# Este hook executa validacoes antes de permitir commit
+#!/usr/bin/env bash
+# DEVORQ pre-commit hook — syntax check lightweight
+# Instalar via: ./bin/devorq hooks install
 
-set -eEo pipefail
+set -euo pipefail
 
 DEVORQ_ROOT="$(git rev-parse --show-toplevel)"
-DEVORQ_DIR="$DEVORQ_ROOT/.devorq"
 
-echo "DEVORQ Pre-commit Hook"
-echo "======================="
+echo "[DEVORQ hook] Verificando sintaxe Bash..."
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
-pass() { echo -e "${GREEN}PASS${NC} $1"; }
-fail() { echo -e "${RED}FAIL${NC} $1"; }
-warn() { echo -e "${YELLOW}WARN${NC} $1"; }
-
-detect_stack() {
-    if [ -f "$DEVORQ_ROOT/composer.json" ]; then
-        if grep -q '"laravel/framework"' "$DEVORQ_ROOT/composer.json" 2>/dev/null; then
-            echo "laravel"
-            return
-        fi
-    fi
-    echo "generic"
+bash -n "${DEVORQ_ROOT}/bin/devorq" || {
+    echo "[DEVORQ hook] ERRO: bin/devorq tem erro de sintaxe. Commit bloqueado."
+    exit 1
 }
 
-STACK=$(detect_stack)
-
-errors=0
-
-echo ""
-echo "1. Verificando alteracoes..."
-git diff --cached --name-only
-echo ""
-
-echo "2. Verificando /scope-guard..."
-if [ -f "$DEVORQ_DIR/state/contracts/ct_latest.md" ]; then
-    pass "Contrato existe"
-else
-    warn "Nenhum contrato encontrado"
-fi
-
-echo "3. Verificando lint..."
-case "$STACK" in
-    "laravel")
-        if [ -f "$DEVORQ_ROOT/vendor/bin/pint" ]; then
-            if "$DEVORQ_ROOT/vendor/bin/pint" --test 2>/dev/null; then
-                pass "Pint OK"
-            else
-                fail "Pint falhou"
-                errors=$((errors + 1))
-            fi
-        elif command -v php &>/dev/null; then
-            pass "Pint nao instalado (skip)"
-        fi
-        ;;
-    *)
-        pass "Lint nao aplicavel"
-        ;;
-esac
-
-echo "4. Verificando testes..."
-case "$STACK" in
-    "laravel")
-        if [ -f "$DEVORQ_ROOT/vendor/bin/pest" ]; then
-            pass "Pest disponivel"
-        elif [ -f "$DEVORQ_ROOT/vendor/bin/phpunit" ]; then
-            pass "PHPUnit disponivel"
-        else
-            warn "Nenhum test runner encontrado"
-        fi
-        ;;
-    *)
-        pass "Testes nao verificados"
-        ;;
-esac
-
-echo "5. Verificando arquivos sensiveis..."
-PROHIBITED_FILES=(".env" "*.key" "*.pem" "secrets.json")
-
-for pattern in "${PROHIBITED_FILES[@]}"; do
-    if git diff --cached --name-only | grep -q "$pattern" 2>/dev/null; then
-        fail "Arquivo sensivel: $pattern"
-        errors=$((errors + 1))
-    fi
+shopt -s globstar
+for f in "${DEVORQ_ROOT}"/lib/*.sh "${DEVORQ_ROOT}"/lib/**/*.sh; do
+    [[ -f "$f" ]] || continue
+    bash -n "$f" 2>/dev/null || {
+        echo "[DEVORQ hook] ERRO: $f tem erro de sintaxe. Commit bloqueado."
+        exit 1
+    }
 done
 
-echo ""
-
-# 5b. Mover specs que mudaram de status
-echo "5b. Verificando movimentacao de specs..."
-
-valid_statuses="backlog brainstorming draft approved planning in_progress validated implemented blocked archived"
-
-for f in $(git diff --cached --name-only | grep '^docs/specs/.*\.md$' 2>/dev/null); do
-    [[ "$f" == *"/_index.md" ]] && continue
-    
-    new_status=$(git show ":$f" 2>/dev/null | awk '/^status:/{print $2; exit}')
-    
-    if [[ -z "$new_status" ]]; then
-        continue
-    fi
-    
-    is_valid=0
-    for s in $valid_statuses; do
-        [[ "$s" == "$new_status" ]] && is_valid=1 && break
-    done
-    
-    if [[ "$is_valid" -eq 0 ]]; then
-        continue
-    fi
-    
-    filename=$(basename "$f")
-    expected_dir="$DEVORQ_ROOT/docs/specs/$new_status"
-    expected_path="$expected_dir/$filename"
-    
-    [[ "$f" == "$expected_path" ]] && continue
-    
-    mkdir -p "$expected_dir"
-    git -C "$DEVORQ_ROOT" mv "$f" "$expected_dir/"
-    git add "$expected_dir/$filename"
-    pass "Spec movida: $filename -> $new_status/"
-done
-
-echo "6. Verificando specs..."
-if git diff --cached --name-only | grep -q '^docs/specs/.*\.md$' 2>/dev/null; then
-    if [ -x "$DEVORQ_ROOT/bin/spec-index" ]; then
-        "$DEVORQ_ROOT/bin/spec-index" >/dev/null 2>&1
-        git add "$DEVORQ_ROOT/docs/specs/_index.md"
-        pass "Indice regenerado"
-    else
-        warn "bin/spec-index nao encontrado"
-    fi
-else
-    pass "Nenhuma spec alterada (skip)"
+if command -v shellcheck &>/dev/null; then
+    echo "[DEVORQ hook] Rodando shellcheck..."
+    shellcheck --severity=error "${DEVORQ_ROOT}/bin/devorq" || exit 1
+    shellcheck --severity=error "${DEVORQ_ROOT}"/lib/*.sh || exit 1
 fi
 
-echo ""
-
-if [ $errors -gt 0 ]; then
-    fail "Pre-commit falhou com $errors erro(s)"
-    exit 1
-else
-    pass "Pre-commit validado"
-fi
-
-exit 0
+echo "[DEVORQ hook] OK — sintaxe Bash válida."

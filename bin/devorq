@@ -118,7 +118,7 @@ cmd_init() {
 
     # Detectar Context-Mode (Modo Monstro)
     local ctx_status
-    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+    ctx_status=$(detect_context_mode "$(pwd)")
     if [[ "$ctx_status" == not_installed ]]; then
         log_warn "Context-Mode: nao instalado (Modo Monstro desativado)"
     elif [[ "$ctx_status" == no_session ]]; then
@@ -295,7 +295,7 @@ EOF
 
 cmd_info() {
     local ctx_status
-    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+    ctx_status=$(detect_context_mode "$(pwd)")
 
     local ctx_line=""
     case "$ctx_status" in
@@ -1007,7 +1007,7 @@ cmd_skill() {
 
 cmd_context_mode() {
     local ctx_status
-    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+    ctx_status=$(detect_context_mode "$(pwd)")
 
     echo ""
     echo "=== Context-Mode (Modo Monstro) ==="
@@ -1058,7 +1058,7 @@ cmd_context_mode() {
 
 get_context_mode_stats() {
     local ctx_status
-    ctx_status=$(detect_context_mode "$DEVORQ_ROOT")
+    ctx_status=$(detect_context_mode "$(pwd)")
 
     if [[ "$ctx_status" != active:* ]]; then
         echo "Context-Mode não está ativo."
@@ -1405,6 +1405,74 @@ cmd_deactivate() {
     export PATH
 }
 
+cmd_hooks() {
+    local subcmd="${2:-status}"
+    local project_root
+    project_root="$(git rev-parse --show-toplevel)"
+    local hook_source="${project_root}/.devorq/hooks/pre-commit"
+    if [[ ! -f "$hook_source" ]] && [[ -n "${DEVORQ_ROOT:-}" ]]; then
+        hook_source="${DEVORQ_ROOT}/hooks/pre-commit"
+    fi
+    local hook_target="${project_root}/.git/hooks/pre-commit"
+
+    case "$subcmd" in
+        install)
+            if [[ ! -f "$hook_source" ]]; then
+                log_error "Hook nao encontrado: $hook_source"
+                echo "Execute: devorq hooks install"
+                return 1
+            fi
+
+            if [[ -f "$hook_target" ]]; then
+                if grep -q "DEVORQ" "$hook_target" 2>/dev/null; then
+                    log_warn "Hook DEVORQ ja instalado. Pulando."
+                    return 0
+                fi
+                echo "Aviso: .git/hooks/pre-commit ja existe e nao e do DEVORQ."
+                read -p "Sobrescrever? (y/N) " -n 1 -r reply || true
+                echo
+                if [[ ! "$reply" =~ ^[Yy]$ ]]; then
+                    echo "Instalacao cancelada."
+                    return 0
+                fi
+            fi
+
+            mkdir -p "$(dirname "$hook_target")"
+            cp "$hook_source" "$hook_target"
+            chmod +x "$hook_target"
+            log_success "Hook instalado: $hook_target"
+            ;;
+        status)
+            if [[ ! -f "$hook_target" ]]; then
+                echo "Hook nao instalado."
+                return 0
+            fi
+            if grep -q "DEVORQ" "$hook_target" 2>/dev/null; then
+                echo "Hook DEVORQ: instalado"
+            else
+                echo "Hook presente: sim (nao DEVORQ)"
+            fi
+            ;;
+        uninstall)
+            if [[ ! -f "$hook_target" ]]; then
+                echo "Hook nao instalado."
+                return 0
+            fi
+            if grep -q "DEVORQ" "$hook_target" 2>/dev/null; then
+                rm -f "$hook_target"
+                log_success "Hook DEVORQ removido."
+            else
+                log_error "Hook presente mas nao e do DEVORQ. Remocao cancelada."
+                return 1
+            fi
+            ;;
+        *)
+            echo "Uso: devorq hooks <install|status|uninstall>"
+            return 1
+            ;;
+    esac
+}
+
 cmd_help() {
     local _version
     _version=$(cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]' || echo "?")
@@ -1464,6 +1532,7 @@ Manutenção:
   clean                         Remover bin/lib órfãos dos projetos
   activate                     Ativar DEVORQ no projeto atual
   deactivate                   Desativar DEVORQ no projeto atual
+  hooks install|status|uninstall  Gerenciar git hook pre-commit
 
 Fluxo obrigatório:
   1. devorq init
@@ -1505,6 +1574,7 @@ case "${1:-help}" in
     clean)        cmd_clean ;;
     activate)    cmd_activate ;;
     deactivate)  cmd_deactivate ;;
+    hooks)       cmd_hooks "$@" ;;
     help|--help|-h) cmd_help ;;
     --version|-v) cat "$DEVORQ_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]'; echo ;;
     *)           log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
