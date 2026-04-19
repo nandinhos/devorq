@@ -192,17 +192,17 @@ lessons_validate() {
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
         local skill_target
-        skill_target=$(grep -m1 "^skill_target:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+        skill_target=$(grep -m1 "^skill_target:" "$f" 2>/dev/null | cut -d: -f2 | xargs || true)
         if [ -z "$skill_target" ]; then
-            skill_target=$(grep -m1 "^## SKILL AFETADA" "$f" -A 1 2>/dev/null | tail -1 | xargs)
+            skill_target=$(grep -m1 "^## SKILL AFETADA" "$f" -A 1 2>/dev/null | tail -1 | xargs || true)
         fi
 
         echo "Skill Target: ${skill_target:-não definida}"
 
         local sintoma causa fix
-        sintoma=$(grep -m1 "^## SINTOMA" "$f" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
-        causa=$(grep -m1 "^## CAUSA" "$f" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
-        fix=$(grep -m1 "^## FIX" "$f" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+        sintoma=$(grep -m1 "^## SINTOMA" "$f" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
+        causa=$(grep -m1 "^## CAUSA" "$f" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
+        fix=$(grep -m1 "^## FIX" "$f" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
 
         echo ""
         echo "SINTOMA: ${sintoma:-N/A}"
@@ -307,13 +307,13 @@ apply_to_skill() {
     fi
 
     local title
-    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
     local sintoma
-    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
     local causa
-    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
     local fix
-    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
 
     local diff_text="## ${title}
 
@@ -340,7 +340,7 @@ ${sintoma:+**Sintoma:** ${sintoma}
 
     local snapshot_file="$versions_dir/v${new_version}.md"
     cp "$skill_dir/SKILL.md" "$snapshot_file"
-    echo "Snapshot criado: $snapshot_file"
+    echo "Snapshot criado: $snapshot_file" >&2
 
     echo "" >> "$skill_dir/SKILL.md"
     echo "" >> "$skill_dir/SKILL.md"
@@ -371,15 +371,15 @@ apply_to_new_skill() {
     mkdir -p "$skill_dir/VERSIONS"
 
     local title
-    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
     local domain
-    domain=$(grep -m1 "^domain:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    domain=$(grep -m1 "^domain:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
     local sintoma
-    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 5 2>/dev/null | grep -v "^##" | head -5 | xargs)
+    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 5 2>/dev/null | grep -v "^##" | head -5 | xargs || true)
     local causa
-    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 5 2>/dev/null | grep -v "^##" | head -5 | xargs)
+    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 5 2>/dev/null | grep -v "^##" | head -5 | xargs || true)
     local fix
-    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 5 2>/dev/null | grep -v "^##" | head -5 | xargs)
+    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 5 2>/dev/null | grep -v "^##" | head -5 | xargs || true)
 
     cat > "$skill_dir/SKILL.md" << EOF
 ---
@@ -441,19 +441,19 @@ apply_to_memory_global() {
 
     local claude_md="$HOME/.claude/CLAUDE.md"
     local title
-    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
     local sintoma
-    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
     local causa
-    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
     local fix
-    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
 
     local entry="
 ## ${title}
 
 **Data:** $(date +%Y-%m-%d)
-**Domínio:** $(grep "^domain:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+**Domínio:** $(grep "^domain:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
 
 ${sintoma:+**Sintoma:** ${sintoma}\n}"
     entry="${entry}${causa:+**Causa:** ${causa}\n}"
@@ -476,15 +476,15 @@ apply_to_memory_local() {
     local devorq_dir="$2"
 
     local title
-    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
     local lesson_id
-    lesson_id=$(grep -m1 "^id:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    lesson_id=$(grep -m1 "^id:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
     local sintoma
-    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
     local causa
-    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
     local fix
-    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
 
     local project_name
     project_name=$(basename "$(pwd)")
@@ -557,18 +557,18 @@ lessons_apply() {
     fi
 
     local lesson_id title domain
-    lesson_id=$(grep -m1 "^id:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
-    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
-    domain=$(grep -m1 "^domain:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    lesson_id=$(grep -m1 "^id:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
+    title=$(grep -m1 "^title:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
+    domain=$(grep -m1 "^domain:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
 
     echo ""
     echo "[GATE 7 — Decisão de Destino para ${lesson_id}]"
     echo ""
 
     local sintoma causa fix
-    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
-    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
-    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs)
+    sintoma=$(grep -m1 "^## SINTOMA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
+    causa=$(grep -m1 "^## CAUSA" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
+    fix=$(grep -m1 "^## FIX" "$lesson_file" -A 3 2>/dev/null | grep -v "^##" | head -2 | xargs || true)
 
     echo "Título: ${title}"
     echo "Domínio: ${domain:-N/A}"
@@ -720,7 +720,7 @@ lessons_diff() {
     fi
 
     local skill_target
-    skill_target=$(grep -m1 "^skill_target:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs)
+    skill_target=$(grep -m1 "^skill_target:" "$lesson_file" 2>/dev/null | cut -d: -f2 | xargs || true)
 
     local diff_proposed
     diff_proposed=$(grep -m1 "^diff_proposed:" "$lesson_file" -A 20 2>/dev/null | grep -v "^diff_proposed:" | head -15)
