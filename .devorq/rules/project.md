@@ -2,8 +2,10 @@
 
 ## Contexto
 - Tipo: Projeto em andamento
-- Stack: generic
+- Stack: bash-framework
 - Regra: "First, do no harm"
+
+stack: bash-framework
 
 ## Regras de Ouro
 1. Consistência com padrões existentes

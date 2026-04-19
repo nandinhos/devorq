@@ -120,7 +120,7 @@ lessons_list() {
             local name
             name=$(basename "$f" .md)
             local validation_result
-            validation_result=$(grep -m1 "^validation_result:" "$f" 2>/dev/null | cut -d: -f2 | xargs)
+            validation_result=$(grep -m1 "^validation_result:" "$f" 2>/dev/null | cut -d: -f2 | xargs || true)
             echo "  [$count] $name ($validation_result)"
         done
         echo "Total validadas: $count"

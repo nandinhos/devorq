@@ -40,7 +40,18 @@ detect_stack() {
     # Salva diretório atual
     local original_dir="$PWD"
     cd "$path" || { echo "generic"; return; }
-    
+
+    # Override manual via .devorq/rules/project.md tem prioridade sobre detecção automática
+    if [ -f ".devorq/rules/project.md" ]; then
+        local override_stack
+        override_stack=$(grep -m1 "^stack:" ".devorq/rules/project.md" 2>/dev/null | cut -d: -f2 | xargs)
+        if [ -n "$override_stack" ] && [ "$override_stack" != "generic" ]; then
+            cd "$original_dir"
+            echo "$override_stack"
+            return
+        fi
+    fi
+
     # Laravel/PHP
     if [ -f "composer.json" ]; then
         if grep -q "laravel/framework" composer.json 2>/dev/null; then
@@ -820,7 +831,7 @@ detect_context_mode() {
 
     [ -z "$ctx_bin" ] && echo "not_installed" && return
 
-    local session_dir="$home/.config/opencode/context-mode/sessions"
+    local session_dir="$home/.config/opencode/context-mode/content"
     [ ! -d "$session_dir" ] && echo "no_sessions" && return
 
     local project_hash

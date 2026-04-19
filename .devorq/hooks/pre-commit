@@ -6,7 +6,7 @@ set -euo pipefail
 
 DEVORQ_ROOT="$(git rev-parse --show-toplevel)"
 
-echo "[DEVORQ hook] Verificando sintaxe Bash..."
+echo "[DEVORQ hook] verificando sintaxe Bash..."
 
 bash -n "${DEVORQ_ROOT}/bin/devorq" || {
     echo "[DEVORQ hook] ERRO: bin/devorq tem erro de sintaxe. Commit bloqueado."
@@ -28,4 +28,20 @@ if command -v shellcheck &>/dev/null; then
     shellcheck --severity=error "${DEVORQ_ROOT}"/lib/*.sh || exit 1
 fi
 
-echo "[DEVORQ hook] OK — sintaxe Bash válida."
+# Detecção de stack para lint condicional
+if [ -f "${DEVORQ_ROOT}/lib/detection.sh" ]; then
+    # shellcheck source=lib/detection.sh
+    source "${DEVORQ_ROOT}/lib/detection.sh"
+    detected_stack=$(detect_stack "${DEVORQ_ROOT}" 2>/dev/null || echo "generic")
+    echo "[DEVORQ hook] Stack: ${detected_stack}"
+    case "$detected_stack" in
+        laravel|livewire|filament|php)
+            echo "[DEVORQ hook] Lint: PHP disponivel via composer"
+            ;;
+        *)
+            echo "[DEVORQ hook] Lint nao aplicavel para stack ${detected_stack}"
+            ;;
+    esac
+fi
+
+echo "[DEVORQ hook] PASS — Pre-commit validado."
