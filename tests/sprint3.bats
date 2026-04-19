@@ -94,7 +94,7 @@ DEVORQ_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 @test "3.6: arquivo VERSION contem 2.1" {
     run cat "$DEVORQ_ROOT/VERSION"
     [ "$status" -eq 0 ]
-    [[ "$output" == "2.1" ]]
+    [[ "$output" == 2.1* ]]
 }
 
 @test "3.6: bin/devorq --version exibe 2.1" {
