@@ -18,8 +18,8 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-pass() { echo -e "${GREEN}[PASS]${NC} $*"; ((TESTS_PASSED++)); ((TESTS_RUN++)); }
-fail() { echo -e "${RED}[FAIL]${NC} $*"; ((TESTS_FAILED++)); ((TESTS_RUN++)); }
+pass() { echo -e "${GREEN}[PASS]${NC} $*"; TESTS_PASSED=$((TESTS_PASSED+1)); TESTS_RUN=$((TESTS_RUN+1)); }
+fail() { echo -e "${RED}[FAIL]${NC} $*"; TESTS_FAILED=$((TESTS_FAILED+1)); TESTS_RUN=$((TESTS_RUN+1)); }
 info() { echo -e "${CYAN}[INFO]${NC} $*"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
 

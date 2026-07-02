@@ -105,8 +105,8 @@ devorq::cmd_build() {
         total=$((total + 1))
         devorq::info "── Etapa 2: Gate $gate ──"
         if ! devorq::cmd_gate "$gate"; then
-            devorq::fail "Gate $gate falhou"
-            ((failed++))
+            echo "[FAIL] Gate $gate falhou" >&2
+            failed=$((failed+1))
         fi
     done
 
@@ -119,7 +119,8 @@ devorq::cmd_build() {
         devorq::info "Sistema pronto para self-building"
         return 0
     else
-        devorq::error "$failed de $total gate(s) de codigo falhou(aram)"
+        echo "[ERROR] $failed de $total gate(s) de codigo falhou(aram)" >&2
+        return 1
     fi
 }
 

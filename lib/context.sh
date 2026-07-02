@@ -25,14 +25,14 @@ ctx_lint() {
         for field in project intent stack; do
             if ! jq -e "has(\"$field\")" "$ctx_file" >/dev/null 2>&1; then
                 echo "[WARN] Campo '$field' ausente em context.json"
-                ((errors++))
+                errors=$((errors+1))
             fi
         done
 
         # Verificar se é objecto válido
         if ! jq -e 'type == "object"' "$ctx_file" >/dev/null 2>&1; then
             echo "[ERROR] context.json não é um objeto JSON válido"
-            ((errors++))
+            errors=$((errors+1))
         fi
 
         # success_criteria recomendado quando intent preenchido (v3.8+)

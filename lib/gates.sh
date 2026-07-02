@@ -210,11 +210,11 @@ gate_2() {
             local rv=$?
             if [ $rv -ne 0 ]; then
                 gate::warn 2 "Testes falharam (exit code: $rv)"
-                ((test_errors++))
+                test_errors=$((test_errors+1))
             fi
         elif [ -f "composer.json" ] && [ ! -d "vendor" ]; then
             gate::warn 2 "vendor/ não instalado"
-            ((test_errors++))
+            test_errors=$((test_errors+1))
         fi
     fi
 
@@ -222,7 +222,7 @@ gate_2() {
         if [ -d "tests" ] && command -v pytest &>/dev/null; then
             pytest -q 2>/dev/null || {
                 gate::warn 2 "pytest falhou"
-                ((test_errors++))
+                test_errors=$((test_errors+1))
             }
         fi
     fi
@@ -241,7 +241,7 @@ gate_2() {
                 sc_errors=$(shellcheck -S error "${sc_files[@]}" 2>/dev/null | grep -c "SC[12]" || true)
                 if [ "$sc_errors" -gt 0 ]; then
                     gate::warn 2 "shellcheck: $sc_errors erro(s) de sintaxe"
-                    ((test_errors += sc_errors))
+                    test_errors=$((test_errors + sc_errors))
                 fi
             fi
         fi
