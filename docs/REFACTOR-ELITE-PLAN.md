@@ -49,6 +49,36 @@ branch — entram em planejamento próprio após aprovação. Guardrails duros d
 
 ---
 
+## F13 — Convenção de commit (PROPOSTA — aguardando validação)
+
+> Pedido do usuário: arrumar a causa raiz na fonte. **Não executado** — decisão de
+> formato pendente (perguntei, usuário ausente). Feedback #1: sugerir antes de mexer
+> em fluxo/decisão. Pronto para rodar assim que confirmar o modelo.
+
+**Causa raiz:** duas semânticas concorrentes, ambas passando pelo hook permissivo
+`^[a-z]+\([a-z]+\):` — `devorq commit`/AUTO produzem `escopo(fase)` (`core(impl):`),
+enquanto os exemplos da doc + CLAUDE.md global + os commits desta branch usam
+`tipo(escopo)` (`fix(gates):`). `commit-convention.md` se contradiz (formato diz
+`escopo(fase)`, exemplos mostram `tipo(escopo)`).
+
+**Recomendação: Model A — convencional `tipo(escopo)`** (alinha com o CLAUDE.md global do
+usuário e a convenção universal). Mudanças, todas numa fatia:
+1. `commit-convention.md` (e cópia em `.devorq/rules/`): trocar linha de formato para
+   `tipo(escopo): descrição`; substituir tabela "Fases válidas" por "Tipos válidos"
+   (feat/fix/refactor/docs/test/style/perf/chore); manter tabela de escopos.
+2. `.git/hooks/commit-msg` + o template que o bootstrap instala: apertar regex para
+   `^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):`.
+3. `lib/commit.sh`: prompt/flag `phase`→`type`, `VALID_PHASES`→`VALID_TYPES`, saída
+   `${scope}(${phase})`→`${type}(${scope})` (linhas 267/269/395). **Mudança de interface
+   do `devorq commit`.**
+4. AUTO `loop-auto.sh:563` e `lib/auto.sh:268`: `${scope}(impl)`→`feat(${scope})`.
+5. `~/.claude/CLAUDE.md` (global): remover colchetes/espaço do exemplo (o hook rejeita
+   `[feat] (x):`) — deixar `feat(escopo): descrição`.
+
+**Alternativa: Model B — `escopo(fase)`** (menor diff: só corrige os exemplos da doc +
+aperta o hook para escopos/fases; `devorq commit`/AUTO já produzem isso). Diverge do
+CLAUDE.md global e dos commits desta branch.
+
 ## Log de Execução
 
 <!-- uma linha por fatia concluída: F# — commit <sha> — <resultado dos testes> -->
