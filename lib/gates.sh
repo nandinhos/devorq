@@ -212,18 +212,45 @@ gate_2() {
                 gate::warn 2 "Testes falharam (exit code: $rv)"
                 test_errors=$((test_errors+1))
             fi
-        elif [ -f "composer.json" ] && [ ! -d "vendor" ]; then
-            gate::warn 2 "vendor/ não instalado"
+        elif [ "${DEVORQ_ALLOW_NO_RUNNER:-0}" != "1" ]; then
+            # fail-closed: PHP com tests/ mas runner ausente/nao-executavel
+            gate::warn 2 "PHP com tests/ mas sem runner executavel (pest/phpunit/artisan, php ou vendor/ faltando) — DEVORQ_ALLOW_NO_RUNNER=1 para ignorar"
             test_errors=$((test_errors+1))
         fi
     fi
 
-    if [ -f "pytest.ini" ] || [ -f "pyproject.toml" ]; then
+    if [ -f "pytest.ini" ] || { [ -f "pyproject.toml" ] && [ -d "tests" ]; }; then
         if [ -d "tests" ] && command -v pytest &>/dev/null; then
             pytest -q 2>/dev/null || {
                 gate::warn 2 "pytest falhou"
                 test_errors=$((test_errors+1))
             }
+        elif [ "${DEVORQ_ALLOW_NO_RUNNER:-0}" != "1" ]; then
+            # fail-closed: testes Python declarados mas pytest ausente
+            gate::warn 2 "pytest.ini/pyproject+tests presentes mas pytest nao instalado — DEVORQ_ALLOW_NO_RUNNER=1 para ignorar"
+            test_errors=$((test_errors+1))
+        fi
+    fi
+
+    # Node/JS: package.json com script "test" (fail-closed se npm ausente)
+    if [ -f "package.json" ]; then
+        local has_test_script=false
+        if command -v jq &>/dev/null; then
+            jq -e '.scripts.test // empty' package.json &>/dev/null && has_test_script=true
+        elif grep -qE '"test"[[:space:]]*:' package.json; then
+            has_test_script=true
+        fi
+        if [ "$has_test_script" = "true" ]; then
+            has_tests=true
+            if command -v npm &>/dev/null; then
+                npm test --silent 2>/dev/null || {
+                    gate::warn 2 "npm test falhou"
+                    test_errors=$((test_errors+1))
+                }
+            elif [ "${DEVORQ_ALLOW_NO_RUNNER:-0}" != "1" ]; then
+                gate::warn 2 "package.json tem script test mas npm nao instalado — DEVORQ_ALLOW_NO_RUNNER=1 para ignorar"
+                test_errors=$((test_errors+1))
+            fi
         fi
     fi
 
