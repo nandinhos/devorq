@@ -49,11 +49,19 @@ branch — entram em planejamento próprio após aprovação. Guardrails duros d
 
 ---
 
-## F13 — Convenção de commit (PROPOSTA — aguardando validação)
+## F13 — Convenção de commit (Model A) ✅ commit `d1df8f4`
 
-> Pedido do usuário: arrumar a causa raiz na fonte. **Não executado** — decisão de
-> formato pendente (perguntei, usuário ausente). Feedback #1: sugerir antes de mexer
-> em fluxo/decisão. Pronto para rodar assim que confirmar o modelo.
+> Confirmado pelo usuário: **Model A** (`tipo(escopo)`, sem Co-autoria, sem emojis, PT-BR).
+> Aplicado em `commit.sh` (VALID_TYPES, `--type`, saída `tipo(escopo)`), hook (template
+> `rules.sh` + validadores apertados p/ `^(feat|fix|...)\(escopo\):`), AUTO (`feat(escopo)`),
+> `commit-convention.md` (repo + `.devorq/`). Checks: hook rejeita `wip`/`core(impl)`,
+> aceita `feat(gates)`; `devorq commit`→`feat(core)`; AUTO→`feat(core)`; 75/75 unit + 77/77 E2E.
+>
+> **Pendente (arquivo pessoal, não toquei — feedback #1):** `~/.claude/CLAUDE.md` global
+> usa `feat (escopo):` com **espaço** nos exemplos, que o hook agora rejeita. Sugerido
+> remover o espaço → `feat(escopo):`. Aguardando OK do usuário para editar o global.
+
+### Proposta original (histórico)
 
 **Causa raiz:** duas semânticas concorrentes, ambas passando pelo hook permissivo
 `^[a-z]+\([a-z]+\):` — `devorq commit`/AUTO produzem `escopo(fase)` (`core(impl):`),
