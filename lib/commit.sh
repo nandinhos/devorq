@@ -29,22 +29,22 @@ devorq::commit::guard_secrets() {
 
 devorq::commit::usage() {
     cat <<'USAGE_EOF'
-Uso: devorq commit [--story <id>] [--scope <scope>] [--phase <phase>] [--message <msg>]
+Uso: devorq commit [--story <id>] [--type <tipo>] [--scope <scope>] [--message <msg>]
 
 Commit manual seguindo convenção DEVORQ:
-  escopo(fase): descrição (detalhamento)
+  tipo(escopo): descrição (detalhamento)
 
 Flags:
   --story <id>     Usa título e description da story do prd.json
+  --type <tipo>    Tipo convencional (feat/fix/refactor/docs/test/style/perf/chore; default: feat)
   --scope <scope>  Sobrescreve escopo (default: detecta do projeto)
-  --phase <phase>  Sobrescreve fase (default: impl)
   --message <msg>  Mensagem completa sem convenção (modo livre)
   --dry-run        Mostra preview sem commitar
   --push           Faz push após commit
 
 Exemplos:
   devorq commit --story feat-001           # Interativo com story
-  devorq commit --scope models --phase fix # Forçar scope e phase
+  devorq commit --type fix --scope models  # Forçar tipo e scope
   devorq commit --message "fix: corrige bug" # Modo livre
 
 Escopos válidos:
@@ -85,16 +85,17 @@ VALID_SCOPES=(
     ["context"]="context"
 )
 
-declare -A VALID_PHASES
-VALID_PHASES=(
-    ["impl"]="impl"
-    ["test"]="test"
-    ["verify"]="verify"
-    ["docs"]="docs"
-    ["unify"]="unify"
-    ["debug"]="debug"
+# Tipos convencionais (Model A: tipo(escopo)). Alinha com CLAUDE.md global e o hook.
+declare -A VALID_TYPES
+VALID_TYPES=(
+    ["feat"]="feat"
     ["fix"]="fix"
     ["refactor"]="refactor"
+    ["docs"]="docs"
+    ["test"]="test"
+    ["style"]="style"
+    ["perf"]="perf"
+    ["chore"]="chore"
 )
 
 # ============================================================
@@ -104,7 +105,7 @@ VALID_PHASES=(
 devorq::commit::run() {
     local story_id=""
     local scope=""
-    local phase=""
+    local type=""
     local custom_message=""
     local dry_run="false"
     local do_push="false"
@@ -120,8 +121,14 @@ devorq::commit::run() {
                 scope="$2"
                 shift 2
                 ;;
+            --type)
+                type="$2"
+                shift 2
+                ;;
             --phase)
-                phase="$2"
+                # alias deprecado: fase antiga -> tipo (Model A)
+                devorq::warn "--phase esta deprecado; use --type (convencao tipo(escopo))"
+                type="$2"
                 shift 2
                 ;;
             --message)
@@ -168,7 +175,7 @@ devorq::commit::run() {
     fi
 
     # Modo interativo
-    devorq::commit::interactive "$project_root" "$story_id" "$scope" "$phase" "$do_push" "$dry_run"
+    devorq::commit::interactive "$project_root" "$story_id" "$scope" "$type" "$do_push" "$dry_run"
 }
 
 # ============================================================
@@ -179,12 +186,12 @@ devorq::commit::interactive() {
     local project_root="$1"
     local story_id="$2"
     local initial_scope="$3"
-    local initial_phase="$4"
+    local initial_type="$4"
     local do_push="$5"
     local dry_run="$6"
 
     local title="" description="" detail=""
-    local scope="$initial_scope" phase="$initial_phase"
+    local scope="$initial_scope" type="$initial_type"
 
     # Se story_id foi passada, carregar dados
     if [[ -n "$story_id" ]]; then
@@ -208,9 +215,9 @@ devorq::commit::interactive() {
         scope="$(devorq::verify::detect_scope "$project_root")"
     fi
 
-    # Detectar phase default se não informada
-    if [[ -z "$phase" ]]; then
-        phase="impl"
+    # Tipo default se não informado
+    if [[ -z "$type" ]]; then
+        type="feat"
     fi
 
     # 1. Scope
@@ -227,17 +234,17 @@ devorq::commit::interactive() {
         fi
     fi
 
-    # 2. Phase
-    if [[ -z "$initial_phase" ]]; then
-        echo -n "Phase [$phase]: "
-        local input_phase
-        read -r input_phase
-        phase="${input_phase:-$phase}"
+    # 2. Tipo (convencional)
+    if [[ -z "$initial_type" ]]; then
+        echo -n "Tipo [$type] (feat/fix/refactor/docs/test/style/perf/chore): "
+        local input_type
+        read -r input_type
+        type="${input_type:-$type}"
 
-        # Validar phase
-        if [[ -z "${VALID_PHASES[$phase]:-}" ]]; then
-            devorq::warn "Phase '$phase' não válida — usando 'impl'"
-            phase="impl"
+        # Validar tipo
+        if [[ -z "${VALID_TYPES[$type]:-}" ]]; then
+            devorq::warn "Tipo '$type' não válido — usando 'feat'"
+            type="feat"
         fi
     fi
 
@@ -264,9 +271,9 @@ devorq::commit::interactive() {
     # 5. Montar mensagem final
     local final_message
     if [[ -n "$detail" ]]; then
-        final_message="${scope}(${phase}): ${title} (${detail})"
+        final_message="${type}(${scope}): ${title} (${detail})"
     else
-        final_message="${scope}(${phase}): ${title}"
+        final_message="${type}(${scope}): ${title}"
     fi
 
     echo ""
@@ -392,7 +399,7 @@ devorq::commit::from_story() {
     local scope
     scope="$(devorq::verify::detect_scope "$project_root")"
 
-    local message="${scope}(impl): ${title}"
+    local message="feat(${scope}): ${title}"
     if [[ -n "$description" ]]; then
         message="${message} (${description})"
     fi

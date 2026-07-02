@@ -560,7 +560,7 @@ devorq_auto::git_commit() {
     if command -v devorq &>/dev/null && declare -f devorq::verify::detect_scope &>/dev/null; then
         scope="$(devorq::verify::detect_scope "$project" 2>/dev/null || echo "core")"
     fi
-    local message="${scope}(impl): ${story_title} (${story_id})"
+    local message="feat(${scope}): ${story_title} (${story_id})"
     git -C "$project" add -A || { devorq_auto::fail "git add -A falhou"; return 1; }
     git -C "$project" commit -m "$message" || { devorq_auto::fail "git commit falhou (hook? nada staged?)"; return 1; }
 }

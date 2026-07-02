@@ -269,7 +269,8 @@ devorq::auto::git_commit() {
     fi
 
     git -C "$project" add -A
-    git -C "$project" commit -m "feat(${story_id}): ${story_title}" --no-verify 2>/dev/null || true
+    # story_id (ex: sec-001) nao e escopo valido; vai na descricao. Formato tipo(escopo).
+    git -C "$project" commit -m "feat(core): ${story_title} (${story_id})" --no-verify 2>/dev/null || true
 }
 
 devorq::auto::execute_flow() {
