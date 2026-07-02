@@ -105,7 +105,13 @@ devorq_auto::parse_spec() {
             local criterion
             criterion="$(_clean "${BASH_REMATCH[1]}")"
             criterion="$(echo "$criterion" | sed 's/^ *//;s/ *$//')"
-            [[ -n "$criterion" ]] && current_criteria=$(echo "$current_criteria" | jq ". += [\"$criterion\"]")
+            if [[ -n "$criterion" ]]; then
+                # --arg (nao concatenacao): aspa/$()/\ no SPEC nao corrompe o programa jq
+                current_criteria=$(jq --arg c "$criterion" '. += [$c]' <<<"$current_criteria") || {
+                    echo "[ERROR] prd-from-spec: jq falhou ao adicionar criterio — abortando" >&2
+                    return 1
+                }
+            fi
         fi
     done < "$spec_file"
 
