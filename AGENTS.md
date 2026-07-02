@@ -80,7 +80,25 @@ export DEVORQ_DELEGATE_FN="$DEVORQ_ROOT/scripts/adapters/opencode-delegate.sh"
 #   OPENCODE_TIMEOUT segundos (default: 1800)
 #   OPENCODE_DRY_RUN se 1, imprime o que faria e retorna 0 sem invocar
 
-# Claude Code / Codex / outro: envolva a chamada do seu orquestrador
+# Adapter GENERICO (recomendado) — 1 dispatcher p/ todos os runners:
+export DEVORQ_DELEGATE_FN="$DEVORQ_ROOT/scripts/adapters/delegate.sh"
+export DEVORQ_RUNNER=claude   # claude|codex|hermes|opencode|agy
+#   DEVORQ_MODEL             forca um modelo (default: default do CLI)
+#   DEVORQ_DELEGATE_TIMEOUT  segundos (default: 1800)
+#   DEVORQ_DELEGATE_DRY_RUN  se 1, imprime o plano e retorna 0 sem invocar o LLM
+
+# Ou um wrapper fino por runner (mesma logica, DEVORQ_RUNNER ja fixado):
+export DEVORQ_DELEGATE_FN="$DEVORQ_ROOT/scripts/adapters/claude-delegate.sh"
+#   ...codex-delegate.sh, hermes-delegate.sh, agy-delegate.sh, opencode-delegate.sh
+
+# Invocacoes reais por runner (dentro de delegate.sh):
+#   claude   claude -p PROMPT --dangerously-skip-permissions --add-dir DIR
+#   agy      agy    -p PROMPT --dangerously-skip-permissions --add-dir DIR
+#   codex    codex exec --cd DIR -s workspace-write --skip-git-repo-check PROMPT
+#   hermes   hermes -z PROMPT --yolo
+#   opencode opencode run --dir DIR --dangerously-skip-permissions PROMPT
+
+# Ou envolva manualmente o seu proprio orquestrador:
 my_delegate() { # $1=story_json  $2=project_root
     # ... invocar o agente do seu ambiente para implementar a story ...
     : ; }
