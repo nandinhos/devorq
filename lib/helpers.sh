@@ -94,7 +94,7 @@ log_safe() {
 devorq::info()    { echo "[INFO] $*"; }
 devorq::log()     { echo "[LOG] $*"; }
 devorq::warn()    { echo "[WARN] $*" >&2; }
-devorq::error()   { echo "[ERROR] $*" >&2; }
+devorq::error()   { echo "[ERROR] $*" >&2; return 1; }
 devorq::success() { echo "[OK] $*"; }
 devorq::fail()    { echo "[FAIL] $*" >&2; return 1; }
 

@@ -235,12 +235,15 @@ devorq::verify::trigger_debug() {
     local failure_context="${1:-verificação falhou}"
     local project_root="${DEVORQ_PROJECT_ROOT:-$PWD}"
 
-    echo ""
-    devorq::error "═══════════════════════════════════════"
-    devorq::error "  SYSTEMATIC DEBUGGING TRIGGERED"
-    devorq::error "═══════════════════════════════════════"
-    devorq::error "Contexto: $failure_context"
-    echo ""
+    # ponytail: banner em stderr, NAO usa devorq::error (que agora aborta sob set -e)
+    {
+        echo ""
+        echo "[ERROR] ═══════════════════════════════════════"
+        echo "[ERROR]   SYSTEMATIC DEBUGGING TRIGGERED"
+        echo "[ERROR] ═══════════════════════════════════════"
+        echo "[ERROR] Contexto: $failure_context"
+        echo ""
+    } >&2
 
     devorq::info "O fluxo systematic-debugging será iniciado automaticamente."
     devorq::info "Fases:"
