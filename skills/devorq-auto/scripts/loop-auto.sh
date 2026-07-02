@@ -30,6 +30,12 @@ DEVORQ_AUTO_VERSION="1.2.1"
 FORCE_CONTINUE=false
 CAPTURE_LESSONS=true
 MAX_DELEGATE_RETRIES=1
+_AUTO_PROJECT_ROOT=""   # capturado p/ trap EXIT (failures.md nunca se perde)
+
+# can_prompt: so pergunta se ha terminal E o usuario nao pediu modo nao-interativo.
+# Em run headless (cron, pipe, agente autonomo) os prompts assumem default seguro
+# em vez de ler EOF e morrer/travar. DEVORQ_AUTO_YES=1 forca nao-interativo.
+devorq_auto::can_prompt() { [[ -t 0 && "${DEVORQ_AUTO_YES:-0}" != "1" ]]; }
 
 #-----------------------------------------------------------
 # Helpers
@@ -551,10 +557,14 @@ devorq_auto::propose_break() {
     echo "    2. Marcar como SKIPPED (analise manual)"
     echo "    3. Abortar"
     echo ""
-    echo -n "  Escolha [1]: "
-
     local choice="1"
-    read -r choice < /dev/stdin
+    if devorq_auto::can_prompt; then
+        echo -n "  Escolha [1]: "
+        read -r choice < /dev/stdin
+    else
+        devorq_auto::warn "nao-interativo: continuando com a story (default seguro)" >&2
+        choice=1
+    fi
 
     case "${choice:-1}" in
         2) echo "SKIPPED" ;;
@@ -709,6 +719,10 @@ main() {
     project_root=$(devorq_auto::detect_project "$project_root")         || devorq_auto::die 1 "Nao encontrei SPEC.md ou .git a partir de: $project_root"
 
     cd "$project_root"
+    # failures.md via trap EXIT: se o run morrer no meio (die/crash), o sumario
+    # das falhas nao se perde — justamente quando ele mais importa.
+    _AUTO_PROJECT_ROOT="$project_root"
+    trap 'devorq_auto::failures_generate "$_AUTO_PROJECT_ROOT" 2>/dev/null || true' EXIT
     devorq_auto::require_prd "$project_root"
 
     # Setup dirs and init
@@ -795,13 +809,18 @@ main() {
                 continue
             fi
 
-            echo ""
-            echo "  [1] Abortar"
-            echo "  [2] Pular story e continuar"
-            echo "  [3] Tentar novamente"
-            echo -n "  Escolha [1]: "
             local choice
-            read -r choice < /dev/stdin
+            if devorq_auto::can_prompt; then
+                echo ""
+                echo "  [1] Abortar"
+                echo "  [2] Pular story e continuar"
+                echo "  [3] Tentar novamente"
+                echo -n "  Escolha [1]: "
+                read -r choice < /dev/stdin
+            else
+                devorq_auto::warn "nao-interativo: pulando $story_id e continuando (default seguro)"
+                choice=2
+            fi
 
             case "${choice:-1}" in
                 2) devorq_auto::warn "Pulando $story_id"; continue ;;
@@ -867,13 +886,18 @@ main() {
                 continue
             fi
 
-            echo ""
-            echo "  [1] Abortar"
-            echo "  [2] Pular story e continuar"
-            echo "  [3] Tentar novamente"
-            echo -n "  Escolha [1]: "
             local choice
-            read -r choice < /dev/stdin
+            if devorq_auto::can_prompt; then
+                echo ""
+                echo "  [1] Abortar"
+                echo "  [2] Pular story e continuar"
+                echo "  [3] Tentar novamente"
+                echo -n "  Escolha [1]: "
+                read -r choice < /dev/stdin
+            else
+                devorq_auto::warn "nao-interativo: pulando $story_id e continuando (default seguro)"
+                choice=2
+            fi
 
             case "${choice:-1}" in
                 2) devorq_auto::warn "Pulando $story_id"; continue ;;

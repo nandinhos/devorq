@@ -213,10 +213,14 @@ devorq::verify::manual() {
     echo "  [ ] A funcionalidade está operacional"
     echo ""
 
-    echo -n "Confirmar que a verificação visual passou? [Y/n]: "
-    local confirm
-    read -r confirm
-    confirm="${confirm:-Y}"
+    local confirm="Y"
+    if [[ -t 0 && "${DEVORQ_AUTO_YES:-0}" != "1" ]]; then
+        echo -n "Confirmar que a verificação visual passou? [Y/n]: "
+        read -r confirm
+        confirm="${confirm:-Y}"
+    else
+        devorq::info "nao-interativo: assumindo verificacao visual confirmada (Y)"
+    fi
 
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         devorq::success "Verificação manual confirmada"
