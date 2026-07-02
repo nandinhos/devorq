@@ -87,6 +87,23 @@ usuário e a convenção universal). Mudanças, todas numa fatia:
 aperta o hook para escopos/fases; `devorq commit`/AUTO já produzem isso). Diverge do
 CLAUDE.md global e dos commits desta branch.
 
+## Teste real multi-runner (5 subagentes paralelos) ✅
+
+Story `saudacao.sh` implementada de ponta a ponta por **LLM real** em cada runner, com
+verificação objetiva (arquivo criado + saída byte-exata + story `done` + commit `feat(core)`):
+
+| Runner | Modelo | Veredito | Tempo | Adapter |
+|--------|--------|----------|-------|---------|
+| claude | (default) | ✅ WORKED | ~16s | correto |
+| hermes | MiniMax-M3 | ✅ WORKED | ~13s | correto |
+| agy (Antigravity) | (default) | ✅ WORKED | ~11s | correto |
+| opencode | MiniMax-M3 | ✅ WORKED | ~25s | corrigido: `--dangerously-skip-permissions`→`--auto` |
+| codex | gpt-5.5 | ✅ WORKED | ~52s | correto |
+
+Achados: (1) opencode `--auto` (bug latente, commit `4d872de`); (2) o gate `check-story.sh`
+passa "vazio" (não valida acceptance criteria) — quem garante trabalho real é o **no-diff
+guard**; validação por AC executável fica no roadmap médio prazo.
+
 ## Log de Execução
 
 <!-- uma linha por fatia concluída: F# — commit <sha> — <resultado dos testes> -->
