@@ -174,7 +174,7 @@ validate_requisitos() {
             return
         fi
 
-        local without_criteria=$(jq '[.requisitos[] | select(.acceptance_criteria == null or .acceptance_criteria == [] or (.acceptance_criteria | type) == "array" and . == []))] | length' "$file" 2>/dev/null || echo "0")
+        local without_criteria=$(jq '[.requisitos[] | select((.acceptance_criteria // []) | length == 0)] | length' "$file" 2>/dev/null || echo "0")
 
         if [ "$without_criteria" -gt 0 ]; then
             fail "requisitos.json — ${without_criteria} requisito(s) sem acceptance_criteria"

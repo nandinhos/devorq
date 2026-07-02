@@ -221,7 +221,7 @@ devorq::commit::interactive() {
         scope="${input_scope:-$scope}"
 
         # Validar scope
-        if [[ -z "${VALID_SCOPES[$scope]}" ]]; then
+        if [[ -z "${VALID_SCOPES[$scope]:-}" ]]; then
             devorq::warn "Scope '$scope' não válido — usando 'core'"
             scope="core"
         fi
@@ -235,7 +235,7 @@ devorq::commit::interactive() {
         phase="${input_phase:-$phase}"
 
         # Validar phase
-        if [[ -z "${VALID_PHASES[$phase]}" ]]; then
+        if [[ -z "${VALID_PHASES[$phase]:-}" ]]; then
             devorq::warn "Phase '$phase' não válida — usando 'impl'"
             phase="impl"
         fi
