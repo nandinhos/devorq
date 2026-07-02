@@ -22,13 +22,13 @@ branch — entram em planejamento próprio após aprovação. Guardrails duros d
 
 ## Checklist de Fatias
 
-- [ ] **F1 — Núcleo fail-closed (clássico).** `devorq::error`→`return 1`; ajusta banner (`visual.sh`) e dica (`foundation.sh`) que não devem abortar; `cmd_flow` exporta `DEVORQ_INTENT`, rastreia falha e `return 1` + audit `fail`.
+- [x] **F1 — Núcleo fail-closed (clássico).** `devorq::error`→`return 1`; ajusta banner (`visual.sh`) e dica (`foundation.sh`) que não devem abortar; `cmd_flow` exporta `DEVORQ_INTENT`, rastreia falha e `return 1` + audit `fail`.
   Fecha: crítico *flow exit 0* · alta *error não aborta* · alta *intent não chega aos gates*.
-- [ ] **F2 — Contadores set -e safe.** `((var++))`→`var=$((var+1))` em `gates.sh`; `|| true` nos contadores de `ci-test.sh`.
-  Fecha: alta *contadores morrem sob set -e*.
-- [ ] **F3 — Guard de instalação.** Guard no topo de `bin/devorq`; `README`/`INSTALL` para `git clone`.
+- [x] **F2 — Contadores set -e safe.** `((var++))`→`var=$((var+1))` em toda a classe de runtime (gates.sh, context.sh, debug.sh, ci-test.sh, grill-refine.sh); cmd_build (utils.sh) não aborta no 1º gate falho e reporta contagem honesta.
+  Fecha: alta *contadores morrem sob set -e* · alta *build aborta sem sumário*.
+- [x] **F3 — Guard de instalação.** Guard no topo de `bin/devorq` (falha cedo com instrução); `README` Quick Start + `INSTALL` (seções sem-clone e Docker) migrados para `git clone` + symlink.
   Fecha: crítico *curl instala CLI quebrada*.
-- [ ] **F4 — GATE-2 fail-closed + Node.** Runner declarado mas ausente = FAIL; detecção Node/npm.
+- [x] **F4 — GATE-2 fail-closed + Node.** Runner declarado mas ausente = FAIL (Python/PHP), com escape `DEVORQ_ALLOW_NO_RUNNER=1`; detecção Node/npm (`npm test`).
   Fecha: crítico *GATE-2 fail-open*.
 - [ ] **F5 — Crashes de CLI.** `commit.sh` scope inválido sob `set -u`; jq quebrado em `foundation-validate.sh`.
   Fecha: alta *devorq commit unbound* · alta *GATE-0.5 jq sempre passa*.
@@ -52,3 +52,8 @@ branch — entram em planejamento próprio após aprovação. Guardrails duros d
 ## Log de Execução
 
 <!-- uma linha por fatia concluída: F# — commit <sha> — <resultado dos testes> -->
+- **F1** — commit `c17063a` — 75/75 unit + check runnable OK (flow sem intent → exit 1; flow c/ gate falho → exit 1, sem "Flow completo!"). Nota: hook `commit-msg` exige `tipo(escopo):` sem espaço (contradiz docs → reconciliar em fatia futura).
+- **F2** — commit `b97a100` — 75/75 unit + build chega ao sumário (7/7) + check isolado do path de falha (laço conta 7/7 sem abortar no 1º).
+- **F3** — commit `47e2aba` — 75/75 unit + check runnable OK (bin/devorq isolado → erro acionável; instalação normal → `DEVORQ v3.8.5`).
+- **F4** — commit `992a1e3` — 75/75 unit + 6 cenários (Python/PHP/Node fail-closed, escape hatch, Node OK, repo sem regressão).
+- **Checkpoint pós-F4** — E2E Playwright **77/77** (gate real de CI) verde; trace `|| devorq::error` confirmou só o caso desejado (upgrade). Confirmada poluição de estado do E2E (`.devorq/state/*.json`) → restaurada; reforça F11 (hermeticidade) e F12 (`.devorq` fora do tracking).
