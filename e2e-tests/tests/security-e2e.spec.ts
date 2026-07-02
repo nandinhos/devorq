@@ -11,10 +11,19 @@ import * as path from 'path';
 const SANDBOX = '/tmp/devorq-e2e-security';
 const DEVORQ_BIN = path.resolve(__dirname, '../..', 'bin/devorq');
 
+// Env hermético: sem DEVORQ_* do shell do dev (testes independentes do ambiente).
+function hermeticEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [k, v] of Object.entries(process.env)) {
+    if (!k.startsWith('DEVORQ_')) env[k] = v;
+  }
+  return env;
+}
+
 function runCommand(cmd: string, cwd: string = SANDBOX): { stdout: string; stderr: string; exitCode: number } {
   const adjustedCmd = cmd.replace(/\bdevorq\b/g, DEVORQ_BIN);
   try {
-    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd, stdio: 'pipe' });
+    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd, stdio: 'pipe', env: hermeticEnv() });
     return { stdout, stderr: '', exitCode: 0 };
   } catch (error: any) {
     return {
@@ -31,7 +40,7 @@ test.beforeAll(async () => {
 
 describe('Security - Input Validation', () => {
 
-  test('should block dangerous characters in lessons capture', async () => {
+  test('lessons capture neutraliza input perigoso armazenando como dado inerte', async () => {
     const projectDir = `${SANDBOX}/input-test`;
     fs.mkdirSync(projectDir, { recursive: true });
 
@@ -39,31 +48,30 @@ describe('Security - Input Validation', () => {
     const initResult = runCommand('devorq init', projectDir);
     expect(initResult.exitCode).toBe(0);
 
-    // Testar titulo com caracteres perigosos
-    // Sistema deve sanitizar (substituir por espaco)
+    // Sentinela: se um "; rm -rf ..." executasse, este arquivo sumiria.
+    const sentinel = path.join(projectDir, 'SENTINEL.txt');
+    fs.writeFileSync(sentinel, 'nao me apague');
+
+    // Input com metacaracteres de shell. A seguranca correta e ARMAZENAR como
+    // dado (jq --arg escapa), NAO mutilar o conteudo — codigo em licoes e valido.
     const result = runCommand(
-      'devorq lessons capture "Test; rm -rf /" "problem" "solution"',
+      'devorq lessons capture "Test; rm -rf /" --problem "usa \\$(cmd) e backtick" --solution "arr[0]"',
       projectDir
     );
-
     expect(result.exitCode).toBe(0);
 
-    // Verificar que arquivo foi criado
+    // Nenhuma execucao: a sentinela continua la (o "; rm -rf" nao rodou).
+    expect(fs.existsSync(sentinel)).toBe(true);
+
     const files = execSync(`ls ${projectDir}/.devorq/state/lessons/captured/ 2>/dev/null || echo ""`, { encoding: 'utf-8' });
     expect(files.trim()).not.toBe('');
+    const file = `${projectDir}/.devorq/state/lessons/captured/${files.trim().split('\n')[0]}`;
 
-    // Verificar que caracteres perigosos shell injection foram removidos
-    const content = fs.readFileSync(`${projectDir}/.devorq/state/lessons/captured/${files.trim().split('\n')[0]}`, 'utf-8');
-
-    // Caracteres que NAO devem aparecer no JSON (shell injection)
-    // ; & | ` $ ( ) { } [ ] < > ! \
-    expect(content).not.toContain(';');
-    expect(content).not.toContain('&');
-    expect(content).not.toContain('|');
-    expect(content).not.toContain('`');
-    expect(content).not.toContain('$');
-    expect(content).not.toContain('(');
-    expect(content).not.toContain(')');
+    // O arquivo e JSON VALIDO (input nao quebrou a estrutura = sem injection).
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    // E o conteudo foi preservado cru (neutralizado como dado, nao destruido).
+    expect(parsed.title).toBe('Test; rm -rf /');
+    expect(parsed.problem).toContain('$(cmd)');
   });
 
   test('should handle path traversal attempts', async () => {
