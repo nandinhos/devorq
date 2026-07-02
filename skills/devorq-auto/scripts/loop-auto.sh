@@ -866,7 +866,8 @@ main() {
         # comparar depois: se nao mudou nada, o delegate foi no-op. Robusto a
         # sujeira pre-existente (ex: prd.json), ao contrario de checar porcelain vazio.
         local _pre_sig
-        _pre_sig=$(git -C "$project_root" status --porcelain --untracked-files=all 2>/dev/null; git -C "$project_root" diff HEAD 2>/dev/null)
+        # || true: em repo sem commits, git diff HEAD sai 128 e triparia set -e
+        _pre_sig=$(git -C "$project_root" status --porcelain --untracked-files=all 2>/dev/null; git -C "$project_root" diff HEAD 2>/dev/null || true)
 
         # DELEGATE with retry
         local delegate_ok=false
@@ -910,7 +911,7 @@ main() {
         # caso raro; upgrade seria hash de conteudo untracked se necessario.
         if [[ "${DEVORQ_AUTO_SIMULATE:-0}" != "1" ]]; then
             local _post_sig
-            _post_sig=$(git -C "$project_root" status --porcelain --untracked-files=all 2>/dev/null; git -C "$project_root" diff HEAD 2>/dev/null)
+            _post_sig=$(git -C "$project_root" status --porcelain --untracked-files=all 2>/dev/null; git -C "$project_root" diff HEAD 2>/dev/null || true)
             if [[ "$_pre_sig" == "$_post_sig" ]]; then
                 devorq_auto::fail "Delegate nao produziu mudancas (no-diff) — story $story_id NAO sera marcada done"
                 devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "verification" "no_diff_delegate_produziu_nada"
