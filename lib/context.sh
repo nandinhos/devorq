@@ -221,14 +221,21 @@ ctx_set() {
         return 1
     fi
 
-    local tmp
-    tmp=$(mktemp)
-    if echo "$value" | jq -e . >/dev/null 2>&1; then
-        jq --arg f "$field" --argjson v "$value" '.[$f] = $v' "$ctx_file" > "$tmp"
-    else
-        jq --arg f "$field" --arg v "$value" '.[$f] = $v' "$ctx_file" > "$tmp"
-    fi
-    mv "$tmp" "$ctx_file"
+    # tmp no MESMO diretorio → mv vira rename atomico (antes: /tmp cross-fs, nao
+    # atomico e trocava perms). flock serializa escritas concorrentes (Linux;
+    # degrada p/ rename-atomico onde flock inexiste, ex: macOS).
+    local dir tmp
+    dir=$(dirname "$ctx_file")
+    tmp=$(mktemp "${dir}/.ctx.XXXXXX") || { echo "[ERROR] ctx_set: mktemp falhou em $dir" >&2; return 1; }
+    {
+        command -v flock &>/dev/null && flock 9
+        if echo "$value" | jq -e . >/dev/null 2>&1; then
+            jq --arg f "$field" --argjson v "$value" '.[$f] = $v' "$ctx_file" > "$tmp"
+        else
+            jq --arg f "$field" --arg v "$value" '.[$f] = $v' "$ctx_file" > "$tmp"
+        fi
+        mv "$tmp" "$ctx_file"
+    } 9>"${ctx_file}.lock"
 
 
     echo "[OK] $field = $value"

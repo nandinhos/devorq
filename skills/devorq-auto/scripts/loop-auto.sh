@@ -770,6 +770,12 @@ main() {
     project_root=$(devorq_auto::detect_project "$project_root")         || devorq_auto::die 1 "Nao encontrei SPEC.md ou .git a partir de: $project_root"
 
     cd "$project_root"
+    mkdir -p "$project_root/.devorq-auto"
+    # Lock de run unico: dois runs AUTO simultaneos corromperiam prd.json/estado.
+    if command -v flock &>/dev/null; then
+        exec 8>"$project_root/.devorq-auto/.run.lock"
+        flock -n 8 || devorq_auto::die 1 "Outro run AUTO ja esta ativo neste projeto (.devorq-auto/.run.lock)"
+    fi
     # failures.md via trap EXIT: se o run morrer no meio (die/crash), o sumario
     # das falhas nao se perde — justamente quando ele mais importa.
     _AUTO_PROJECT_ROOT="$project_root"
