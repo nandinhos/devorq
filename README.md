@@ -31,9 +31,10 @@ Sessão longa → contexto saturado → próximo agente perde informações
 ## Quick Start
 
 ```bash
-# 1. Instalar (uma linha)
-curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq_v3/main/bin/devorq -o ~/bin/devorq
-chmod +x ~/bin/devorq
+# 1. Instalar (repo completo — bin/devorq depende de lib/)
+git clone https://github.com/nandinhos/devorq_v3.git ~/projects/devorq_v3
+ln -s ~/projects/devorq_v3/bin/devorq ~/bin/devorq   # ~/bin no PATH
+# (detalhes e alternativas: INSTALL.md)
 
 # 2. Inicializar projeto
 cd /projects/meu-projeto
