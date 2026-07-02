@@ -68,5 +68,11 @@ branch — entram em planejamento próprio após aprovação. Guardrails duros d
 
 ## Status: 12/12 fatias concluídas ✅
 
-Todos os 4 findings críticos + as altas priorizadas fechadas. Validação final: **75/75 unit + 77/77 E2E**.
+Todos os 4 findings críticos + as altas priorizadas fechadas. Validação final: **75/75 unit + 77/77 E2E + shellcheck limpo**.
+
+**Validação do AUTO em ambas as direções** (além dos checks de falha por fatia):
+- Sucesso ponta a ponta: delegate com diff real → no-diff passa → check-story passa → `mark_pass` (done) → `git_commit` → exit 0, `status=done`, exatamente 1 commit `core(impl):`. ✓
+- Falha: delegate no-op → no-diff detectado (não done); delegate sempre falha → termina via stop-criteria; headless não trava nem morre; 2 runs concorrentes → 2º bloqueado.
+- `gate 0` com o branch grill agora vivo (via export DEVORQ_INTENT da F1): exit limpo para intents `implementar` e `fix`.
+- **Ressalva:** o pipeline foi exercitado com delegate simulado (script que gera diff). A delegação a um LLM real (claude/opencode) — qualidade do prompt e do código gerado — não foi testada; é inerente (exige API/LLM) e cabe aos adapters do roadmap estratégico.
 Fora de escopo desta branch (planejamento próprio): adapters claude/codex, rollback por snapshot git, sandbox skip-permissions, verificação por story (AC executável), unificação dos dois motores AUTO, reconciliação de rules/skills. Ver roadmap médio/estratégico em `CODE_REVIEW_ELITE_2026-07-02.md`.
