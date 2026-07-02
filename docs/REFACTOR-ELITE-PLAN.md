@@ -30,21 +30,21 @@ branch — entram em planejamento próprio após aprovação. Guardrails duros d
   Fecha: crítico *curl instala CLI quebrada*.
 - [x] **F4 — GATE-2 fail-closed + Node.** Runner declarado mas ausente = FAIL (Python/PHP), com escape `DEVORQ_ALLOW_NO_RUNNER=1`; detecção Node/npm (`npm test`).
   Fecha: crítico *GATE-2 fail-open*.
-- [ ] **F5 — Crashes de CLI.** `commit.sh` scope inválido sob `set -u`; jq quebrado em `foundation-validate.sh`.
+- [x] **F5 — Crashes de CLI.** `commit.sh` scope/phase inválido sob `set -u` (fallback `:-`); jq com `)` extra em `foundation-validate.sh` reescrito (contava sempre 0).
   Fecha: alta *devorq commit unbound* · alta *GATE-0.5 jq sempre passa*.
-- [ ] **F6 — jq --arg no PRD (injeção).** `prd-from-spec.sh` + `lib/auto.sh`: `jq --arg`, abortar se falhar.
+- [x] **F6 — jq --arg no PRD (injeção).** `prd-from-spec.sh` + `lib/auto.sh`: critério via `jq --arg` (dado, não programa) + abort se jq falhar.
   Fecha: alta seg *aspa no SPEC zera prd.json*.
-- [ ] **F7 — Lessons capture (memória).** Parsear flags `--problem/--solution/...`; armazenar conteúdo cru (sanitiza no uso).
+- [x] **F7 — Lessons capture (memória).** Parser de flags `--problem/--solution/--stack/--tags` (+ compat posicional); conteúdo gravado cru (jq --arg já escapa; só limite de tamanho).
   Fecha: alta *sintaxe do README grava lixo* · alta *sanitize mutila código*.
-- [ ] **F8 — AUTO headless-safe (TTY).** Guarda de TTY em todos os `read`; `failures.md` via `trap EXIT`.
+- [x] **F8 — AUTO headless-safe (TTY).** `can_prompt()` (TTY + `DEVORQ_AUTO_YES`) nos 3 prompts do loop + `visual.sh`; default headless = pular+continuar; `failures.md` via `trap EXIT`.
   Fecha: alta *prompts interativos matam runs headless*.
-- [ ] **F9 — AUTO stop-criteria + no-diff + git_commit.** Parar story após N falhas; `git status --porcelain` vazio = falha; commit detecta untracked, sem `|| true`, `guard_secrets` antes do `add -A`.
+- [x] **F9 — AUTO stop-criteria + no-diff + git_commit.** `mark_failed` após `DEVORQ_AUTO_MAX_STORY_FAILURES` (2) tentativas; no-diff via assinatura antes/depois do delegate; commit por porcelain (vê untracked) + secret-scan inline antes do `add -A` + `return 1` real; `ensure_branch` aborta em falha de checkout.
   Fecha: alta *loop infinito na mesma story* · crítico *delegate no-op vira done* · alta *commit cego a arquivos novos*.
-- [ ] **F10 — Concorrência mínima.** `flock` no loop AUTO; `ctx_write` com lock+tmp local para `context.json`.
+- [x] **F10 — Concorrência mínima.** `ctx_set` com tmp local (rename atômico) + `flock`; `flock -n` de run único por projeto no loop AUTO.
   Fecha: alta *estado sem locking*.
-- [ ] **F11 — CI honesto.** `gates.spec.ts` asserta exit code; helpers E2E limpam `DEVORQ_*` do env.
-  Fecha: alta *gating depende do suite mais fraco* · alta *E2E não-hermética*.
-- [ ] **F12 — Miudezas.** `chmod 600` mcp.json; `date -u` no audit; `.devorq*` fora do tracking; confirmação `yes` no uninstall.
+- [x] **F11 — CI honesto.** `gates.spec.ts` asserta `exitCode` no par GATE-1 (fixture SPEC ≥100b); `security-e2e` reescrito p/ segurança real (input inerte, não mutilado); `runCommand` com env hermético (sem `DEVORQ_*`). Corrigida regressão do F9 (`git diff HEAD` 128 em repo sem commits).
+  Fecha: alta *gating depende do suite mais fraco* · alta *E2E não-hermética* · seg *security-tests teatro*.
+- [x] **F12 — Miudezas.** `chmod 600` no mcp.json; `date -u` no audit (Z era hora local); uninstall exige `yes` + guarda de TTY + sem mensagem falsa; estado efêmero untrackado + gitignorado (rules/lessons seed preservadas).
   Fecha: várias baixas.
 
 ---
@@ -57,3 +57,16 @@ branch — entram em planejamento próprio após aprovação. Guardrails duros d
 - **F3** — commit `47e2aba` — 75/75 unit + check runnable OK (bin/devorq isolado → erro acionável; instalação normal → `DEVORQ v3.8.5`).
 - **F4** — commit `992a1e3` — 75/75 unit + 6 cenários (Python/PHP/Node fail-closed, escape hatch, Node OK, repo sem regressão).
 - **Checkpoint pós-F4** — E2E Playwright **77/77** (gate real de CI) verde; trace `|| devorq::error` confirmou só o caso desejado (upgrade). Confirmada poluição de estado do E2E (`.devorq/state/*.json`) → restaurada; reforça F11 (hermeticidade) e F12 (`.devorq` fora do tracking).
+- **F5** — commit `7249ac5` — 75/75 unit + checks (jq conta 2 sem-criteria; scope inválido não crasha sob set -u).
+- **F6** — commit `fb5c75f` — 75/75 unit + check (SPEC com aspas/`$()`/backtick → prd.json válido, critérios literais).
+- **F7** — commit `b05419a` — 75/75 unit + checks (flags README parseadas; código `$()`/`[]`/`${}` preservado cru; posicional compatível).
+- **F8** — commit `5572a26` — 75/75 unit + check headless E2E (loop com delegate falho: exit 0 sem hang, sem "Abortado", pulou via default, failures.md via trap).
+- **F9** — commit `d1555c7` — 75/75 unit + 5 checks E2E (no-diff na 1ª iteração c/ árvore pré-suja; loop termina via stop-criteria; secret-scan bloqueia .env; untracked commitado formato `core(impl):`; nada-a-commitar → 0).
+- **F10** — commit `e1a9864` — 75/75 unit + checks (20 escritas concorrentes → 21/21 campos íntegros; 2º run AUTO bloqueado pelo lock).
+- **F11** — commits `c97c539` (fix F9) + `4456603` — E2E **77/77** verde; gates.spec asserta exit code, security-e2e testa segurança real, env hermético. E2E pegou regressão do F9 (exit 128) — corrigida.
+- **F12** — commit `b1cf627` — 75/75 unit + checks (audit UTC real; uninstall não-interativo não remove; mcp.json 600; estado efêmero untrackado).
+
+## Status: 12/12 fatias concluídas ✅
+
+Todos os 4 findings críticos + as altas priorizadas fechadas. Validação final: **75/75 unit + 77/77 E2E**.
+Fora de escopo desta branch (planejamento próprio): adapters claude/codex, rollback por snapshot git, sandbox skip-permissions, verificação por story (AC executável), unificação dos dois motores AUTO, reconciliação de rules/skills. Ver roadmap médio/estratégico em `CODE_REVIEW_ELITE_2026-07-02.md`.
