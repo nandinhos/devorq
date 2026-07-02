@@ -510,6 +510,7 @@ _install_mcp() {
 }
 MCPEOF
 
+    chmod 600 "$mcp_config" 2>/dev/null || true   # contem Bearer token — nao expor
     echo "  ✓ MCP configurado em $mcp_config"
     echo "  → Reinicie o opencode para aplicar"
 }

@@ -28,6 +28,14 @@ node_modules/
 # UNIFY state (gerado por devorq unify, não versionado)
 .devorq/state/unify/
 
+# Estado efêmero de runtime (regenerado por devorq init/flow) — não versionar.
+# Antes vazava para o repo a cada run/E2E. Rules e lessons seed seguem versionadas.
+.devorq/state/context.json
+.devorq/state/handoff.json
+.devorq/state/logs/
+.devorq-auto/.last-branch
+.devorq-auto/.run.lock
+
 # IDE
 .vscode/
 .idea/
