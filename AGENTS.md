@@ -96,7 +96,7 @@ export DEVORQ_DELEGATE_FN="$DEVORQ_ROOT/scripts/adapters/claude-delegate.sh"
 #   agy      agy    -p PROMPT --dangerously-skip-permissions --add-dir DIR
 #   codex    codex exec --cd DIR -s workspace-write --skip-git-repo-check PROMPT
 #   hermes   hermes -z PROMPT --yolo
-#   opencode opencode run --dir DIR --dangerously-skip-permissions PROMPT
+#   opencode opencode run --dir DIR --auto PROMPT
 
 # Ou envolva manualmente o seu proprio orquestrador:
 my_delegate() { # $1=story_json  $2=project_root

@@ -122,10 +122,11 @@ case "$RUNNER" in
         CMD=(hermes -z "$PROMPT" --yolo)
         [[ -n "$MODEL" ]] && CMD+=(-m "$MODEL")
         ;;
-    opencode) # opencode run em batch (model default minimax/MiniMax-M3)
+    opencode) # opencode run em batch (model default minimax/MiniMax-M3). --auto e a
+              # flag real de auto-aprovacao (--dangerously-skip-permissions NAO existe aqui).
         CMD=(opencode run --model "${MODEL:-minimax/MiniMax-M3}" --variant "${OPENCODE_EFFORT:-max}" \
              --agent "${OPENCODE_AGENT:-build}" --dir "$PROJECT_ROOT" \
-             --title "devorq story $STORY_ID" --dangerously-skip-permissions "$PROMPT")
+             --title "devorq story $STORY_ID" --auto "$PROMPT")
         ;;
 esac
 
