@@ -504,9 +504,9 @@ gate_7() {
 
 # ============================================================
 # GATE-E2E — Playwright E2E tests (story-001 e2e revival)
-# Nao-bloqueante. Reporta status, mas retorna 0 sempre.
-# Promocao a bloqueante fica para vv3.8.5+ apos 2-3 sprints de
-# estabilidade observada.
+# Nao-bloqueante aqui. Reporta status, mas retorna 0 sempre.
+# Promocao a required check em andamento via .github/workflows/e2e.yml
+# apos estabilidade observada (E2E 77/77 deterministico).
 # ============================================================
 
 gate_e2e() {

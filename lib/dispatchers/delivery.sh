@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/dispatchers/delivery.sh -- DEVORQ v3.8.5
+# lib/dispatchers/delivery.sh -- DEVORQ v4.0.0
 #
 # Dispatcher: DELIVERY
 # Responsabilidade unica: entrega (commit, sync, rules, review, version).
