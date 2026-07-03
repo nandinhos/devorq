@@ -2,7 +2,7 @@
 
 > **Para quem pega o trabalho:** este é o ponto de retomada. Leia daqui até o fim
 > **antes** de qualquer edição ou commit.
-> Atualizado em 2026-07-03 (release v4.0.0 — Elite Hardening). Repo: `github.com/nandinhos/devorq_v3` · branch `main`.
+> Atualizado em 2026-07-03 (release v4.0.0 — Elite Hardening). Repo: `github.com/nandinhos/devorq` · branch `main`.
 
 ---
 

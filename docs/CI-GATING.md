@@ -23,7 +23,7 @@ Em `2026-06-28`, configurei branch protection na `main` via GitHub REST API
 (autenticado com `gh` CLI, permissão `admin: true` confirmada).
 
 ```http
-PUT /repos/nandinhos/devorq_v3/branches/main/protection
+PUT /repos/nandinhos/devorq/branches/main/protection
 Content-Type: application/json
 
 {
@@ -46,7 +46,7 @@ Content-Type: application/json
 
 **Comandos gh CLI equivalentes:**
 ```bash
-gh api -X PUT repos/nandinhos/devorq_v3/branches/main/protection \
+gh api -X PUT repos/nandinhos/devorq/branches/main/protection \
   -H "Accept: application/vnd.github+json" \
   --input protect.json
 ```
@@ -65,10 +65,10 @@ gh api -X PUT repos/nandinhos/devorq_v3/branches/main/protection \
 ## Como verificar que está ativo
 
 ```bash
-gh api repos/nandinhos/devorq_v3/branches/main | jq '.protected'
+gh api repos/nandinhos/devorq/branches/main | jq '.protected'
 # esperado: true
 
-gh api repos/nandinhos/devorq_v3/branches/main/protection/required_status_checks | jq
+gh api repos/nandinhos/devorq/branches/main/protection/required_status_checks | jq
 # esperado: contexts inclui "Playwright E2E"
 ```
 

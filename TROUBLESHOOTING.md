@@ -294,10 +294,10 @@ cat .devorq/state/session.json
 devorq version
 
 # Reportar issue em:
-# https://github.com/nandinhos/devorq_v3/issues
+# https://github.com/nandinhos/devorq/issues
 ```
 
 ---
 
 **Versão:** 4.0.0
-**Repo:** https://github.com/nandinhos/devorq_v3
+**Repo:** https://github.com/nandinhos/devorq

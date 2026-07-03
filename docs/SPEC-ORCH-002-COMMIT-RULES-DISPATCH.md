@@ -4,7 +4,7 @@
 **Data:** 2026-05-23  
 **Status:** IMPLEMENTADO v3.7.1  
 **Autor:** Nando + Cursor Agent (VPS events.fssdev.com.br)  
-**Repo:** github.com/nandinhos/devorq_v3  
+**Repo:** github.com/nandinhos/devorq  
 
 ---
 
