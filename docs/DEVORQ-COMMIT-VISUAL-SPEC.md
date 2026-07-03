@@ -14,7 +14,7 @@
 |---|----------|----------|
 | 1 | Escopo das mudanças | **Global** — DEVORQ core em `~/projects/devorq_v3/`, afeta **todos os projetos** |
 | 2 | Playwright em todos os projetos? | **SIM** — todos os projetos novos terão Playwright configurado |
-| 3 | Formato de commit | **escopo(fase): descrição (detalhamento)** — Conventional Commits, sem emojis, sem co-autoria, pt-BR |
+| 3 | Formato de commit | **tipo(escopo): descrição (detalhamento)** — Conventional Commits, sem emojis, sem co-autoria, pt-BR |
 
 ---
 
@@ -25,7 +25,7 @@ O DEVORQ AUTO mode atual realiza commit automático após cada story verificada 
 1. Remoção do commit automático do AUTO mode
 2. Gate de verificação visual obrigatório (Playwright)
 3. **Trigger automático do systematic-debugging quando teste falha (vermelho)**
-4. Commit manual seguindo convenção `escopo(fase): descrição (detalhamento)`
+4. Commit manual seguindo convenção `tipo(escopo): descrição (detalhamento)`
 5. Integração com Context7 para validação técnica
 6. Captura de lições aprendidas para a SPEC do projeto
 7. Entrega no nível **Senior Engineer / Profissional Sênior**
@@ -101,7 +101,7 @@ Verificação visual é **obrigatória** antes do commit. Não é opcional.
 
 **Novo formato:**
 ```
-escopo(fase): descrição (detalhamento)
+tipo(escopo): descrição (detalhamento)
 ```
 
 | Elemento | Significado | Exemplo |
@@ -333,14 +333,15 @@ devorq verify [--playwright|--manual] [--story <id>]
 
 **Novo comando (não existia antes):**
 ```bash
-devorq commit [--story <id>] [--scope <scope>] [--phase <phase>] [--message <msg>]
+devorq commit [--story <id>] [--scope <scope>] [--type <tipo>] [--message <msg>]
 ```
 
 | Flag | Comportamento |
 |------|---------------|
 | `--story <id>` | Usa título e description da story do prd.json |
 | `--scope <scope>` | Sobrescreve escopo (default: detecta do path) |
-| `--phase <phase>` | Sobrescreve fase (default: `impl`) |
+| `--type <tipo>` | Tipo convencional: feat/fix/refactor/docs/test/style/perf/chore (default: `feat`) |
+| `--phase <phase>` | Deprecado — alias de `--type` (emite aviso) |
 | `--message <msg>` | Mensagem customizada (sem convenção) |
 | (nenhum) | Abre prompt interativo |
 
@@ -401,7 +402,7 @@ devorq auto --skip-verify    # DEBUG ONLY — pula verificação visual
 |---------|-----------|
 | `lib/auto.sh` | Remove `devorq::auto::git_commit()` das linhas 319 e 400 |
 | `bin/devorq` | Remove chamada de commit em `devorq::cmd_build` e `devorq::cmd_auto` |
-| `rules/commit-convention.md` | Atualiza formato para `escopo(fase): descrição (detalhamento)` |
+| `rules/commit-convention.md` | Atualiza formato para `tipo(escopo): descrição (detalhamento)` |
 | `CHANGELOG.md` | Entrada v3.6.5 com todas as mudanças |
 
 ### 7.2 Arquivos Criados
