@@ -320,7 +320,7 @@ devorq_v3/
 
 - **Autor:** Fernando Dos Santos (Nando)
 - **Email:** nando@devorq.com
-- **GitHub:** https://github.com/nandinhos/devorq_v3
+- **GitHub:** https://github.com/nandinhos/devorq
 
 ---
 

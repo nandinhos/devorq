@@ -2,7 +2,7 @@
 
 > **Framework bash puro** para metodologia de desenvolvimento sistemático.
 > Captura lições aprendidas, impõe gates bloqueantes, gera handoffs consistentes.
-> **Repo:** [github.com/nandinhos/devorq_v3](https://github.com/nandinhos/devorq_v3) | **Autor:** Fernando Dos Santos (Nando)
+> **Repo:** [github.com/nandinhos/devorq](https://github.com/nandinhos/devorq) | **Autor:** Fernando Dos Santos (Nando)
 
 **Versão:** 4.0.0
 
@@ -32,7 +32,7 @@ Sessão longa → contexto saturado → próximo agente perde informações
 
 ```bash
 # 1. Instalar (repo completo — bin/devorq depende de lib/)
-git clone https://github.com/nandinhos/devorq_v3.git ~/projects/devorq_v3
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
 ln -s ~/projects/devorq_v3/bin/devorq ~/bin/devorq   # ~/bin no PATH
 # (detalhes e alternativas: INSTALL.md)
 

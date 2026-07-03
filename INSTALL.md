@@ -23,7 +23,7 @@
 
 ```bash
 # 1. Clonar repositório
-git clone https://github.com/nandinhos/devorq_v3.git ~/projects/devorq_v3
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
 
 # 2. Adicionar ao PATH (adicione no ~/.bashrc ou ~/.zshrc)
 echo 'export PATH="$HOME/projects/devorq_v3/bin:$PATH"' >> ~/.bashrc
@@ -50,7 +50,7 @@ devorq test
 > falha com `[ERROR] instalacao incompleta`. Use o clone:
 
 ```bash
-git clone https://github.com/nandinhos/devorq_v3.git ~/projects/devorq_v3
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
 ln -s ~/projects/devorq_v3/bin/devorq ~/bin/devorq   # ~/bin no PATH
 devorq version                                        # verificar
 ```
@@ -100,7 +100,7 @@ devorq gate 3
 
 ```bash
 # Same steps — funciona nativamente no WSL
-git clone https://github.com/nandinhos/devorq_v3.git ~/projects/devorq_v3
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
 echo 'export PATH="$HOME/projects/devorq_v3/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 devorq version
@@ -112,7 +112,7 @@ devorq version
 
 ```bash
 # 1. No Dockerfile: clonar o repo completo e symlinkar o router
-RUN git clone --depth 1 https://github.com/nandinhos/devorq_v3.git /opt/devorq \
+RUN git clone --depth 1 https://github.com/nandinhos/devorq.git /opt/devorq \
   && ln -s /opt/devorq/bin/devorq /usr/local/bin/devorq
 
 # 2. jq binary estático
@@ -229,4 +229,4 @@ Manenha apenas `~/projects/devorq_v3/` (ou `~/bin/devorq` com symlink para ela).
 ---
 
 **Versão:** 4.0.0
-**Repo:** https://github.com/nandinhos/devorq_v3
+**Repo:** https://github.com/nandinhos/devorq

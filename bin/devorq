@@ -43,7 +43,7 @@ readonly DEVORQ_DISPATCHERS_DIR="${DEVORQ_LIB}/dispatchers"
 if [[ ! -f "${DEVORQ_LIB}/helpers.sh" ]]; then
     echo "[ERROR] instalacao incompleta: ${DEVORQ_LIB}/helpers.sh nao encontrado." >&2
     echo "        DEVORQ requer o repositorio completo, nao apenas bin/devorq." >&2
-    echo "        Instale com: git clone https://github.com/nandinhos/devorq_v3" >&2
+    echo "        Instale com: git clone https://github.com/nandinhos/devorq" >&2
     echo "        e adicione bin/devorq ao PATH (veja INSTALL.md)." >&2
     exit 1
 fi

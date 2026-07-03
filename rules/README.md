@@ -36,7 +36,7 @@ mkdir -p .devorq/rules
 - Conflito = mesma regra com lógica contraditória → usar `devorq rules check` para detectar
 
 **Manutenção:**
-- Regras globais são mantidas no repo [nandinhos/devorq_v3](https://github.com/nandinhos/devorq_v3)
+- Regras globais são mantidas no repo [nandinhos/devorq_v3](https://github.com/nandinhos/devorq)
 - Lições aprendidas podem gerar novas regras via `devorq lessons capture`
 
 ## Arquitetura agnóstica (v3.8.5)
