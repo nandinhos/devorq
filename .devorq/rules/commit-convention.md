@@ -1,9 +1,11 @@
 # Commit Convention — DEVORQ v3.6.5+
 
-**Formato:**
+**Formato (Model A — convencional):**
 ```
-escopo(fase): descrição (detalhamento)
+tipo(escopo): descrição (detalhamento)
 ```
+`tipo` ∈ feat|fix|refactor|docs|test|style|perf|chore · `escopo` = área (tabela abaixo).
+Sem colchetes, sem espaço antes do `(`. O hook `commit-msg` valida exatamente isto.
 
 **Exemplo:**
 ```
@@ -17,8 +19,8 @@ docs(gates): documenta GATE-6 manual verification gate
 - Sem emojis
 - Sem Co-Authored-By
 - Em português do Brasil
+- Tipo deve ser um dos tipos convencionais válidos
 - Escopo deve ser um dos escopos válidos
-- Fase deve ser uma das fases válidas
 - NUNCA usar commits do tipo "WIP", "temp", "debug"
 
 **Escopos válidos:**
@@ -47,18 +49,18 @@ docs(gates): documenta GATE-6 manual verification gate
 | `context` | Contexto, estado |
 | `release` | Bump de versão / version sync |
 
-**Fases válidas:**
+**Tipos válidos (posição 1 — convencional):**
 
-| Fase | Uso |
+| Tipo | Uso |
 |------|-----|
-| `impl` | Implementação (default) |
-| `test` | Testes |
-| `verify` | Verificação visual |
+| `feat` | Nova funcionalidade (default) |
+| `fix` | Correção de bug |
+| `refactor` | Refatoração sem mudança de comportamento |
 | `docs` | Documentação |
-| `unify` | UNIFY |
-| `debug` | Debug |
-| `fix` | Correção |
-| `refactor` | Refatoração |
+| `test` | Testes |
+| `style` | Formatação (Pint, ESLint) |
+| `perf` | Performance |
+| `chore` | Manutenção |
 
 **Quando commitar:**
 - Após `devorq verify` passar (100% verde)

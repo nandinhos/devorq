@@ -1,8 +1,8 @@
-# HANDOFF — DEVORQ v3.8.5 → continuidade no Codex
+# HANDOFF — DEVORQ v4.0.0 → continuidade
 
-> **Para quem pega o trabalho (agente Codex / codex-cli):** este é o ponto de
-> retomada. Leia daqui até o fim **antes** de qualquer edição ou commit.
-> Gerado em 2026-06-27. Repo: `github.com/nandinhos/devorq_v3` · branch `main`.
+> **Para quem pega o trabalho:** este é o ponto de retomada. Leia daqui até o fim
+> **antes** de qualquer edição ou commit.
+> Atualizado em 2026-07-03 (release v4.0.0 — Elite Hardening). Repo: `github.com/nandinhos/devorq_v3` · branch `main`.
 
 ---
 
@@ -23,11 +23,14 @@
 
 - **DEVORQ é um orquestrador de agentes em Bash** (`bin/devorq` + `lib/` + `scripts/`).
   Não é app Laravel — apesar da skill `laravel` poluindo o `skills/` (ver §8).
-- **Backlog da auditoria fechado: DQ-001..DQ-030, 30/30 endereçados**, tudo na
-  `main`. Detalhe item-a-item no Apêndice D de `docs/auditoria-tecnica-2026-06-26.md`.
-- **CI verde / E2E vermelho conhecido** (ver §5). O `main` está estável.
-- **Não há story pendente** no `prd.json` (todas `done` — é artefato histórico
-  do sprint v3.8.4). **O próximo milestone ainda NÃO está definido** — ver §7.
+- **Release v4.0.0 (Elite Hardening) na `main`**: 12 fatias de hardening + F13
+  (convenção `tipo(escopo)`) + adapters de delegação multi-runner. Fonte:
+  `docs/REFACTOR-ELITE-PLAN.md` + `docs/CODE_REVIEW_ELITE_2026-07-02.md`.
+- **Backlog anterior fechado: DQ-001..DQ-030, 30/30** (`docs/auditoria-tecnica-2026-06-26.md`).
+- **CI verde + E2E 77/77 verde e estável** (ver §5). O `main` está estável.
+- **Próximo milestone:** os itens de médio/estratégico prazo do
+  `docs/REFACTOR-ELITE-PLAN.md` (verificação por AC executável, unificação dos 2
+  motores AUTO, rollback por snapshot, sandbox skip-permissions).
 
 **Veredito da auditoria (resumo):** a casca do DEVORQ é boa (router/dispatcher
 real, hardening de input sólido), mas o histórico apontava um núcleo de execução
@@ -48,21 +51,24 @@ leia o arquivo.**
 ➡️ **Dirija tudo via CLI** (`bin/devorq <cmd>`), nunca via skills. As skills são
 adaptadores do Claude Code; a lógica canônica vive em `lib/`/`scripts/`.
 
-### Modo AUTO via Codex (atenção)
-O modo AUTO (story-by-story) depende do contrato `DEVORQ_DELEGATE_FN` — uma
-função que implementa uma story. **Hoje só o contrato está documentado**
-(`AGENTS.md` §"Contrato de delegação"); **não existe adapter Codex funcional**
-(era o aceite do DQ-022, que ficou só na documentação). Sem `DEVORQ_DELEGATE_FN`
-o loop é **fail-closed** (não marca story como done). Portanto: **não tente rodar
-`devorq auto` esperando que ele implemente sozinho** até existir um adapter. Para
-desenvolvimento manual, use o fluxo CLASSIC (gates) — ver §4.
+### Modo AUTO (delegate multi-runner)
+O modo AUTO (story-by-story) depende do contrato `DEVORQ_DELEGATE_FN`. Desde v4.0.0
+há **adapters funcionais para 5 runners**, validados end-to-end (claude, codex,
+hermes, opencode, agy): use o dispatcher `scripts/adapters/delegate.sh` com
+`DEVORQ_RUNNER=<runner>` (ou os wrappers `<runner>-delegate.sh`). Contrato e casos
+de uso: `AGENTS.md` §"Contrato de delegação" + `docs/DELEGATE-ADAPTERS.md`. O loop
+é **fail-closed**: delegate que não produz diff **não** marca a story como done;
+story que falha vira `failed` após `DEVORQ_AUTO_MAX_STORY_FAILURES`; use
+`DEVORQ_AUTO_YES=1` em headless. Para desenvolvimento manual, use o fluxo CLASSIC
+(gates) — ver §4.
 
 ---
 
 ## 3. Convenções inegociáveis (resumo — fonte: `AGENTS.md`)
 
-- **Commit**: 1ª linha casa `^[a-z]+\([a-z]+\):` → `tipo(escopo): descrição`,
-  tipo e escopo **só minúsculas, sem espaço/dígito/hífen**. IDs (`DQ-031`) vão no
+- **Commit**: 1ª linha casa `^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):`
+  → `tipo(escopo): descrição` (F13/v4.0.0 — o tipo agora é validado; o antigo
+  `escopo(fase)` é **rejeitado**). Sem espaço antes do `(`. IDs (`DQ-031`) vão no
   **fim da descrição**. O hook `.git/hooks/commit-msg` **bloqueia** o que fugir.
 - **Sem `Co-Authored-By:`** (hook bloqueia). **Português do Brasil.**
 - **Sem refatoração fora de escopo. Sem features especulativas.**
@@ -93,13 +99,11 @@ bash scripts/sync-version.sh --check   # drift de versão entre VERSION/CHANGELO
 bash scripts/security-tests.sh  # path traversal, SSH, SQLi, sanitize
 ```
 
-- **Não crave número de testes** — fontes divergem (68/74/75) conforme o lote.
-  Rode e leia o sumário completo. **Lição da auditoria:** 2 regressões de CI
-  escaparam porque alguém filtrou a saída com `grep`. **Veja Pass/Fail inteiro.**
-- **E2E é VERMELHO esperado**: ~6/77 testes Playwright pré-existentes falham
-  (`.github/workflows/e2e.yml`). O *install* já foi corrigido (DQ-026); os 6
-  testes são uma story própria. **Não queime esforço "consertando" esse sinal**
-  a menos que essa seja explicitamente a tarefa.
+- **Baseline v4.0.0: 75/75 unit + 36 security + 77/77 E2E** (estável, determinístico).
+  Ainda assim: rode e leia o sumário completo. **Lição da auditoria:** 2 regressões
+  de CI escaparam porque alguém filtrou a saída com `grep`. **Veja Pass/Fail inteiro.**
+- **E2E é VERDE (77/77)** e estável desde o elite-hardening. Vermelho agora é
+  **regressão real** — investigue, não ignore. `e2e.yml` está a caminho de required check.
 
 ### ⚠️ Poluição de estado ao rodar suites
 Rodar as suites **suja** `.devorq/state/lessons/captured/` (e pode gerar
@@ -115,34 +119,37 @@ Não commite esse lixo. (É a provável origem do `skills/laravel/` atual — ve
 
 ## 6. O que está FEITO
 
-- Backlog auditoria **DQ-001..DQ-030: 30/30** (detalhe: Apêndice D da auditoria).
-  Highlights: fim do wipe de `prd.json` (DQ-004), AUTO fail-closed (DQ-005),
-  `gates_completed` persistido + `flow --resume` (DQ-007), trilha JSONL com
-  `run_id` (DQ-018), SSH mux por-uid + guard de segredos (DQ-014/015),
-  `DEVORQ_GATE_SEQUENCE` fonte única (DQ-028), `sed_inplace` portável (DQ-029).
-- `main` com CI verde; `.devorq/version` e `VERSION` em **3.8.5**.
+- **v4.0.0 Elite Hardening (12 fatias):** gates fail-closed no nível de processo
+  (`devorq flow` e `devorq::error` saem `!=0`); GATE-2 fail-closed + Node; F13
+  convenção `tipo(escopo)`; AUTO robusto (no-diff guard, stop-criteria, flock,
+  headless-safe); adapters multi-runner (claude/codex/hermes/opencode/agy);
+  `jq --arg` no parser de PRD. Detalhe: `docs/REFACTOR-ELITE-PLAN.md`.
+- Backlog auditoria **DQ-001..DQ-030: 30/30** (Apêndice D da auditoria). Highlights:
+  fim do wipe de `prd.json` (DQ-004), AUTO fail-closed (DQ-005), `gates_completed`
+  persistido + `flow --resume` (DQ-007), trilha JSONL (DQ-018), guard de segredos
+  (DQ-014/015), `DEVORQ_GATE_SEQUENCE` fonte única (DQ-028).
+- `main` com CI verde; `.devorq/version` e `VERSION` em **4.0.0**.
 
 ---
 
 ## 7. O que está EM ABERTO (honesto — defina o milestone)
 
-> O backlog formal está fechado. "Terminar o projeto" precisa de um **próximo
-> milestone definido pelo dono**. Itens residuais conhecidos, em ordem de valor:
+> DQ-022 (adapter não-Hermes) e o E2E verde+gating **foram entregues** na v4.0.0.
+> O locking concorrente também (flock, F10). Os itens residuais agora são o
+> **roadmap médio/estratégico** do `docs/REFACTOR-ELITE-PLAN.md`, em ordem de valor:
 
-1. **DQ-022 incompleto — adapter Codex funcional para `DEVORQ_DELEGATE_FN`.**
-   O aceite era "≥1 adaptador não-Hermes funciona end-to-end"; só a documentação
-   foi entregue. **Sem isso o modo AUTO não roda fora do Hermes.** Maior alavanca
-   se o objetivo é AUTO no Codex. (`skills/devorq-auto/scripts/loop-auto.sh`,
-   `AGENTS.md`.)
-2. **E2E Playwright: 6/77 falhando** — story própria (`e2e-tests/`,
-   `scripts/e2e-test.sh`). Tornar E2E verde + *gating* fecha o aceite da Fase 5.
-3. **Locking de escrita concorrente** em `.devorq/state/*.json` — resíduo
-   não-bloqueante (single-user; escritas já são `tmp+mv` atômicas). Baixa prio.
+1. **Verificação por AC executável** — o gate `check-story.sh` roda a suite do
+   projeto mas **não valida os acceptanceCriteria** da story; hoje quem garante
+   trabalho real é o no-diff guard. Adicionar validação por critério é a maior
+   alavanca de confiança do AUTO overnight.
+2. **Unificar os 2 motores AUTO** (`lib/auto.sh` vs `skills/devorq-auto/scripts/loop-auto.sh`)
+   — evitar divergência (o loop-auto é o ativo; lib/auto.sh é resíduo).
+3. **Rollback por snapshot git** + **sandbox opt-in** para o delegate
+   skip-permissions (execução de código não confiável com as credenciais do usuário).
 4. **Higiene imediata** (ver §8).
 
-**Decisão pendente do dono:** qual o próximo milestone? (a) adapter Codex p/ AUTO,
-(b) E2E verde+gating, (c) nova feature de produto, (d) só manutenção. Sem isso,
-o Codex deve ficar em **manutenção/higiene** e não inventar roadmap.
+**Pendente do dono:** priorizar entre (1) verificação por AC, (2) unificação AUTO,
+(3) rollback/sandbox, ou nova feature de produto.
 
 ---
 

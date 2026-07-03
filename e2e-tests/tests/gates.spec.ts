@@ -12,12 +12,22 @@ import * as path from 'path';
 const SANDBOX = '/tmp/devorq-e2e-gates';
 const DEVORQ_BIN = path.resolve(__dirname, '../..', 'bin/devorq');
 
+// Env hermético: remove DEVORQ_* do ambiente para os testes não herdarem
+// configuração do shell do dev (ex: DEVORQ_ALLOW_NO_RUNNER, DEVORQ_INTENT).
+function hermeticEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [k, v] of Object.entries(process.env)) {
+    if (!k.startsWith('DEVORQ_')) env[k] = v;
+  }
+  return env;
+}
+
 function runCommand(cmd: string, cwd: string = SANDBOX): { stdout: string; stderr: string; exitCode: number } {
   // Substitui 'devorq' pelo caminho completo do projeto
   const adjustedCmd = cmd.replace(/\bdevorq\b/g, DEVORQ_BIN);
-  
+
   try {
-    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd });
+    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd, env: hermeticEnv() });
     return { stdout, stderr: '', exitCode: 0 };
   } catch (error: any) {
     return {
@@ -114,10 +124,12 @@ describe('GATE-1: Spec Exists', () => {
     runCommand('devorq init', projectDir);
     
     const result = runCommand('devorq gate 1', projectDir);
-    
+
     console.log('GATE-1 no-spec output:', result.stdout);
-    
+
     expect(result.stdout).toMatch(/GATE.*1|FAIL|SPEC.*not.*found/i);
+    // gate bloqueante: sem SPEC.md o exit DEVE ser != 0 (semantica de bloqueio)
+    expect(result.exitCode).not.toBe(0);
   });
 
   test('GATE-1 deve passar com SPEC.md válido', () => {
@@ -125,16 +137,20 @@ describe('GATE-1: Spec Exists', () => {
     fs.mkdirSync(projectDir, { recursive: true });
     runCommand('devorq init', projectDir);
     
+    // SPEC.md >= 100 bytes (gate_1 exige conteudo minimo); antes o fixture tinha
+    // ~70 bytes e o gate FALHAVA, mas o teso so olhava stdout e passava falso.
     fs.writeFileSync(
       path.join(projectDir, 'SPEC.md'),
-      '# Test Project\n\n## Vision\n\nTest.\n\n## Acceptance Criteria\n\n- [ ] Feature 1\n'
+      '# Test Project\n\n## Vision\nProjeto de teste para validar o GATE-1 com conteudo suficiente.\n\n## Acceptance Criteria\n\n- [ ] Feature 1 implementada e testada\n'
     );
-    
+
     const result = runCommand('devorq gate 1', projectDir);
-    
+
     console.log('GATE-1 with-spec output:', result.stdout);
-    
+
     expect(result.stdout).toMatch(/GATE.*1|PASS/i);
+    // gate deve PASSAR: exit 0 com SPEC valido
+    expect(result.exitCode).toBe(0);
   });
 
   test('GATE-1 deve falhar com SPEC.md vazio', () => {
@@ -147,8 +163,10 @@ describe('GATE-1: Spec Exists', () => {
     const result = runCommand('devorq gate 1', projectDir);
     
     console.log('GATE-1 empty-spec output:', result.stdout);
-    
+
     expect(result.stdout).toMatch(/GATE.*1|FAIL|empty/i);
+    // SPEC.md vazio: gate bloqueante deve falhar com exit != 0
+    expect(result.exitCode).not.toBe(0);
   });
 });
 

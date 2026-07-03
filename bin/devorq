@@ -34,8 +34,19 @@ readonly DEVORQ_ROOT="${DEVORQ_ROOT:-$(cd -P "$(dirname "$__devorq_src")/.." && 
 unset __devorq_src __devorq_dir
 readonly DEVORQ_LIB="${DEVORQ_ROOT}/lib"
 readonly DEVORQ_BIN="${DEVORQ_ROOT}/bin"
-readonly DEVORQ_VERSION="3.8.5"
+readonly DEVORQ_VERSION="4.0.0"
 readonly DEVORQ_DISPATCHERS_DIR="${DEVORQ_LIB}/dispatchers"
+
+# Guard de instalacao incompleta: bin/devorq e apenas o ROUTER e depende de lib/.
+# Baixar so este arquivo (curl) deixa DEVORQ_LIB apontando para um dir inexistente
+# e o 1o source estoura com erro cru de bash. Falha cedo com instrucao acionavel.
+if [[ ! -f "${DEVORQ_LIB}/helpers.sh" ]]; then
+    echo "[ERROR] instalacao incompleta: ${DEVORQ_LIB}/helpers.sh nao encontrado." >&2
+    echo "        DEVORQ requer o repositorio completo, nao apenas bin/devorq." >&2
+    echo "        Instale com: git clone https://github.com/nandinhos/devorq_v3" >&2
+    echo "        e adicione bin/devorq ao PATH (veja INSTALL.md)." >&2
+    exit 1
+fi
 
 # Carrega bibliotecas core (mantem ordem para dependencias)
 # shellcheck source=lib/helpers.sh
@@ -69,7 +80,7 @@ fi
 
 devorq::help() {
     cat << 'HELPEOF'
-DEVORQ v3.8.5 — Framework de Desenvolvimento Sistemático
+DEVORQ v4.0.0 — Framework de Desenvolvimento Sistemático
 
 Uso: devorq <comando> [args...]
 
@@ -104,7 +115,7 @@ Comandos:
   unify         Unificar artefatos
   mode          Selecionar modo (AUTO/CLASSIC)
   auto          Executar modo AUTO (story-by-story)
-  commit        Commit manual com convenção escopo(fase):
+  commit        Commit manual com convenção tipo(escopo):
   verify        Verificação visual / E2E antes do commit
   rules         Regras enforced (list, check, apply, bootstrap)
   

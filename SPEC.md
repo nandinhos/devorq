@@ -1,9 +1,9 @@
-# DEVORQ v3.8.5 — Specification
+# DEVORQ v4.0.0 — Specification
 
 > **Princípio de auto-construção:** o DEVORQ constrói a si próprio.
 > Sistema operacional → usa-se para construir a si mesmo → refina → cresce.
 
-**Versão:** 3.8.5 | **Atualizado:** 2026-06-05
+**Versão:** 4.0.0 | **Atualizado:** 2026-07-03
 
 ---
 
@@ -311,7 +311,7 @@ O DEVORQ usa Domain-Driven Design para estruturar o conhecimento.
 
 ```bash
 bash scripts/ci-test.sh
-# Resultado: 46/46 tests passing (inclui FASE 5.5 sync-version e FASE 5.6 e2e)
+# Baseline atual: 75/75 unit (scripts/unit-tests.sh) + 36 security (scripts/security-tests.sh) + 77/77 E2E (Playwright). ci-test.sh inclui FASE 5.5 sync-version --check e FASE 5.6 e2e.
 ```
 
 ### Testes E2E Playwright
@@ -326,7 +326,9 @@ npm test
 
 | Tipo | Quantidade | Status |
 |------|-----------|--------|
-| CI Tests | 46 | ✅ |
+| Unit Tests | 75/75 | ✅ |
+| Security Tests | 36 | ✅ |
+| E2E (Playwright) | 77/77 | ✅ |
 | E2E Tests | 77 (100% deterministico) | ✅ |
 | shellcheck | - | ✅ 0 errors |
 
@@ -352,7 +354,20 @@ FASE 11 ████████████████████  100%  ✅ 
 FASE 12 ████████████████████  100%  ✅  Dogfooding v3.8.5 (E2E 100% + refactors)
 ```
 
-### Fase Atual: Sprint v3.8.5 dogfooding (concluido 2026-06-05)
+### Fase Atual: Release v4.0.0 — Elite Hardening (2026-07-03)
+
+**Status:** Concluido (12/12 fatias) — merge para main + tag v4.0.0.
+
+**Entregas (v4.0.0):** gates fail-closed no nivel de processo (`devorq flow` e `devorq::error`
+saem `!=0`); GATE-2 fail-closed + deteccao Node (escape `DEVORQ_ALLOW_NO_RUNNER=1`); convencao
+de commit unificada em `tipo(escopo)` (hook rejeita `escopo(fase)`); modo AUTO robusto (no-diff
+guard, stop-criteria, flock, headless-safe) + adapters de delegacao multi-runner (claude/codex/
+hermes/opencode/agy, validados end-to-end); `jq --arg` no parser de PRD (seguranca). Fonte:
+docs/REFACTOR-ELITE-PLAN.md + docs/CODE_REVIEW_ELITE_2026-07-02.md.
+
+---
+
+### Sprint anterior: v3.8.5 dogfooding (concluido 2026-06-05)
 
 **Status:** Concluido (100% entregue)
 
@@ -460,7 +475,7 @@ O sistema funciona e atende aos requisitos básicos, mas possui **múltiplas ár
 
 | Métrica | Atual | Meta |
 |---------|-------|------|
-| Testes CI | 38/38 | 38/38 ✅ |
+| Testes | 75/75 unit + 77/77 E2E | ✅ |
 | Testes E2E | 50+/50+ | 100% |
 | Cobertura | ~40% | > 80% |
 | shellcheck | ⚠️ Warnings | 0 warnings |
@@ -509,6 +524,15 @@ O sistema funciona e atende aos requisitos básicos, mas possui **múltiplas ár
 ---
 
 ## 13. Changelog
+
+### v4.0.0 (2026-07-03) — Elite Hardening (breaking)
+- ⚠️ BREAKING: `devorq flow` retorna exit `!=0` em gate falho (antes: sempre `0`); `devorq::error` retorna 1
+- ⚠️ BREAKING: GATE-2 fail-closed (runner declarado ausente = FAIL; escape `DEVORQ_ALLOW_NO_RUNNER=1`)
+- ⚠️ BREAKING: convencao de commit unificada em `tipo(escopo)` — hook rejeita `escopo(fase)`; `--phase` deprecado
+- ⚠️ BREAKING: modo AUTO — delegate no-op nao vira `done`; stop-criteria; flock; headless-safe
+- ✅ Adapters de delegacao multi-runner (claude/codex/hermes/opencode/agy) validados end-to-end
+- ✅ Seguranca: `jq --arg` no parser de SPEC->prd; `mcp.json` 600; audit UTC
+- ✅ 12 fatias de hardening (docs/REFACTOR-ELITE-PLAN.md); baseline 75/75 unit + 77/77 E2E
 
 ### v3.8.5 (2026-06-05)
 - ✅ E2E suite Playwright: 77/77 = 100% (3 runs estaveis, deterministico)

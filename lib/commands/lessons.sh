@@ -39,10 +39,24 @@ devorq::cmd_lessons() {
 
     case "$sub" in
         capture)
-            local title="${2:-}"
-            local problem="${3:-}"
-            local solution="${4:-}"
-            [ -z "$title" ] && devorq::error "Uso: devorq lessons capture \"<t>\" \"<p>\" \"<s>\""
+            shift
+            # Aceita a sintaxe do README (flags) E a posicional "<t>" "<p>" "<s>".
+            local title="" problem="" solution=""
+            local -a pos=()
+            while [ $# -gt 0 ]; do
+                case "$1" in
+                    --problem)  problem="${2:-}"; shift 2 ;;
+                    --solution) solution="${2:-}"; shift 2 ;;
+                    --stack)    export DEVORQ_STACK="${2:-}"; shift 2 ;;
+                    --tags)     export DEVORQ_TAGS="${2:-}"; shift 2 ;;
+                    --*)        devorq::warn "flag desconhecida ignorada: $1"; shift ;;
+                    *)          pos+=("$1"); shift ;;
+                esac
+            done
+            [ -z "$title" ]    && title="${pos[0]:-}"
+            [ -z "$problem" ]  && problem="${pos[1]:-}"
+            [ -z "$solution" ] && solution="${pos[2]:-}"
+            [ -z "$title" ] && { devorq::error "Uso: devorq lessons capture \"<titulo>\" [--problem P] [--solution S] [--stack X] [--tags a,b]"; return 1; }
             if [ ! -f "$lib_lessons" ]; then
                 devorq::warn "lib/lessons.sh nao encontrado - criando stub"
                 devorq::info "LESSON: title=${title}"

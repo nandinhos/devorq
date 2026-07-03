@@ -59,11 +59,14 @@ lessons::capture() {
         return $EXIT_INVALID_ARGS
     fi
 
-    # Sanitizar inputs para prevenir injection
+    # Conteudo armazenado CRU: jq --arg (e _json_escape no fallback) ja produzem
+    # JSON valido com qualquer caractere. Sanitizar aqui destruia codigo/comandos
+    # nas licoes — justamente o conteudo mais valioso — sem ganho de seguranca
+    # (o filename vem de ts/pid/random, nao do titulo). So limitamos o tamanho.
     local title problem solution
-    title=$(devorq::sanitize_input "$1" 200)
-    problem=$(devorq::sanitize_input "${2:-}" 2000)
-    solution=$(devorq::sanitize_input "${3:-}" 5000)
+    title="${1:0:200}"
+    problem="${2:0:2000}"
+    solution="${3:0:5000}"
 
     local dir="${DEVORQ_LESSONS_DIR}/captured"
     mkdir -p "$dir"

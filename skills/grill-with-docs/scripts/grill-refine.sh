@@ -269,19 +269,19 @@ main() {
                 ;;
             skip|SKIP)
                 echo -e "${YELLOW}⚠${RESET} Pulando '$term'"
-                ((skipped++))
+                skipped=$((skipped+1))
                 continue
                 ;;
             "")
                 echo -e "${YELLOW}⚠${RESET} Definição vazia, pulando"
-                ((skipped++))
+                skipped=$((skipped+1))
                 continue
                 ;;
             *)
                 if update_term_definition "$term" "$definition" "$CONTEXT_FILE"; then
-                    ((refined++))
+                    refined=$((refined+1))
                 else
-                    ((skipped++))
+                    skipped=$((skipped+1))
                 fi
                 ;;
         esac

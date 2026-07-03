@@ -216,7 +216,7 @@ devorq::rules::check_commit_convention() {
         commit_msg=$(echo "$line" | sed 's/^[a-f0-9]* //')
         
         # Validar formato: escopo(fase): descrição
-        if ! echo "$commit_msg" | grep -qE '^[a-z]+\([a-z]+\):'; then
+        if ! echo "$commit_msg" | grep -qE '^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):'; then
             echo "[FAIL] Commit fora do formato: $commit_msg"
             ((problems++)) || true
         fi
@@ -590,7 +590,7 @@ devorq::rules::enforce_commit() {
     fi
 
     # Validar formato: escopo(fase): descrição
-    if ! echo "$commit_msg" | grep -qE '^[a-z]+\([a-z]+\):'; then
+    if ! echo "$commit_msg" | grep -qE '^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):'; then
         echo ""
         echo "[DEVORQ RULES] Mensagem de commit fora do formato."
         echo ""
@@ -677,12 +677,13 @@ if grep -qiE '^Co-Authored-By:' "$COMMIT_MSG_FILE"; then
     exit 1
 fi
 
-if ! echo "$COMMIT_MSG" | grep -qE '^[a-z]+\([a-z]+\):'; then
+if ! echo "$COMMIT_MSG" | grep -qE '^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):'; then
     echo ""
     echo "[DEVORQ RULES] Mensagem de commit fora do formato."
     echo ""
     echo "Formato esperado:"
-    echo "  escopo(fase): descrição (detalhamento)"
+    echo "  tipo(escopo): descrição (detalhamento)"
+    echo "  tipo ∈ feat|fix|refactor|docs|test|style|perf|chore"
     echo ""
     echo "Use: devorq commit --story <id>"
     echo "Consulte: devorq rules help commit-convention"

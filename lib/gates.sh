@@ -210,20 +210,47 @@ gate_2() {
             local rv=$?
             if [ $rv -ne 0 ]; then
                 gate::warn 2 "Testes falharam (exit code: $rv)"
-                ((test_errors++))
+                test_errors=$((test_errors+1))
             fi
-        elif [ -f "composer.json" ] && [ ! -d "vendor" ]; then
-            gate::warn 2 "vendor/ não instalado"
-            ((test_errors++))
+        elif [ "${DEVORQ_ALLOW_NO_RUNNER:-0}" != "1" ]; then
+            # fail-closed: PHP com tests/ mas runner ausente/nao-executavel
+            gate::warn 2 "PHP com tests/ mas sem runner executavel (pest/phpunit/artisan, php ou vendor/ faltando) — DEVORQ_ALLOW_NO_RUNNER=1 para ignorar"
+            test_errors=$((test_errors+1))
         fi
     fi
 
-    if [ -f "pytest.ini" ] || [ -f "pyproject.toml" ]; then
+    if [ -f "pytest.ini" ] || { [ -f "pyproject.toml" ] && [ -d "tests" ]; }; then
         if [ -d "tests" ] && command -v pytest &>/dev/null; then
             pytest -q 2>/dev/null || {
                 gate::warn 2 "pytest falhou"
-                ((test_errors++))
+                test_errors=$((test_errors+1))
             }
+        elif [ "${DEVORQ_ALLOW_NO_RUNNER:-0}" != "1" ]; then
+            # fail-closed: testes Python declarados mas pytest ausente
+            gate::warn 2 "pytest.ini/pyproject+tests presentes mas pytest nao instalado — DEVORQ_ALLOW_NO_RUNNER=1 para ignorar"
+            test_errors=$((test_errors+1))
+        fi
+    fi
+
+    # Node/JS: package.json com script "test" (fail-closed se npm ausente)
+    if [ -f "package.json" ]; then
+        local has_test_script=false
+        if command -v jq &>/dev/null; then
+            jq -e '.scripts.test // empty' package.json &>/dev/null && has_test_script=true
+        elif grep -qE '"test"[[:space:]]*:' package.json; then
+            has_test_script=true
+        fi
+        if [ "$has_test_script" = "true" ]; then
+            has_tests=true
+            if command -v npm &>/dev/null; then
+                npm test --silent 2>/dev/null || {
+                    gate::warn 2 "npm test falhou"
+                    test_errors=$((test_errors+1))
+                }
+            elif [ "${DEVORQ_ALLOW_NO_RUNNER:-0}" != "1" ]; then
+                gate::warn 2 "package.json tem script test mas npm nao instalado — DEVORQ_ALLOW_NO_RUNNER=1 para ignorar"
+                test_errors=$((test_errors+1))
+            fi
         fi
     fi
 
@@ -241,7 +268,7 @@ gate_2() {
                 sc_errors=$(shellcheck -S error "${sc_files[@]}" 2>/dev/null | grep -c "SC[12]" || true)
                 if [ "$sc_errors" -gt 0 ]; then
                     gate::warn 2 "shellcheck: $sc_errors erro(s) de sintaxe"
-                    ((test_errors += sc_errors))
+                    test_errors=$((test_errors + sc_errors))
                 fi
             fi
         fi
@@ -477,9 +504,9 @@ gate_7() {
 
 # ============================================================
 # GATE-E2E — Playwright E2E tests (story-001 e2e revival)
-# Nao-bloqueante. Reporta status, mas retorna 0 sempre.
-# Promocao a bloqueante fica para vv3.8.5+ apos 2-3 sprints de
-# estabilidade observada.
+# Nao-bloqueante aqui. Reporta status, mas retorna 0 sempre.
+# Promocao a required check em andamento via .github/workflows/e2e.yml
+# apos estabilidade observada (E2E 77/77 deterministico).
 # ============================================================
 
 gate_e2e() {

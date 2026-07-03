@@ -145,8 +145,10 @@ devorq::cmd_flow() {
             *) intent="$1"; shift ;;
         esac
     done
-    [ -z "$intent" ] && devorq::error "Uso: devorq flow [--resume] \"<intent>\""
+    [ -z "$intent" ] && { devorq::error "Uso: devorq flow [--resume] \"<intent>\""; return 1; }
 
+    # Gates leem DEVORQ_INTENT (gates.sh:60) — sem export, DDD/grill/G-4 rodam vazios.
+    export DEVORQ_INTENT="$intent"
     devorq::log "Intent: ${intent}"
     devorq::log "Executando gates 0 -> 0.5 -> 1-7..."
     declare -f devorq::audit_log &>/dev/null && devorq::audit_log "flow" "start" "$intent" || true
@@ -165,8 +167,9 @@ devorq::cmd_flow() {
         fi
         devorq::info "--- GATE ${gate} ---"
         if ! devorq::cmd_gate "$gate" 2>&1; then
-            devorq::error "Gate ${gate} falhou — parando flow"
-            break
+            echo "[ERROR] Gate ${gate} falhou — parando flow" >&2
+            declare -f devorq::audit_log &>/dev/null && devorq::audit_log "flow" "end" "falhou gate ${gate}" || true
+            return 1
         fi
     done
 

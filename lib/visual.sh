@@ -213,10 +213,14 @@ devorq::verify::manual() {
     echo "  [ ] A funcionalidade está operacional"
     echo ""
 
-    echo -n "Confirmar que a verificação visual passou? [Y/n]: "
-    local confirm
-    read -r confirm
-    confirm="${confirm:-Y}"
+    local confirm="Y"
+    if [[ -t 0 && "${DEVORQ_AUTO_YES:-0}" != "1" ]]; then
+        echo -n "Confirmar que a verificação visual passou? [Y/n]: "
+        read -r confirm
+        confirm="${confirm:-Y}"
+    else
+        devorq::info "nao-interativo: assumindo verificacao visual confirmada (Y)"
+    fi
 
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         devorq::success "Verificação manual confirmada"
@@ -235,12 +239,15 @@ devorq::verify::trigger_debug() {
     local failure_context="${1:-verificação falhou}"
     local project_root="${DEVORQ_PROJECT_ROOT:-$PWD}"
 
-    echo ""
-    devorq::error "═══════════════════════════════════════"
-    devorq::error "  SYSTEMATIC DEBUGGING TRIGGERED"
-    devorq::error "═══════════════════════════════════════"
-    devorq::error "Contexto: $failure_context"
-    echo ""
+    # ponytail: banner em stderr, NAO usa devorq::error (que agora aborta sob set -e)
+    {
+        echo ""
+        echo "[ERROR] ═══════════════════════════════════════"
+        echo "[ERROR]   SYSTEMATIC DEBUGGING TRIGGERED"
+        echo "[ERROR] ═══════════════════════════════════════"
+        echo "[ERROR] Contexto: $failure_context"
+        echo ""
+    } >&2
 
     devorq::info "O fluxo systematic-debugging será iniciado automaticamente."
     devorq::info "Fases:"

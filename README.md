@@ -4,9 +4,9 @@
 > Captura lições aprendidas, impõe gates bloqueantes, gera handoffs consistentes.
 > **Repo:** [github.com/nandinhos/devorq_v3](https://github.com/nandinhos/devorq_v3) | **Autor:** Fernando Dos Santos (Nando)
 
-**Versão:** 3.8.5
+**Versão:** 4.0.0
 
-> **Última release (2026-06-05):** v3.8.5 — Sprint dogfooding: E2E revival 100% (77/77), refactor `bin/devorq` (1503→180 LOC), refactor `lib/lessons.sh` (1045→96 LOC + 4 modulos), `scripts/sync-version.sh`. Detalhes em [`CHANGELOG.md`](CHANGELOG.md) e [`docs/specs/2026-06-04-v3.8.5-dogfooding.md`](docs/specs/2026-06-04-v3.8.5-dogfooding.md).
+> **Última release (2026-07-03):** v4.0.0 — Elite Hardening (breaking). Gates **fail-closed no nível de processo**: `devorq flow` agora retorna exit `!=0` em gate falho (antes: sempre `0`) e `devorq::error` aborta. GATE-2 fail-closed + detecção Node. Convenção de commit unificada em `tipo(escopo)` (o hook rejeita `escopo(fase)`). Modo AUTO robusto (no-diff guard, stop-criteria, flock, headless-safe) + **adapters de delegação multi-runner** (claude/codex/hermes/opencode/agy). Segurança: `jq --arg` no parser de PRD. Migração e detalhes em [`CHANGELOG.md`](CHANGELOG.md), [`docs/REFACTOR-ELITE-PLAN.md`](docs/REFACTOR-ELITE-PLAN.md) e [`docs/CODE_REVIEW_ELITE_2026-07-02.md`](docs/CODE_REVIEW_ELITE_2026-07-02.md).
 >
 > **Histórico Git (2026-05-23):** `main` reorganizado por release (1 commit/versão). Re-clone recomendado após atualizar.
 
@@ -31,9 +31,10 @@ Sessão longa → contexto saturado → próximo agente perde informações
 ## Quick Start
 
 ```bash
-# 1. Instalar (uma linha)
-curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq_v3/main/bin/devorq -o ~/bin/devorq
-chmod +x ~/bin/devorq
+# 1. Instalar (repo completo — bin/devorq depende de lib/)
+git clone https://github.com/nandinhos/devorq_v3.git ~/projects/devorq_v3
+ln -s ~/projects/devorq_v3/bin/devorq ~/bin/devorq   # ~/bin no PATH
+# (detalhes e alternativas: INSTALL.md)
 
 # 2. Inicializar projeto
 cd /projects/meu-projeto
@@ -99,7 +100,15 @@ devorq foundation validate  # Validar (GATE-0.5)
 O DEVORQ oferece **2 modos** para executar o workflow:
 
 ### Modo AUTO 🤖 (story-by-story)
-Implementação autônoma story por story via `delegate_task`. Recomendado para features grandes/médias.
+Implementação autônoma story por story. Recomendado para features grandes/médias.
+
+O LLM que implementa cada story é plugável via o contrato **`DEVORQ_DELEGATE_FN`**. Um
+dispatcher único (`scripts/adapters/delegate.sh` + `DEVORQ_RUNNER`) roda em **5 harnesses
+mainstream** — `claude`, `codex`, `hermes`, `opencode`, `agy` — validados end-to-end.
+O loop é **fail-closed**: delegate que não produz diff **não** marca a story como `done`;
+story que falha persistentemente vira `failed` após `DEVORQ_AUTO_MAX_STORY_FAILURES` (sem
+loop infinito); runs concorrentes são bloqueados por `flock`; e é headless-safe
+(`DEVORQ_AUTO_YES=1`). Contrato e casos de uso: [`AGENTS.md`](AGENTS.md) · [`docs/DELEGATE-ADAPTERS.md`](docs/DELEGATE-ADAPTERS.md).
 
 ```
  Usuario                    Sistema

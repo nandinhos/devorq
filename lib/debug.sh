@@ -55,7 +55,7 @@ debug::check() {
         errors=$(jq -r '.errors // [] | length' "$ctx_file" 2>/dev/null || echo "0")
         if [ "$errors" -gt 0 ]; then
             debug::warn "Projeto tem $errors erro(s) registrado(s) em context.json"
-            ((problems++))
+            problems=$((problems+1))
         fi
     fi
 
@@ -67,7 +67,7 @@ debug::check() {
             passed=$(jq -r '.passed // true' "$test_result" 2>/dev/null)
             if [ "$passed" = "false" ]; then
                 debug::warn "Último teste falhou — use 'devorq debug' para investigar"
-                ((problems++))
+                problems=$((problems+1))
             fi
         fi
     fi
@@ -78,7 +78,7 @@ debug::check() {
         stuck_gates=$(jq -r '.stuck_gates // [] | length' "$ctx_file" 2>/dev/null || echo "0")
         if [ "$stuck_gates" -gt 2 ]; then
             debug::warn "Gate(s) travado(s) detectado(s) — investigação necessária"
-            ((problems++))
+            problems=$((problems+1))
         fi
     fi
 

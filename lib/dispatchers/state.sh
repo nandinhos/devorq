@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/dispatchers/state.sh -- DEVORQ v3.8.5
+# lib/dispatchers/state.sh -- DEVORQ v4.0.0
 #
 # Dispatcher: STATE
 # Responsabilidade unica: gestao de estado do projeto.

@@ -94,7 +94,7 @@ log_safe() {
 devorq::info()    { echo "[INFO] $*"; }
 devorq::log()     { echo "[LOG] $*"; }
 devorq::warn()    { echo "[WARN] $*" >&2; }
-devorq::error()   { echo "[ERROR] $*" >&2; }
+devorq::error()   { echo "[ERROR] $*" >&2; return 1; }
 devorq::success() { echo "[OK] $*"; }
 devorq::fail()    { echo "[FAIL] $*" >&2; return 1; }
 
@@ -106,7 +106,7 @@ devorq::audit_log() {
     [ -z "${DEVORQ_RUN_ID:-}" ] && export DEVORQ_RUN_ID="$(date +%Y%m%d_%H%M%S)_$$"
     local logs_dir="${DEVORQ_LOGS_DIR:-${PWD}/.devorq/state/logs}"
     mkdir -p "$logs_dir" 2>/dev/null || return 0
-    local ts; ts=$(date +%Y-%m-%dT%H:%M:%SZ)
+    local ts; ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)   # -u: sufixo Z exige UTC real, nao hora local
     local agent="${DEVORQ_AGENT:-}"   # qual agente/modelo agiu (DQ-023)
     local line
     if command -v jq &>/dev/null; then

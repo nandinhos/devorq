@@ -1,0 +1,327 @@
+<style>
+  :root{
+    --paper:#f4f2ec; --card:#fbfaf6; --ink:#1b2432; --muted:#5a6473;
+    --line:#e4dfd4; --line-2:#efeae0; --accent:#0d5c63; --accent-soft:#0d5c6314;
+    --ok:#2f7d4f; --ok-soft:#2f7d4f18;
+    --claude:#c2683f; --codex:#3f7d5b; --hermes:#6b5bc2; --opencode:#2f6f9e; --agy:#b0873a;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .wrap{
+    background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+    padding:clamp(20px,5vw,64px) clamp(16px,5vw,40px) 72px;
+  }
+  .page{max-width:940px; margin:0 auto}
+  .prose{max-width:66ch}
+
+  /* ---- header ---- */
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent); margin:0 0 14px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:"◤"; opacity:.55}
+  h1{
+    font-family:var(--mono); font-weight:600; font-size:clamp(30px,5.5vw,46px);
+    line-height:1.05; letter-spacing:-.02em; margin:0 0 16px; text-wrap:balance;
+  }
+  h1 .amp{color:var(--accent)}
+  .lede{font-size:clamp(17px,2.2vw,20px); color:#33404f; margin:0; text-wrap:pretty}
+
+  .stats{
+    display:flex; flex-wrap:wrap; gap:0; margin:30px 0 8px; border:1px solid var(--line);
+    border-radius:12px; overflow:hidden; background:var(--card);
+  }
+  .stat{flex:1 1 150px; padding:16px 20px; border-right:1px solid var(--line)}
+  .stat:last-child{border-right:0}
+  .stat .n{font-family:var(--mono); font-size:26px; font-weight:600; letter-spacing:-.01em; display:block; line-height:1}
+  .stat .l{font-size:12.5px; color:var(--muted); margin-top:7px; letter-spacing:.02em}
+  .stat .n.g{color:var(--ok)}
+
+  /* ---- sections ---- */
+  section{margin-top:56px}
+  h2{
+    font-family:var(--mono); font-size:13px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 4px; font-weight:600;
+  }
+  .h2sub{font-size:clamp(21px,3vw,27px); font-family:var(--sans); font-weight:650;
+    letter-spacing:-.01em; margin:0 0 22px; color:var(--ink); text-wrap:balance}
+
+  p{margin:0 0 14px}
+  code{font-family:var(--mono); font-size:.9em; background:#eae5da; padding:.12em .4em; border-radius:5px}
+  strong{font-weight:650}
+
+  /* ---- contract card ---- */
+  .codecard{
+    background:#161d29; color:#dbe3ee; border-radius:12px; padding:20px 22px;
+    font-family:var(--mono); font-size:14px; line-height:1.75; overflow-x:auto;
+    border:1px solid #0d1420;
+  }
+  .codecard .c{color:#7d8aa0}
+  .codecard .k{color:#6ec2c9}
+  .codecard .s{color:#c9a26e}
+  .codecard .v{color:#b8c7dd}
+  .pipe{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px}
+  .step{
+    flex:1 1 170px; background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; position:relative;
+  }
+  .step .sn{font-family:var(--mono); font-size:12px; color:var(--accent); letter-spacing:.08em}
+  .step .st{font-weight:600; margin:6px 0 3px; font-size:15px}
+  .step .sd{font-size:13px; color:var(--muted); line-height:1.5}
+
+  /* ---- table ---- */
+  .tscroll{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--card)}
+  table{border-collapse:collapse; width:100%; font-size:14px; min-width:720px}
+  thead th{
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); text-align:left; padding:14px 16px; border-bottom:1.5px solid var(--line);
+    font-weight:600; white-space:nowrap; background:#f0ece2;
+  }
+  tbody td{padding:14px 16px; border-bottom:1px solid var(--line-2); vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover td{background:#00000005}
+  .runner{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-weight:600; font-size:14.5px; white-space:nowrap}
+  .dot{width:10px; height:10px; border-radius:3px; flex:none}
+  td .cmd{font-family:var(--mono); font-size:12.5px; color:#2a3543; white-space:nowrap}
+  td .flag{font-family:var(--mono); font-size:12px; background:#eae5da; padding:.15em .45em; border-radius:5px; color:#3a4553; white-space:nowrap}
+  .num{font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
+  .bar{display:inline-block; height:7px; border-radius:4px; background:var(--accent); opacity:.8; vertical-align:middle; margin-left:8px}
+  .pill{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px;
+    font-weight:600; letter-spacing:.03em; color:var(--ok); background:var(--ok-soft);
+    padding:5px 10px; border-radius:20px; white-space:nowrap;
+  }
+  .pill::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--ok)}
+
+  /* ---- callout ---- */
+  .note{
+    border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 10px 10px 0;
+    padding:14px 18px; margin:22px 0; font-size:14.5px; color:#26333f;
+  }
+  .note.warn{border-color:var(--agy); background:#b0873a12}
+  .note b{color:var(--ink)}
+
+  /* ---- env var table variant ---- */
+  .envkey{font-family:var(--mono); font-size:13px; font-weight:600; color:var(--accent); white-space:nowrap}
+  .req{font-family:var(--mono); font-size:11px; padding:2px 7px; border-radius:20px; white-space:nowrap}
+  .req.y{background:#c2683f18; color:#a8522c}
+  .req.n{background:#5a647314; color:var(--muted)}
+  .def{font-family:var(--mono); font-size:12.5px; color:#3a4553}
+
+  /* ---- use case cards ---- */
+  .cases{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin-top:6px}
+  .case{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; display:flex; flex-direction:column}
+  .case .ct{font-weight:650; font-size:15.5px; margin:0 0 4px; letter-spacing:-.01em}
+  .case .cw{font-size:12.5px; color:var(--muted); margin:0 0 12px}
+  .case pre{
+    margin:auto 0 0; background:#161d29; color:#dbe3ee; border-radius:9px; padding:13px 14px;
+    font-family:var(--mono); font-size:12px; line-height:1.65; overflow-x:auto; white-space:pre;
+  }
+  .case pre .c{color:#7d8aa0}
+  .case pre .e{color:#6ec2c9}
+
+  footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--line);
+    font-size:13px; color:var(--muted); font-family:var(--mono)}
+
+  @media (max-width:560px){
+    .stat{flex-basis:50%; border-bottom:1px solid var(--line)}
+    .wrap{padding-left:14px; padding-right:14px}
+  }
+</style>
+
+<div class="wrap">
+<div class="page">
+
+  <p class="eyebrow">DEVORQ · Modo AUTO</p>
+  <h1>Adapters de Delegação</h1>
+  <p class="lede prose">Um contrato, cinco harnesses. O modo AUTO entrega cada
+  story a um CLI de LLM real — e o mesmo <code>delegate.sh</code> fala com todos eles.</p>
+
+  <div class="stats">
+    <div class="stat"><span class="n">5</span><span class="l">runners suportados</span></div>
+    <div class="stat"><span class="n g">5/5</span><span class="l">validados end-to-end</span></div>
+    <div class="stat"><span class="n">1</span><span class="l">contrato · <code>DEVORQ_DELEGATE_FN</code></span></div>
+    <div class="stat"><span class="n">~11–52<span style="font-size:15px">s</span></span><span class="l">por story (teste real)</span></div>
+  </div>
+
+  <!-- CONTRATO -->
+  <section>
+    <h2>O contrato</h2>
+    <p class="h2sub">Como o loop fala com o LLM</p>
+    <div class="codecard">
+<span class="c"># o loop AUTO invoca o delegate assim, uma vez por story:</span>
+"<span class="k">$DEVORQ_DELEGATE_FN</span>"  "<span class="s">$story_json</span>"  "<span class="s">$project_root</span>"
+                        <span class="c">↑ $1 (.id .title .description</span>   <span class="c">↑ $2 (dir absoluto)</span>
+                        <span class="c">   .acceptanceCriteria)</span>
+<span class="c"># retorna 0 em sucesso, ≠0 em falha.</span>
+    </div>
+    <div class="pipe">
+      <div class="step"><div class="sn">01</div><div class="st">Seleciona</div><div class="sd">story de maior prioridade com <code>passes:false</code></div></div>
+      <div class="step"><div class="sn">02</div><div class="st">Delega</div><div class="sd"><code>delegate.sh</code> chama o runner de <code>DEVORQ_RUNNER</code></div></div>
+      <div class="step"><div class="sn">03</div><div class="st">Verifica</div><div class="sd">no-diff guard + suite; sem mudança real ⇒ não passa</div></div>
+      <div class="step"><div class="sn">04</div><div class="st">Commita</div><div class="sd"><code>feat(escopo): título</code> e marca <code>done</code></div></div>
+    </div>
+  </section>
+
+  <!-- TABELA CENTRAL -->
+  <section>
+    <h2>A matriz</h2>
+    <p class="h2sub">Os cinco runners e como acioná-los</p>
+    <div class="tscroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Runner</th><th>Acionamento</th><th>Auto-edição</th><th>Working dir</th>
+            <th>Modelo testado</th><th>Verdito</th><th style="text-align:right">Tempo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="runner"><span class="dot" style="background:var(--claude)"></span>claude</span></td>
+            <td><span class="cmd">claude -p PROMPT</span></td>
+            <td><span class="flag">--dangerously-skip-permissions</span></td>
+            <td><span class="cmd">cwd · --add-dir</span></td>
+            <td><span class="cmd">Sonnet (default)</span></td>
+            <td><span class="pill">WORKED</span></td>
+            <td class="num">16s<span class="bar" style="width:31px"></span></td>
+          </tr>
+          <tr>
+            <td><span class="runner"><span class="dot" style="background:var(--codex)"></span>codex</span></td>
+            <td><span class="cmd">codex exec PROMPT</span></td>
+            <td><span class="flag">-s workspace-write</span></td>
+            <td><span class="cmd">-C / --cd DIR</span></td>
+            <td><span class="cmd">gpt-5.5</span></td>
+            <td><span class="pill">WORKED</span></td>
+            <td class="num">52s<span class="bar" style="width:100px"></span></td>
+          </tr>
+          <tr>
+            <td><span class="runner"><span class="dot" style="background:var(--hermes)"></span>hermes</span></td>
+            <td><span class="cmd">hermes -z PROMPT</span></td>
+            <td><span class="flag">--yolo</span></td>
+            <td><span class="cmd">cwd</span></td>
+            <td><span class="cmd">MiniMax-M3</span></td>
+            <td><span class="pill">WORKED</span></td>
+            <td class="num">13s<span class="bar" style="width:25px"></span></td>
+          </tr>
+          <tr>
+            <td><span class="runner"><span class="dot" style="background:var(--opencode)"></span>opencode</span></td>
+            <td><span class="cmd">opencode run PROMPT</span></td>
+            <td><span class="flag">--auto</span></td>
+            <td><span class="cmd">--dir DIR</span></td>
+            <td><span class="cmd">minimax/MiniMax-M3</span></td>
+            <td><span class="pill">WORKED</span></td>
+            <td class="num">25s<span class="bar" style="width:48px"></span></td>
+          </tr>
+          <tr>
+            <td><span class="runner"><span class="dot" style="background:var(--agy)"></span>agy</span></td>
+            <td><span class="cmd">agy -p PROMPT</span></td>
+            <td><span class="flag">--dangerously-skip-permissions</span></td>
+            <td><span class="cmd">cwd · --add-dir</span></td>
+            <td><span class="cmd">Antigravity (default)</span></td>
+            <td><span class="pill">WORKED</span></td>
+            <td class="num">11s<span class="bar" style="width:21px"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn"><b>A flag de auto-aprovação muda por CLI.</b>
+    <code>--dangerously-skip-permissions</code> é real só para <b>claude</b> e <b>agy</b>.
+    No <b>opencode</b> é <code>--auto</code>; no <b>codex</b>, <code>-s workspace-write</code>;
+    no <b>hermes</b>, <code>--yolo</code>. O dispatcher usa a certa para cada runner —
+    você não precisa lembrar.</div>
+  </section>
+
+  <!-- MANUAL delegate.sh -->
+  <section>
+    <h2>delegate.sh</h2>
+    <p class="h2sub">O dispatcher e suas variáveis</p>
+    <p class="prose">Um único script implementa o contrato e despacha para o CLI de
+    <code>DEVORQ_RUNNER</code>. Wrappers finos (<code>claude-delegate.sh</code>,
+    <code>codex-delegate.sh</code>, …) já fixam o runner — aponte
+    <code>DEVORQ_DELEGATE_FN</code> para eles.</p>
+    <div class="tscroll" style="margin-top:18px">
+      <table style="min-width:600px">
+        <thead><tr><th>Variável</th><th>Obrigatória</th><th>Default</th><th>O que faz</th></tr></thead>
+        <tbody>
+          <tr><td><span class="envkey">DEVORQ_RUNNER</span></td><td><span class="req y">sim*</span></td><td><span class="def">—</span></td><td>claude · codex · hermes · opencode · agy</td></tr>
+          <tr><td><span class="envkey">DEVORQ_MODEL</span></td><td><span class="req n">não</span></td><td><span class="def">default do CLI</span></td><td>força um modelo específico</td></tr>
+          <tr><td><span class="envkey">DEVORQ_DELEGATE_TIMEOUT</span></td><td><span class="req n">não</span></td><td><span class="def">1800</span></td><td>segundos até matar o runner</td></tr>
+          <tr><td><span class="envkey">DEVORQ_DELEGATE_DRY_RUN</span></td><td><span class="req n">não</span></td><td><span class="def">0</span></td><td><code>1</code> = imprime o plano, não chama o LLM</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px; color:var(--muted); margin-top:10px">* opcional se você usar um wrapper por runner, que já define <code>DEVORQ_RUNNER</code>.</p>
+    <div class="note"><b>O que o loop garante em volta do adapter:</b> no-diff guard
+    (delegate que não muda nada não vira <code>done</code>), stop-criteria (story falha
+    sai da fila após 2 tentativas), commit por story com scan de segredos, e modo
+    headless-safe (<code>DEVORQ_AUTO_YES=1</code>). O gate ainda <b>não</b> valida os
+    acceptance criteria — quem garante trabalho real é o no-diff guard.</div>
+  </section>
+
+  <!-- CASOS DE USO -->
+  <section>
+    <h2>Como aplicar</h2>
+    <p class="h2sub">Casos de uso</p>
+    <div class="cases">
+
+      <div class="case">
+        <p class="ct">Overnight com spec pronta</p>
+        <p class="cw">Dev experiente, <code>prd.json</code> pronto → implementa em lote.</p>
+<pre><span class="c"># commita cada story</span>
+export DEVORQ_DELEGATE_FN=<span class="e">…/codex-delegate.sh</span>
+export DEVORQ_AUTO_COMMIT=1
+devorq auto <span class="c">--all</span></pre>
+      </div>
+
+      <div class="case">
+        <p class="ct">Testar sem gastar tokens</p>
+        <p class="cw">Valida contrato e dispatch — sem chamar o LLM.</p>
+<pre>export DEVORQ_RUNNER=<span class="e">hermes</span>
+export DEVORQ_DELEGATE_DRY_RUN=1
+devorq auto <span class="c"># imprime o plano</span></pre>
+      </div>
+
+      <div class="case">
+        <p class="ct">Forçar um modelo</p>
+        <p class="cw">Troca o modelo default do runner.</p>
+<pre>export DEVORQ_RUNNER=<span class="e">claude</span>
+export DEVORQ_MODEL=<span class="e">opus</span>
+<span class="c"># codex: gpt-5.5 · opencode: minimax/…</span></pre>
+      </div>
+
+      <div class="case">
+        <p class="ct">CI / cron (headless)</p>
+        <p class="cw">Zero prompts interativos, não bloqueia sem test runner.</p>
+<pre>export DEVORQ_AUTO_YES=1
+export DEVORQ_AUTO_ALLOW_NO_RUNNER=1
+bash loop-auto.sh "$PWD" --all <span class="c">&lt;/dev/null</span></pre>
+      </div>
+
+      <div class="case">
+        <p class="ct">Debug de um adapter</p>
+        <p class="cw">Uma iteração e acompanha o journal.</p>
+<pre>bash loop-auto.sh "$PWD" <span class="e">1</span>
+tail -f "$PWD/<span class="e">.devorq-auto/runs/</span>"*.log</pre>
+      </div>
+
+      <div class="case">
+        <p class="ct">Runner próprio</p>
+        <p class="cw">Qualquer CLI: envolva no contrato de 3 linhas.</p>
+<pre>my_delegate(){ <span class="c"># $1=json $2=dir</span>
+  ( cd "$2" &amp;&amp; <span class="e">meu-cli</span> --yes "$1" ); }
+export DEVORQ_DELEGATE_FN=my_delegate</pre>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    Validado end-to-end com LLM real — 2026-07-02 · claude · codex · hermes · opencode · agy<br>
+    manual: docs/DELEGATE-ADAPTERS.md · fonte: scripts/adapters/delegate.sh
+  </footer>
+
+</div>
+</div>

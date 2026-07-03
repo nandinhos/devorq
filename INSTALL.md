@@ -2,7 +2,7 @@
 
 > Guia completo de instalação para Linux, macOS, WSL, e containers Docker.
 
-**Versão:** 3.8.5
+**Versão:** 4.0.0
 
 ---
 
@@ -43,16 +43,16 @@ devorq test
 
 ---
 
-## Instalação Rápida (Sem Clone)
+## Instalação (via clone — obrigatório)
+
+> **Não existe instalação de arquivo único.** Desde o refactor modular (v3.x),
+> `bin/devorq` é apenas o *router* e faz `source` de `lib/`. Baixar só o binário
+> falha com `[ERROR] instalacao incompleta`. Use o clone:
 
 ```bash
-# Baixa e instala bin/devorq diretamente
-curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq_v3/main/bin/devorq \
-  -o ~/bin/devorq
-chmod +x ~/bin/devorq
-
-# Verificar
-devorq version
+git clone https://github.com/nandinhos/devorq_v3.git ~/projects/devorq_v3
+ln -s ~/projects/devorq_v3/bin/devorq ~/bin/devorq   # ~/bin no PATH
+devorq version                                        # verificar
 ```
 
 > **Nota:** Certifique-se que `~/bin` está no PATH. Adicione se necessário:
@@ -111,9 +111,9 @@ devorq version
 ## Instalação no Docker / Container
 
 ```bash
-# 1. No Dockerfile ou entrypoint
-RUN curl -fsSL https://raw.githubusercontent.com/nandinhos/devorq_v3/main/bin/devorq \
-  -o /usr/local/bin/devorq && chmod +x /usr/local/bin/devorq
+# 1. No Dockerfile: clonar o repo completo e symlinkar o router
+RUN git clone --depth 1 https://github.com/nandinhos/devorq_v3.git /opt/devorq \
+  && ln -s /opt/devorq/bin/devorq /usr/local/bin/devorq
 
 # 2. jq binary estático
 RUN curl -L https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux64 \
@@ -228,5 +228,5 @@ Manenha apenas `~/projects/devorq_v3/` (ou `~/bin/devorq` com symlink para ela).
 
 ---
 
-**Versão:** 3.8.5
+**Versão:** 4.0.0
 **Repo:** https://github.com/nandinhos/devorq_v3

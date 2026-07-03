@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/dispatchers/workflow.sh -- DEVORQ v3.8.5
+# lib/dispatchers/workflow.sh -- DEVORQ v4.0.0
 #
 # Dispatcher: WORKFLOW
 # Responsabilidade unica: execucao de workflow, gates, AUTO e DDD.

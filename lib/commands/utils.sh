@@ -59,13 +59,17 @@ devorq::cmd_upgrade() {
 # ============================================================
 
 devorq::cmd_uninstall() {
-    devorq::warn "Remover DEVORQ de ${DEVORQ_ROOT}?"
-    devorq::info "Ctrl+C para cancelar, Enter para confirmar"
-    read -r
-
-    # Preserva .devorq/ (versão e config do framework — não remove)
-    if [ -d "${DEVORQ_ROOT}/.devorq" ]; then
-        devorq::info "Preservando .devorq/ (version, config)..."
+    devorq::warn "Isto vai REMOVER TODO o diretorio ${DEVORQ_ROOT} (inclusive .devorq/)."
+    if [[ ! -t 0 ]]; then
+        devorq::error "uninstall requer confirmacao interativa (rode num terminal)"
+        return 1
+    fi
+    echo -n "Digite 'yes' para confirmar: "
+    local confirm
+    read -r confirm
+    if [[ "$confirm" != "yes" ]]; then
+        devorq::info "Cancelado — nada removido."
+        return 0
     fi
 
     rm -rf "${DEVORQ_ROOT}"
@@ -105,8 +109,8 @@ devorq::cmd_build() {
         total=$((total + 1))
         devorq::info "── Etapa 2: Gate $gate ──"
         if ! devorq::cmd_gate "$gate"; then
-            devorq::fail "Gate $gate falhou"
-            ((failed++))
+            echo "[FAIL] Gate $gate falhou" >&2
+            failed=$((failed+1))
         fi
     done
 
@@ -119,7 +123,8 @@ devorq::cmd_build() {
         devorq::info "Sistema pronto para self-building"
         return 0
     else
-        devorq::error "$failed de $total gate(s) de codigo falhou(aram)"
+        echo "[ERROR] $failed de $total gate(s) de codigo falhou(aram)" >&2
+        return 1
     fi
 }
 

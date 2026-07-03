@@ -105,7 +105,11 @@ devorq::auto::generate_prd() {
             criterion="$(_clean "${BASH_REMATCH[1]}")"
             criterion="$(echo "$criterion" | sed 's/^ *//;s/ *$//')"
             if [[ -n "$criterion" ]]; then
-                current_criteria=$(echo "$current_criteria" | jq ". += [\"$criterion\"]")
+                # --arg (nao concatenacao): aspa/$()/\ no SPEC nao corrompe o programa jq
+                current_criteria=$(jq --arg c "$criterion" '. += [$c]' <<<"$current_criteria") || {
+                    echo "[ERROR] auto: jq falhou ao adicionar criterio — abortando" >&2
+                    return 1
+                }
             fi
         fi
     done < "$project/SPEC.md"
@@ -265,7 +269,8 @@ devorq::auto::git_commit() {
     fi
 
     git -C "$project" add -A
-    git -C "$project" commit -m "feat(${story_id}): ${story_title}" --no-verify 2>/dev/null || true
+    # story_id (ex: sec-001) nao e escopo valido; vai na descricao. Formato tipo(escopo).
+    git -C "$project" commit -m "feat(core): ${story_title} (${story_id})" --no-verify 2>/dev/null || true
 }
 
 devorq::auto::execute_flow() {

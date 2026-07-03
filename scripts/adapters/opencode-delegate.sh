@@ -116,7 +116,7 @@ timeout "${OPENCODE_TIMEOUT}" opencode run \
     --agent "$OPENCODE_AGENT" \
     --dir "$PROJECT_ROOT" \
     --title "devorq story $STORY_ID" \
-    --dangerously-skip-permissions \
+    --auto \
     "$PROMPT" >> "$JOURNAL" 2>&1
 RC=$?
 set -e

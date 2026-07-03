@@ -96,8 +96,7 @@ devorq::cmd_foundation() {
             fi
             local valid_docs="5w2h premissas riscos requisitos restricoes"
             if ! echo "$valid_docs" | grep -qw "$doc"; then
-                devorq::error "Doc invalido: $doc"
-                devorq::info "Docs validos: $valid_docs"
+                devorq::error "Doc invalido: '$doc' (validos: $valid_docs)"
             fi
             local f="${foundation_dir}/${doc}.json"
             if [ ! -f "$f" ]; then

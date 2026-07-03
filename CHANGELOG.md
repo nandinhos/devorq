@@ -2,6 +2,47 @@
 
 All notable changes to DEVORQ v3 are documented here.
 
+## [4.0.0] - 2026-07-03
+
+### Sprint: Elite Hardening — gates fail-closed no nivel de processo
+Origem: REFACTOR-ELITE-PLAN.md + CODE_REVIEW_ELITE_2026-07-02.md (12 fatias)
+Metodologia: hardening de gates, seguranca e modo AUTO headless + unificacao da convencao de commit e adapters multi-runner
+Branch: refactor/elite-hardening (24 commits)
+
+### Breaking Changes
+- **Gates fail-closed no nivel de processo** (commit c17063a) — `devorq flow` agora retorna exit code != 0 quando um gate falha. ANTES retornava 0 mesmo com gate reprovado, mascarando falhas em CI/scripts. `devorq::error` passou a retornar 1.
+- **GATE-2 fail-closed** (commit 992a1e3) — GATE-2 passa a reprovar quando ha runner de teste declarado mas ausente (ex.: pytest.ini sem pytest; package.json com script test sem deps), com deteccao de ambiente Node. Escape: `DEVORQ_ALLOW_NO_RUNNER=1`.
+- **F13 — convencao de commit unificada para `tipo(escopo)` (Model A)** (commits d1df8f4, 09c0bda) — o hook `commit-msg` AGORA REJEITA o formato antigo `escopo(fase)`. O comando `devorq commit --phase` esta deprecado (alias de `--type` com aviso). Commits devem seguir `tipo(escopo): descricao` (tipo ∈ feat|fix|refactor|docs|test|style|perf|chore).
+- **Modo AUTO muda semantica de sucesso/parada** (commits d1555c7, 5572a26, e1a9864) — delegate que nao produz diff FALHA a story (antes: marcava done); story que falha persistentemente vira failed apos `DEVORQ_AUTO_MAX_STORY_FAILURES` (default 2) em vez de loop infinito; runs concorrentes no mesmo projeto sao bloqueados por flock; prompts interativos em headless usam default seguro (use `DEVORQ_AUTO_YES=1`).
+- **Instalacao e estado** (commits 47e2aba, b1cf627) — instalacao one-line por `curl` substituida por `git clone` + symlink (o single-file ja estava quebrado desde o refactor modular); `.devorq/state/*` untrackado + gitignorado; `devorq uninstall` exige `yes` explicito e e no-op sem TTY.
+
+### Security
+- **jq --arg no parser de SPEC->prd** (commit fb5c75f) — substitui interpolacao direta por `jq --arg`, fechando vetor de injecao/DoS na geracao do prd.json a partir do SPEC.
+- **Endurecimento de config** (commit b1cf627) — `mcp.json` com permissao 600 (contem token), timestamps de audit em UTC (`date -u`), e uninstall seguro.
+
+### Added
+- **Modo AUTO headless-safe** (commits 5572a26, d1555c7) — loop com guarda de TTY, stop-criteria, no-diff guard, `git_commit` robusto (porcelain + scan de segredos) e registro de falhas em `failures.md` via trap EXIT.
+- **Adapters de delegacao multi-runner** (commits 85f3ede, 4d872de) — `scripts/adapters/delegate.sh` (dispatcher) + wrappers para claude/codex/hermes/opencode/agy, validados end-to-end (5/5). Contrato `DEVORQ_DELEGATE_FN` documentado em `docs/DELEGATE-ADAPTERS.md`.
+- **Lessons capture com flags + conteudo cru** (commit b05419a) — parseia `--problem/--solution/--stack/--tags` (alinhado ao README) e armazena o conteudo cru (nao mutila codigo).
+- **Concorrencia** (commit e1a9864) — escrita atomica de `context.json` com `flock` + lock de run unico no AUTO.
+
+### Fixed
+- **Contadores imunes a set -e** (commit b97a100) — `((var++))` trocado por `var=$((var+1))`; `devorq build` reporta contagem honesta sem abortar no 1o gate falho.
+- **Guard de instalacao incompleta** (commit 47e2aba) — `bin/devorq` falha cedo com instrucao se `lib/` estiver ausente.
+- **Crash set -u no scope + jq de GATE-0.5** (commit 7249ac5) — fallback `:-` no scope/phase; jq de acceptance_criteria reescrito (antes sempre passava por erro de sintaxe).
+- **no-diff guard robusto no AUTO** (commits c97c539, a9d53a6) — nao aborta em repo sem commits e ignora diretorios do proprio orquestrador ao avaliar o diff.
+- **opencode usa --auto** (commit 4d872de) — flag real de auto-aprovacao (`--dangerously-skip-permissions` nao existe no opencode).
+
+### Docs & Validation
+- **CI honesto** (commit 4456603) — `gates.spec.ts` asserta exit code; suite E2E hermetica (sem `DEVORQ_*` do ambiente); teste de seguranca reescrito para a propriedade correta.
+- **Manual dos adapters + tabela visual** (commits 60fa5e5, fbe5510) e **plano/review de elite** (commits be1b050, 9e4df07, 6f49737).
+
+### Migração (para quem atualiza)
+- `devorq flow`: reveja `... || true` que mascare falha — o exit != 0 agora e real.
+- Re-rode `devorq init`/bootstrap para instalar o novo hook `commit-msg`; migre commits de `escopo(fase)` para `tipo(escopo)` e `--phase` para `--type`.
+- GATE-2: instale o runner declarado ou use `DEVORQ_ALLOW_NO_RUNNER=1`.
+- AUTO headless: use `DEVORQ_AUTO_YES=1`. Reinstale via `git clone` (nao mais `curl` single-file).
+
 ## [3.8.5] - 2026-06-04
 
 ### Sprint: Dogfooding do DEVORQ no proprio DEVORQ
