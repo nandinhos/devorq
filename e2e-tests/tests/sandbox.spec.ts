@@ -1,5 +1,5 @@
 import { test, expect, describe } from '@playwright/test';
-import { execSync, spawn, exec } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -19,22 +19,32 @@ const DEVORQ_ROOT = path.resolve(__dirname, '../../');
 const DEVORQ_BIN = path.resolve(DEVORQ_ROOT, 'bin/devorq');
 const SANDBOX_BASE = '/tmp/devorq-e2e-sandbox';
 
+function hermeticEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith('DEVORQ_')) env[key] = value;
+  }
+  return env;
+}
+
 /**
  * Helper para executar comandos
  */
 function runCommand(cmd: string, cwd: string = DEVORQ_ROOT): { stdout: string; stderr: string; exitCode: number } {
   const adjustedCmd = cmd.replace(/\bdevorq\b/g, DEVORQ_BIN);
 
-  try {
-    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd, timeout: 30000 });
-    return { stdout, stderr: '', exitCode: 0 };
-  } catch (error: any) {
-    return {
-      stdout: error.stdout?.toString() || '',
-      stderr: error.stderr?.toString() || '',
-      exitCode: error.status || 1
-    };
-  }
+  const result = spawnSync('bash', ['-c', adjustedCmd], {
+    cwd,
+    encoding: 'utf-8',
+    timeout: 30000,
+    env: hermeticEnv(),
+  });
+
+  return {
+    stdout: result.stdout?.toString() || '',
+    stderr: result.stderr?.toString() || (result.status === 0 ? '' : result.error?.message || ''),
+    exitCode: result.status ?? 1,
+  };
 }
 
 /**
@@ -42,14 +52,15 @@ function runCommand(cmd: string, cwd: string = DEVORQ_ROOT): { stdout: string; s
  */
 function createSandbox(name: string): string {
   const sandboxPath = `${SANDBOX_BASE}/${name}`;
-  execSync(`cd /tmp && rm -rf ${sandboxPath} && mkdir -p ${sandboxPath}`, { encoding: 'utf-8' });
+  fs.rmSync(sandboxPath, { recursive: true, force: true });
+  fs.mkdirSync(sandboxPath, { recursive: true });
   return sandboxPath;
 }
 
 describe('DEVORQ Sandbox - Isolamento', () => {
 
   test.beforeAll(() => {
-    execSync(`cd /tmp && mkdir -p ${SANDBOX_BASE}`, { encoding: 'utf-8' });
+    fs.mkdirSync(SANDBOX_BASE, { recursive: true });
   });
 
   test('sandbox deve estar em /tmp com permissões corretas', () => {
@@ -81,10 +92,10 @@ describe('DEVORQ Sandbox - Isolamento', () => {
     runCommand('devorq init', sandbox);
     expect(fs.existsSync(path.join(sandbox, '.devorq'))).toBe(true);
 
-    execSync(`rm -rf ${sandbox}`, { encoding: 'utf-8' });
+    fs.rmSync(sandbox, { recursive: true, force: true });
     expect(fs.existsSync(sandbox)).toBe(false);
 
-    execSync(`mkdir -p ${sandbox}`, { encoding: 'utf-8' });
+    fs.mkdirSync(sandbox, { recursive: true });
     expect(fs.existsSync(sandbox)).toBe(true);
   });
 });
@@ -208,7 +219,7 @@ describe('DEVORQ Sandbox - Cleanup', () => {
 
     expect(fs.existsSync(sandbox)).toBe(true);
 
-    execSync(`rm -rf ${sandbox}`, { encoding: 'utf-8' });
+    fs.rmSync(sandbox, { recursive: true, force: true });
     expect(fs.existsSync(sandbox)).toBe(false);
   });
 
@@ -220,7 +231,7 @@ describe('DEVORQ Sandbox - Cleanup', () => {
 
     const filesBefore = fs.readdirSync(path.join(sandbox, '.devorq/state/lessons/captured'));
 
-    execSync(`rm -rf ${sandbox}`, { encoding: 'utf-8' });
+    fs.rmSync(sandbox, { recursive: true, force: true });
     const newSandbox = createSandbox('residual-test');
     runCommand('devorq init', newSandbox);
 

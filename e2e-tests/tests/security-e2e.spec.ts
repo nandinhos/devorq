@@ -1,5 +1,5 @@
 import { test, expect, describe } from '@playwright/test';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -22,20 +22,22 @@ function hermeticEnv(): NodeJS.ProcessEnv {
 
 function runCommand(cmd: string, cwd: string = SANDBOX): { stdout: string; stderr: string; exitCode: number } {
   const adjustedCmd = cmd.replace(/\bdevorq\b/g, DEVORQ_BIN);
-  try {
-    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd, stdio: 'pipe', env: hermeticEnv() });
-    return { stdout, stderr: '', exitCode: 0 };
-  } catch (error: any) {
-    return {
-      stdout: error.stdout?.toString() || '',
-      stderr: error.stderr?.toString() || '',
-      exitCode: error.status || 1
-    };
-  }
+  const result = spawnSync('bash', ['-c', adjustedCmd], {
+    cwd,
+    encoding: 'utf-8',
+    env: hermeticEnv(),
+  });
+
+  return {
+    stdout: result.stdout?.toString() || '',
+    stderr: result.stderr?.toString() || (result.status === 0 ? '' : result.error?.message || ''),
+    exitCode: result.status ?? 1,
+  };
 }
 
 test.beforeAll(async () => {
-  execSync(`rm -rf ${SANDBOX} && mkdir -p ${SANDBOX}`, { encoding: 'utf-8' });
+  fs.rmSync(SANDBOX, { recursive: true, force: true });
+  fs.mkdirSync(SANDBOX, { recursive: true });
 });
 
 describe('Security - Input Validation', () => {
@@ -63,9 +65,10 @@ describe('Security - Input Validation', () => {
     // Nenhuma execucao: a sentinela continua la (o "; rm -rf" nao rodou).
     expect(fs.existsSync(sentinel)).toBe(true);
 
-    const files = execSync(`ls ${projectDir}/.devorq/state/lessons/captured/ 2>/dev/null || echo ""`, { encoding: 'utf-8' });
-    expect(files.trim()).not.toBe('');
-    const file = `${projectDir}/.devorq/state/lessons/captured/${files.trim().split('\n')[0]}`;
+    const lessonsDir = path.join(projectDir, '.devorq/state/lessons/captured');
+    const files = fs.readdirSync(lessonsDir).filter(file => file.endsWith('.json'));
+    expect(files.length).toBeGreaterThan(0);
+    const file = path.join(lessonsDir, files[0]);
 
     // O arquivo e JSON VALIDO (input nao quebrou a estrutura = sem injection).
     const parsed = JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -90,16 +93,21 @@ describe('Security - Input Validation', () => {
       const result = runCommand(`devorq lessons capture "Test" "p" "s"`, projectDir);
 
       // Verificar que nao criou arquivo fora do diretorio do projeto
-      const projectFiles = execSync(`find ${projectDir} -type f 2>/dev/null`, { encoding: 'utf-8' });
-
-      // Todos os arquivos devem estar dentro do projeto
-      const lines = projectFiles.split('\n').filter(l => l.includes('.devorq'));
-      for (const file of lines) {
-        expect(file).toContain(projectDir);
+      const files = collectFiles(projectDir).filter(file => file.includes(`${path.sep}.devorq${path.sep}`));
+      for (const file of files) {
+        expect(file.startsWith(projectDir)).toBe(true);
       }
     }
   });
 });
+
+function collectFiles(dir: string): string[] {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  return entries.flatMap(entry => {
+    const fullPath = path.join(dir, entry.name);
+    return entry.isDirectory() ? collectFiles(fullPath) : [fullPath];
+  });
+}
 
 describe('Security - SSH Validation', () => {
 

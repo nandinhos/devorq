@@ -1,12 +1,12 @@
 import { test, expect, describe } from '@playwright/test';
-import { execSync, spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
 /**
  * DEVORQ CLI E2E Tests
  * 
- * Testa comandos CLI do DEVORQ v3
+ * Testa comandos CLI do DEVORQ v4
  * 
  * Como executar:
  *   npx playwright test tests/devorq-cli.spec.ts
@@ -17,6 +17,14 @@ const DEVORQ_ROOT = path.resolve(__dirname, '../../');
 const DEVORQ_BIN = path.resolve(DEVORQ_ROOT, 'bin/devorq');
 const SANDBOX = '/tmp/devorq-e2e-cli';
 
+function hermeticEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith('DEVORQ_')) env[key] = value;
+  }
+  return env;
+}
+
 /**
  * Helper para executar comandos
  */
@@ -25,6 +33,7 @@ function runCommand(cmd: string, cwd: string = DEVORQ_ROOT): { stdout: string; s
   const { stdout, stderr, status } = spawnSync('bash', ['-c', adjustedCmd], {
     encoding: 'utf-8',
     cwd,
+    env: hermeticEnv(),
   });
   return {
     stdout: stdout || '',
@@ -37,7 +46,8 @@ function runCommand(cmd: string, cwd: string = DEVORQ_ROOT): { stdout: string; s
  * Setup antes de cada teste
  */
 test.beforeEach(async () => {
-  execSync(`cd /tmp && rm -rf ${SANDBOX} && mkdir -p ${SANDBOX}`, { encoding: 'utf-8' });
+  fs.rmSync(SANDBOX, { recursive: true, force: true });
+  fs.mkdirSync(SANDBOX, { recursive: true });
 });
 
 describe('DEVORQ CLI - Comandos Básicos', () => {
