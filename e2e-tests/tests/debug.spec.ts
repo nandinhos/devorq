@@ -1,5 +1,5 @@
 import { test, expect, describe } from '@playwright/test';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -9,6 +9,14 @@ import * as path from 'path';
 
 const SANDBOX = '/tmp/devorq-e2e-debug';
 const DEVORQ_BIN = path.resolve(__dirname, '../..', 'bin/devorq');
+
+function hermeticEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith('DEVORQ_')) env[key] = value;
+  }
+  return env;
+}
 
 function runCommand(cmd: string, cwd: string = SANDBOX): { stdout: string; stderr: string; exitCode: number } {
   console.log(`[DEBUG] Executing: ${cmd}`);
@@ -20,24 +28,28 @@ function runCommand(cmd: string, cwd: string = SANDBOX): { stdout: string; stder
   
   console.log(`[DEBUG] Adjusted cmd: ${adjustedCmd}`);
   
-  try {
-    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd, stdio: 'pipe' });
-    console.log(`[DEBUG] stdout: "${stdout}"`);
-    return { stdout, stderr: '', exitCode: 0 };
-  } catch (error: any) {
-    console.log(`[DEBUG] error.stdout: "${error.stdout?.toString() || ''}"`);
-    console.log(`[DEBUG] error.stderr: "${error.stderr?.toString() || ''}"`);
-    console.log(`[DEBUG] error.status: ${error.status}`);
-    return {
-      stdout: error.stdout?.toString() || '',
-      stderr: error.stderr?.toString() || '',
-      exitCode: error.status || 1
-    };
-  }
+  const result = spawnSync('bash', ['-c', adjustedCmd], {
+    cwd,
+    encoding: 'utf-8',
+    env: hermeticEnv(),
+  });
+  const stdout = result.stdout?.toString() || '';
+  const stderr = result.stderr?.toString() || (result.status === 0 ? '' : result.error?.message || '');
+
+  console.log(`[DEBUG] stdout: "${stdout}"`);
+  console.log(`[DEBUG] stderr: "${stderr}"`);
+  console.log(`[DEBUG] status: ${result.status}`);
+
+  return {
+    stdout,
+    stderr,
+    exitCode: result.status ?? 1,
+  };
 }
 
 test.beforeAll(async () => {
-  execSync(`rm -rf ${SANDBOX} && mkdir -p ${SANDBOX}`, { encoding: 'utf-8' });
+  fs.rmSync(SANDBOX, { recursive: true, force: true });
+  fs.mkdirSync(SANDBOX, { recursive: true });
 });
 
 describe('Debug - Devorq Binary', () => {

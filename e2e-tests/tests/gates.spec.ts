@@ -1,12 +1,12 @@
 import { test, expect, describe } from '@playwright/test';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
 /**
  * DEVORQ Gates E2E Tests
  * 
- * Testa todos os gates do sistema DEVORQ v3
+ * Testa todos os gates do sistema DEVORQ v4
  */
 
 const SANDBOX = '/tmp/devorq-e2e-gates';
@@ -26,20 +26,22 @@ function runCommand(cmd: string, cwd: string = SANDBOX): { stdout: string; stder
   // Substitui 'devorq' pelo caminho completo do projeto
   const adjustedCmd = cmd.replace(/\bdevorq\b/g, DEVORQ_BIN);
 
-  try {
-    const stdout = execSync(adjustedCmd, { encoding: 'utf-8', cwd, env: hermeticEnv() });
-    return { stdout, stderr: '', exitCode: 0 };
-  } catch (error: any) {
-    return {
-      stdout: error.stdout?.toString() || '',
-      stderr: error.stderr?.toString() || '',
-      exitCode: error.status || 1
-    };
-  }
+  const result = spawnSync('bash', ['-c', adjustedCmd], {
+    cwd,
+    encoding: 'utf-8',
+    env: hermeticEnv(),
+  });
+
+  return {
+    stdout: result.stdout?.toString() || '',
+    stderr: result.stderr?.toString() || (result.status === 0 ? '' : result.error?.message || ''),
+    exitCode: result.status ?? 1,
+  };
 }
 
 test.beforeEach(async () => {
-  execSync(`cd /tmp && rm -rf ${SANDBOX} && mkdir -p ${SANDBOX}`, { encoding: 'utf-8' });
+  fs.rmSync(SANDBOX, { recursive: true, force: true });
+  fs.mkdirSync(SANDBOX, { recursive: true });
 });
 
 describe('GATE-0: Exploration', () => {

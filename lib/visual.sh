@@ -126,20 +126,31 @@ devorq::verify::detect_method() {
 devorq::verify::playwright() {
     local story_id="${1:-}"
     local project_root="${DEVORQ_PROJECT_ROOT:-$PWD}"
+    local playwright_root=""
     local exit_code=0
 
     devorq::info "Executando Playwright E2E..."
 
+    if compgen -G "${project_root}/playwright.config.*" >/dev/null 2>&1; then
+        playwright_root="$project_root"
+    elif compgen -G "${project_root}/e2e-tests/playwright.config.*" >/dev/null 2>&1 \
+         || [[ -d "$project_root/e2e-tests" ]]; then
+        playwright_root="$project_root/e2e-tests"
+    elif [[ -d "$project_root/playwright_tests" ]]; then
+        playwright_root="$project_root"
+    fi
+
     # Verificar se Playwright está configurado
-    if [[ ! -d "$project_root/playwright_tests" ]]; then
-        devorq::warn "playwright_tests/ não encontrado em $project_root"
+    if [[ -z "$playwright_root" ]]; then
+        devorq::warn "Playwright não encontrado em $project_root"
         devorq::info "Fazendo fallback para verificação manual..."
         devorq::verify::manual "$story_id"
         return $?
     fi
 
-    # Mudar para diretório do projeto
-    cd "$project_root" || return 1
+    # Mudar para o diretório que contém a configuração Playwright.
+    cd "$playwright_root" || return 1
+    devorq::info "Diretório Playwright: $playwright_root"
 
     # Verificar se container Docker está rodando (para Sail)
     if devorq::verify::docker_is_running; then
@@ -151,7 +162,7 @@ devorq::verify::playwright() {
             devorq::info "Container: $container_name"
             # Executar Playwright dentro do container ou via Sail
             if command -v vendor/bin/sail &>/dev/null; then
-                if vendor/bin/sail exec "$container_name" npx playwright test 2>&1; then
+                if PLAYWRIGHT_HTML_OPEN=never vendor/bin/sail exec "$container_name" npx playwright test 2>&1; then
                     devorq::success "Playwright: todos os testes passaram"
                     return 0
                 else
@@ -160,7 +171,7 @@ devorq::verify::playwright() {
                 fi
             else
                 # Executar localmente (sem Sail)
-                if npx playwright test 2>&1; then
+                if PLAYWRIGHT_HTML_OPEN=never npx playwright test 2>&1; then
                     devorq::success "Playwright: todos os testes passaram"
                     return 0
                 else
@@ -172,7 +183,7 @@ devorq::verify::playwright() {
     else
         # Sem Docker — executar localmente
         devorq::info "Executando Playwright localmente..."
-        if npx playwright test 2>&1; then
+        if PLAYWRIGHT_HTML_OPEN=never npx playwright test 2>&1; then
             devorq::success "Playwright: todos os testes passaram"
             return 0
         else

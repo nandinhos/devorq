@@ -316,9 +316,8 @@ echo ""
 
 # ============================================================
 # FASE 5.6: E2E (story-001 e2e revival)
-# Suite Playwright em e2e-tests/. NAO BLOQUEANTE no dev:
-# imprime status mas nao incrementa TESTS_FAILED se falhar.
-# Em CI, defina DEVORQ_E2E_STRICT=1 para promover a bloqueante.
+# Suite Playwright em e2e-tests/. Bloqueante por padrao.
+# Para diagnostico local temporario, defina DEVORQ_E2E_STRICT=0.
 # ============================================================
 info "═══ FASE 5.6: E2E (Playwright) ═══"
 
@@ -359,10 +358,10 @@ else
     elif [ "$e2e_rv" -ne 0 ] && [ -z "$e2e_passed" ]; then
         warn "e2e: suite nao executou (exit $e2e_rv) - verifique logs em $E2E_REPORT_DIR"
     else
-        if [ "${DEVORQ_E2E_STRICT:-0}" = "1" ]; then
-            fail "e2e: ${e2e_passed}/${e2e_total} passed (${e2e_failed} failed) - STRICT mode"
-        else
+        if [ "${DEVORQ_E2E_STRICT:-1}" = "0" ]; then
             warn "e2e: ${e2e_passed}/${e2e_total} passed (${e2e_failed} failed) - nao bloqueante no dev"
+        else
+            fail "e2e: ${e2e_passed}/${e2e_total} passed (${e2e_failed} failed) - STRICT mode"
         fi
     fi
 

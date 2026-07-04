@@ -1,5 +1,5 @@
 import { test, expect, describe } from '@playwright/test';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -12,28 +12,34 @@ import * as path from 'path';
 const SANDBOX = '/tmp/devorq-e2e-lessons';
 const DEVORQ_BIN = path.resolve(__dirname, '../..', 'bin/devorq');
 
+function hermeticEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith('DEVORQ_')) env[key] = value;
+  }
+  return env;
+}
+
 function runCommand(cmd: string, cwd: string = SANDBOX): { stdout: string; stderr: string; exitCode: number } {
   // Substitui 'devorq' pelo caminho completo do projeto
   const adjustedCmd = cmd.replace(/\bdevorq\b/g, DEVORQ_BIN);
 
-  try {
-    const stdout = execSync(adjustedCmd, {
-      encoding: 'utf-8',
-      cwd,
-      env: { ...process.env, LESSONS_AUTO: 'true' },
-    });
-    return { stdout, stderr: '', exitCode: 0 };
-  } catch (error: any) {
-    return {
-      stdout: error.stdout?.toString() || '',
-      stderr: error.stderr?.toString() || '',
-      exitCode: error.status || 1
-    };
-  }
+  const result = spawnSync('bash', ['-c', adjustedCmd], {
+    cwd,
+    encoding: 'utf-8',
+    env: { ...hermeticEnv(), LESSONS_AUTO: 'true' },
+  });
+
+  return {
+    stdout: result.stdout?.toString() || '',
+    stderr: result.stderr?.toString() || (result.status === 0 ? '' : result.error?.message || ''),
+    exitCode: result.status ?? 1,
+  };
 }
 
 test.beforeEach(async () => {
-  execSync(`cd /tmp && rm -rf ${SANDBOX} && mkdir -p ${SANDBOX}`, { encoding: 'utf-8' });
+  fs.rmSync(SANDBOX, { recursive: true, force: true });
+  fs.mkdirSync(SANDBOX, { recursive: true });
 });
 
 describe('Lessons - Captura', () => {

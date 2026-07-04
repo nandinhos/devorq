@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright Configuration for DEVORQ v3 E2E Tests
+ * Playwright Configuration for DEVORQ v4 E2E Tests
  * 
  * Documentação: https://playwright.dev/docs/test-configuration
  * 
