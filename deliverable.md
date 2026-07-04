@@ -108,11 +108,11 @@ f38f1d0bd3bf27b48ff2b264ba211cff63c191e0
 
 2. **Como rodar localmente:**
    ```bash
-   cd /home/nandodev/projects/devorq_v3/e2e-tests
+   cd /home/nandodev/projects/devorq/e2e-tests
    npm install
    npx playwright test                 # 77 testes
    # ou via CI wrapper:
-   cd /home/nandodev/projects/devorq_v3
+   cd /home/nandodev/projects/devorq
    bash scripts/ci-test.sh             # FASE 1-5.6 (inclui E2E)
    ```
 

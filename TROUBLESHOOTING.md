@@ -1,4 +1,4 @@
-# Troubleshooting — DEVORQ v3
+# Troubleshooting — DEVORQ
 
 > Problemas comuns e soluções.
 

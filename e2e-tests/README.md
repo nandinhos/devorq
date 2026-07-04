@@ -1,4 +1,4 @@
-# DEVORQ v3 — E2E Tests Project
+# DEVORQ — E2E Tests Project
 
 > Playwright E2E Tests para validar funcionalidades do sistema DEVORQ.
 
@@ -30,7 +30,7 @@ e2e-tests/
 
 - Node.js 18+
 - npm ou yarn
-- DEVORQ v3 instalado
+- DEVORQ instalado
 
 ### Instalação
 

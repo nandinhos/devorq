@@ -12,7 +12,7 @@
 
 | # | Pergunta | Resposta |
 |---|----------|----------|
-| 1 | Escopo das mudanças | **Global** — DEVORQ core em `~/projects/devorq_v3/`, afeta **todos os projetos** |
+| 1 | Escopo das mudanças | **Global** — DEVORQ core em `~/projects/devorq/`, afeta **todos os projetos** |
 | 2 | Playwright em todos os projetos? | **SIM** — todos os projetos novos terão Playwright configurado |
 | 3 | Formato de commit | **tipo(escopo): descrição (detalhamento)** — Conventional Commits, sem emojis, sem co-autoria, pt-BR |
 
@@ -425,7 +425,7 @@ devorq auto --skip-verify    # DEBUG ONLY — pula verificação visual
 
 ## 8. Escopo de Alteração: Global vs Projeto
 
-**Decision:** Alterações no **DEVORQ core global** (`~/projects/devorq_v3/`), não apenas no projeto clickup/clickup.
+**Decision:** Alterações no **DEVORQ core global** (`~/projects/devorq/`), não apenas no projeto clickup/clickup.
 
 **Rationale:**
 - O problema de commits automáticos afeta todos os projetos

@@ -6,7 +6,7 @@
 
 - Node.js 18+
 - npm ou yarn
-- DEVORQ v3 instalado
+- DEVORQ instalado
 
 ### Instalação
 

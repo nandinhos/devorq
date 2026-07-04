@@ -339,4 +339,4 @@ git          # Repo detection
 
 **Versão:** 1.0.0
 **Criado em:** 2026-04-23
-**Padrão:** DEVORQ v3 — GATE-0 (pré-gate para SPEC)
+**Padrão:** DEVORQ — GATE-0 (pré-gate para SPEC)

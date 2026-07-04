@@ -1,4 +1,4 @@
-# DEVORQ v3 — Code Review de Elite
+# DEVORQ — Code Review de Elite
 
 > Revisão multi-agente (8 dimensões, verificação adversarial por finding) para elevar o orquestrador a harness de alto nível — modos clássico e auto.
 >

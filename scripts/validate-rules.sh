@@ -46,7 +46,7 @@ info() {
 
 echo ""
 echo "═══════════════════════════════════════════"
-echo "  DEVORQ v3 — Validação de Diretrizes"
+echo "  DEVORQ — Validação de Diretrizes"
 echo "═══════════════════════════════════════════"
 echo ""
 

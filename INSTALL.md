@@ -1,4 +1,4 @@
-# Instalação — DEVORQ v3
+# Instalação — DEVORQ
 
 > Guia completo de instalação para Linux, macOS, WSL, e containers Docker.
 
@@ -23,10 +23,10 @@
 
 ```bash
 # 1. Clonar repositório
-git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq
 
 # 2. Adicionar ao PATH (adicione no ~/.bashrc ou ~/.zshrc)
-echo 'export PATH="$HOME/projects/devorq_v3/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="$HOME/projects/devorq/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # 3. Verificar instalação
@@ -36,7 +36,7 @@ devorq version
 devorq test
 ```
 
-> **Importante:** Use `~/projects/devorq_v3` como destino. Não use `~/devorq` —
+> **Importante:** Use `~/projects/devorq` como destino. Não use `~/devorq` —
 > esse caminho era documentado em versões anteriores e pode conflitar com
 > instalações antigas. O DEVORQ detecta múltiplas instalações e alerta no
 > `devorq version` se encontrar conflito de PATH.
@@ -50,8 +50,8 @@ devorq test
 > falha com `[ERROR] instalacao incompleta`. Use o clone:
 
 ```bash
-git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
-ln -s ~/projects/devorq_v3/bin/devorq ~/bin/devorq   # ~/bin no PATH
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq
+ln -s ~/projects/devorq/bin/devorq ~/bin/devorq   # ~/bin no PATH
 devorq version                                        # verificar
 ```
 
@@ -100,8 +100,8 @@ devorq gate 3
 
 ```bash
 # Same steps — funciona nativamente no WSL
-git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
-echo 'export PATH="$HOME/projects/devorq_v3/bin:$PATH"' >> ~/.bashrc
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq
+echo 'export PATH="$HOME/projects/devorq/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 devorq version
 ```
@@ -208,10 +208,10 @@ rm ~/bin/devorq         # ou ~/.local/bin/devorq
 
 || Sintoma | Solução |
 |---------|---------|
-| `devorq: command not found` | `export PATH="$HOME/projects/devorq_v3/bin:$PATH"` |
+| `devorq: command not found` | `export PATH="$HOME/projects/devorq/bin:$PATH"` |
 | `devorq version` mostra versão inesperada | Verifique qual binário está no PATH: `which devorq` |
 | `devorq: multiple installations detected` | Remova instalações antigas: `rm -rf ~/devorq ~/.devorq_v3` |
-| `Permission denied` | `chmod +x ~/projects/devorq_v3/bin/devorq` |
+| `Permission denied` | `chmod +x ~/projects/devorq/bin/devorq` |
 | `bash: devorq: No such file` | Verificar se PATH contém diretório correto: `echo $PATH` |
 | jq errors | `curl -L .../jq-linux64 -o ~/bin/jq && chmod +x ~/bin/jq` |
 
@@ -224,7 +224,7 @@ todas as cópias:
 find ~ -maxdepth 2 -name "devorq" -type f 2>/dev/null | xargs -I{} sh -c 'echo "=== {} ===" && head -3 {}'
 ```
 
-Manenha apenas `~/projects/devorq_v3/` (ou `~/bin/devorq` com symlink para ela).
+Manenha apenas `~/projects/devorq/` (ou `~/bin/devorq` com symlink para ela).
 
 ---
 

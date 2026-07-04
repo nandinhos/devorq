@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/ci-test.sh — DEVORQ v3 CI Test Suite
+# scripts/ci-test.sh — DEVORQ CI Test Suite
 # Run locally or in GitHub Actions
 # Exit codes: 0 = all pass, 1 = any failure
 
@@ -63,7 +63,7 @@ cd "$DEVORQ_ROOT"
 
 echo ""
 echo "========================================"
-echo " DEVORQ v3 — CI Test Suite"
+echo " DEVORQ — CI Test Suite"
 echo "========================================"
 echo ""
 

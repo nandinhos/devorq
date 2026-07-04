@@ -1,4 +1,4 @@
-# EXTRAS.md — DEVORQ v3
+# EXTRAS.md — DEVORQ
 
 > Tópicos avançados: Context-Mode, Context7, Superpowers, HUB, Self-Building, e Debug Sistemático.
 
@@ -443,7 +443,7 @@ bash -x bin/devorq gate 3
 ## Arquitetura Detalhada
 
 ```
-DEVORQ CORE (/projects/devorq_v3)
+DEVORQ CORE (/projects/devorq)
 │
 ├── bin/devorq                  # CLI — source libs → executa comandos
 │

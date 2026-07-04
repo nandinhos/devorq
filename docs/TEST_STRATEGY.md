@@ -1,4 +1,4 @@
-# Estratégia de Testes DEVORQ v3
+# Estratégia de Testes DEVORQ
 
 ## Visão Geral
 

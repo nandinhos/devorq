@@ -1,6 +1,6 @@
-# CHANGELOG — DEVORQ v3
+# CHANGELOG — DEVORQ
 
-All notable changes to DEVORQ v3 are documented here.
+All notable changes to DEVORQ are documented here.
 
 ## [4.0.0] - 2026-07-03
 
@@ -460,11 +460,11 @@ bc18335 fix(security): corrige command injection em vps.sh via whitelist + block
 - **skills/README.md** — Índice central de skills com hierarquia local > global
 
 ### Changed
-- **INSTALL.md** — Corrigido path de instalação de `~/devorq/` para `~/projects/devorq_v3/`
+- **INSTALL.md** — Corrigido path de instalação de `~/devorq/` para `~/projects/devorq/`
   - Evita conflito com instalações antigas
   - Adicionado alerta sobre instalações concorrentes no troubleshooting
   - Adicionada seção "Detectando instalações concorrentes"
-- **bin/devorq header** — Comentário atualizado: não usar `~/devorq/`, usar `~/projects/devorq_v3/`
+- **bin/devorq header** — Comentário atualizado: não usar `~/devorq/`, usar `~/projects/devorq/`
 - **skills/** — Adicionadas `learned-lesson` (migrada de ~/.devorq_v3), `grill-with-docs`, `security-hardening`
 - **devorq skills list** — Agora lista skills do framework corretamente (antes hardcoded parcial)
 

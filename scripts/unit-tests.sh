@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/unit-tests.sh — Unit tests para módulos DEVORQ v3
+# scripts/unit-tests.sh — Unit tests para módulos DEVORQ
 #
 # Testa:
 #   - Gates (lib/gates.sh)
@@ -1318,7 +1318,7 @@ unit::summary() {
 
 main() {
     echo "=========================================="
-    echo " DEVORQ v3 — Unit Tests"
+    echo " DEVORQ — Unit Tests"
     echo "=========================================="
     echo ""
 
