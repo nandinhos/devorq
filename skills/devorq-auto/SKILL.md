@@ -1,6 +1,6 @@
 ---
 name: devorq-auto
-description: DEVORQ-AUTO v1.2.0 — Modo autonomo story-by-story do DEVORQ v3. Implementacao automatica via delegate_task seguindo o padrao Ralph (loop com contexto limpo por iteracao). Gera prd.json do SPEC.md, executa uma story por vez, verifica, commita. NAO depende do Ralph instalado — usa delegate_task nativo.
+description: DEVORQ-AUTO v1.2.0 — Modo autonomo story-by-story do DEVORQ. Implementacao automatica via delegate_task seguindo o padrao Ralph (loop com contexto limpo por iteracao). Gera prd.json do SPEC.md, executa uma story por vez, verifica, commita. NAO depende do Ralph instalado — usa delegate_task nativo.
 version: 1.2.0
 author: Fernando Dos Santos (Nando)
 license: MIT
@@ -15,7 +15,7 @@ metadata:
 
 ## Visao Geral
 
-Modo autonomo do DEVORQ v3. Segue o **padrao Ralph**: tarefa grande -> stories pequenas -> loop com contexto limpo -> uma story por iteracao -> delegate -> verify -> commit.
+Modo autonomo do DEVORQ. Segue o **padrao Ralph**: tarefa grande -> stories pequenas -> loop com contexto limpo -> uma story por iteracao -> delegate -> verify -> commit.
 
 Cada iteracao spawne um sub-agente com **contexto limpo** (so a story atual), evitando context window overflow em features complexas.
 
@@ -32,7 +32,7 @@ Cada iteracao spawne um sub-agente com **contexto limpo** (so a story atual), ev
 
 ```
 +------------------------------------------------------------+
-|                      DEVORQ v3                             |
+|                      DEVORQ                             |
 |                                                              |
 |    +------------+       +----------------------------+     |
 |    | prd.json   |------>|    loop-auto.sh             |     |
@@ -227,7 +227,7 @@ echo "[$(date +%H:%M)] ✅ ${STORY_TITLE} — PASSED" >> progress.txt
 4. **Progress append-only** — nunca sobrescreva. Only append.
 5. **Abort facil** — usuario pode Ctrl+C. O que foi verificado e commitado fica.
 
-## Sinergia com DEVORQ v3
+## Sinergia com DEVORQ
 
 - **systematic-debugging**: se check-story.sh detecta falha, carregar skill automaticamente
 - **verification-before-completion**: graftada dentro de check-story.sh como gate final
@@ -414,4 +414,4 @@ delegate_task  # Sub-agentes (nativo Hermes)
 
 **Versao:** 1.0.0
 **Criado em:** 2026-04-23
-**Padrao:** DEVORQ v3 (Ralph-inspired, contexto limpo por iteracao)
+**Padrao:** DEVORQ (Ralph-inspired, contexto limpo por iteracao)

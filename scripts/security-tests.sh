@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/security-tests.sh — Testes de segurança para DEVORQ v3
+# scripts/security-tests.sh — Testes de segurança para DEVORQ
 #
 # Testa:
 #   - Input sanitization
@@ -375,7 +375,7 @@ systematic_debug() {
 
 main() {
     echo "=========================================="
-    echo " DEVORQ v3 — Security Tests"
+    echo " DEVORQ — Security Tests"
     echo "=========================================="
     echo ""
 

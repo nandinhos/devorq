@@ -1,4 +1,4 @@
-# DEVORQ v3
+# DEVORQ
 
 > **Framework bash puro** para metodologia de desenvolvimento sistemático.
 > Captura lições aprendidas, impõe gates bloqueantes, gera handoffs consistentes.
@@ -32,8 +32,8 @@ Sessão longa → contexto saturado → próximo agente perde informações
 
 ```bash
 # 1. Instalar (repo completo — bin/devorq depende de lib/)
-git clone https://github.com/nandinhos/devorq.git ~/projects/devorq_v3
-ln -s ~/projects/devorq_v3/bin/devorq ~/bin/devorq   # ~/bin no PATH
+git clone https://github.com/nandinhos/devorq.git ~/projects/devorq
+ln -s ~/projects/devorq/bin/devorq ~/bin/devorq   # ~/bin no PATH
 # (detalhes e alternativas: INSTALL.md)
 
 # 2. Inicializar projeto
@@ -314,7 +314,7 @@ devorq info   # Mostra status do PAO no ambiente
 ## Arquitetura
 
 ```
-DEVORQ CORE (bash puro — /projects/devorq_v3)
+DEVORQ CORE (bash puro — /projects/devorq)
 │
 ├── bin/devorq                  # CLI entry point (source libs)
 │

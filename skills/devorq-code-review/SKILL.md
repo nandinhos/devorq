@@ -576,4 +576,4 @@ gh (opcional) # se interagindo com GitHub PRs
 
 **Versão:** 1.0.0
 **Criado em:** 2026-04-23
-**Padrão:** DEVORQ v3 + UltraReview/Claude Code + Systematic Debugging
+**Padrão:** DEVORQ + UltraReview/Claude Code + Systematic Debugging

@@ -508,18 +508,18 @@ O sistema funciona e atende aos requisitos básicos, mas possui **múltiplas ár
 ## 12. Recursos
 
 ### Documentação
-- [README.md](file:///home/nandodev/projects/devorq_v3/README.md) - Visão geral
-- [INSTALL.md](file:///home/nandodev/projects/devorq_v3/INSTALL.md) - Guia de instalação
-- [EXTRAS.md](file:///home/nandodev/projects/devorq_v3/EXTRAS.md) - Features extras
+- [README.md](file:///home/nandodev/projects/devorq/README.md) - Visão geral
+- [INSTALL.md](file:///home/nandodev/projects/devorq/INSTALL.md) - Guia de instalação
+- [EXTRAS.md](file:///home/nandodev/projects/devorq/EXTRAS.md) - Features extras
 
 ### Análises
-- [docs/CODE_REVIEW_COMPLETO.md](file:///home/nandodev/projects/devorq_v3/docs/CODE_REVIEW_COMPLETO.md) - Code review completo
-- [docs/COMPORTAMENTO_ESPERADO.md](file:///home/nandodev/projects/devorq_v3/docs/COMPORTAMENTO_ESPERADO.md) - Comportamento esperado
-- [docs/PLANO_CORRECAO_CODE_REVIEW.md](file:///home/nandodev/projects/devorq_v3/docs/PLANO_CORRECAO_CODE_REVIEW.md) - Plano de correção
+- [docs/CODE_REVIEW_COMPLETO.md](file:///home/nandodev/projects/devorq/docs/CODE_REVIEW_COMPLETO.md) - Code review completo
+- [docs/COMPORTAMENTO_ESPERADO.md](file:///home/nandodev/projects/devorq/docs/COMPORTAMENTO_ESPERADO.md) - Comportamento esperado
+- [docs/PLANO_CORRECAO_CODE_REVIEW.md](file:///home/nandodev/projects/devorq/docs/PLANO_CORRECAO_CODE_REVIEW.md) - Plano de correção
 
 ### Testes
-- [scripts/ci-test.sh](file:///home/nandodev/projects/devorq_v3/scripts/ci-test.sh) - Testes CI
-- [e2e-tests/](file:///home/nandodev/projects/devorq_v3/e2e-tests/) - Testes E2E
+- [scripts/ci-test.sh](file:///home/nandodev/projects/devorq/scripts/ci-test.sh) - Testes CI
+- [e2e-tests/](file:///home/nandodev/projects/devorq/e2e-tests/) - Testes E2E
 
 ---
 

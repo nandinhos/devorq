@@ -1,4 +1,4 @@
-# 📚 Documentação DEVORQ v3
+# 📚 Documentação DEVORQ
 
 > Índice centralizado de toda a documentação do projeto.
 

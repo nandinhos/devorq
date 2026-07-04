@@ -62,7 +62,7 @@ show_project_status() {
 
     echo ""
     echo "═══════════════════════════════════════"
-    echo "⚡ DEVORQ v3 — Mode Selector"
+    echo "⚡ DEVORQ — Mode Selector"
     echo "═══════════════════════════════════════"
 
     # Project name

@@ -1,8 +1,8 @@
-# Diretrizes do Projeto DEVORQ v3
+# Diretrizes do Projeto DEVORQ
 
 ## Sobre Este Arquivo
 
-Este arquivo contém as diretrizes e regras de desenvolvimento para o projeto DEVORQ v3. Todas as pessoas e agentes que trabalharem neste projeto devem seguir estas diretrizes.
+Este arquivo contém as diretrizes e regras de desenvolvimento para o projeto DEVORQ. Todas as pessoas e agentes que trabalharem neste projeto devem seguir estas diretrizes.
 
 ---
 
@@ -300,19 +300,19 @@ devorq_v3/
 
 ### Documentação
 
-- [SPEC.md](file:///home/nandodev/projects/devorq_v3/SPEC.md) - Especificação do sistema
-- [README.md](file:///home/nandodev/projects/devorq_v3/README.md) - Visão geral
-- [docs/](file:///home/nandodev/projects/devorq_v3/docs/) - Documentação adicional
+- [SPEC.md](file:///home/nandodev/projects/devorq/SPEC.md) - Especificação do sistema
+- [README.md](file:///home/nandodev/projects/devorq/README.md) - Visão geral
+- [docs/](file:///home/nandodev/projects/devorq/docs/) - Documentação adicional
 
 ### Testes
 
-- [e2e-tests/](file:///home/nandodev/projects/devorq_v3/e2e-tests/) - Testes E2E
-- [scripts/e2e-test.sh](file:///home/nandodev/projects/devorq_v3/scripts/e2e-test.sh) - Script de testes E2E
-- [scripts/ci-test.sh](file:///home/nandodev/projects/devorq_v3/scripts/ci-test.sh) - Testes CI
+- [e2e-tests/](file:///home/nandodev/projects/devorq/e2e-tests/) - Testes E2E
+- [scripts/e2e-test.sh](file:///home/nandodev/projects/devorq/scripts/e2e-test.sh) - Script de testes E2E
+- [scripts/ci-test.sh](file:///home/nandodev/projects/devorq/scripts/ci-test.sh) - Testes CI
 
 ### Skills
 
-- [skills/](file:///home/nandodev/projects/devorq_v3/skills/) - Skills do ecossistema
+- [skills/](file:///home/nandodev/projects/devorq/skills/) - Skills do ecossistema
 
 ---
 
@@ -332,4 +332,4 @@ devorq_v3/
 
 ---
 
-*Este documento deve ser seguido por todas as pessoas e agentes que trabalharem no projeto DEVORQ v3.*
+*Este documento deve ser seguido por todas as pessoas e agentes que trabalharem no projeto DEVORQ.*

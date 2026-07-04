@@ -300,7 +300,7 @@ devorq::auto::run() {
 
     cd "$project_root"
 
-    devorq::auto::info "Modo AUTO - DEVORQ v3"
+    devorq::auto::info "Modo AUTO - DEVORQ"
     devorq::auto::info "Projeto: $project_root"
 
     devorq::auto::generate_prd "$project_root"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/pipeline-tests.sh — Pipeline completo de testes DEVORQ v3
+# scripts/pipeline-tests.sh — Pipeline completo de testes DEVORQ
 #
 # Executa todos os testes em sequência:
 #   1. Unit tests
@@ -199,7 +199,7 @@ main() {
 
     echo ""
     echo "============================================"
-    echo " DEVORQ v3 — Test Pipeline"
+    echo " DEVORQ — Test Pipeline"
     echo " $(date '+%Y-%m-%d %H:%M:%S')"
     echo "============================================"
     echo " Log: $TEST_LOG"
