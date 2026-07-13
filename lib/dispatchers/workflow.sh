@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/dispatchers/workflow.sh -- DEVORQ v4.0.0
+# lib/dispatchers/workflow.sh -- DEVORQ v4.1.0
 #
 # Dispatcher: WORKFLOW
 # Responsabilidade unica: execucao de workflow, gates, AUTO e DDD.
@@ -46,6 +46,8 @@ EOF
 source "${DEVORQ_LIB}/commands/workflow.sh"
 # shellcheck source=../commands/auto.sh
 source "${DEVORQ_LIB}/commands/auto.sh"
+# shellcheck source=../commands/loop.sh
+source "${DEVORQ_LIB}/commands/loop.sh"
 # shellcheck source=../commands/ddd.sh
 source "${DEVORQ_LIB}/commands/ddd.sh"
 # shellcheck source=../commands/exploration.sh

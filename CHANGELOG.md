@@ -2,6 +2,31 @@
 
 All notable changes to DEVORQ are documented here.
 
+## [4.1.0] - 2026-07-13
+
+### Sprint: Loop Engineering experimental e hardening de conclusão
+
+### Added
+- `devorq loop implementation --experimental`: orquestrador mínimo Bash+jq com executor, verificador, juiz determinístico, lock por worktree e fatos locais em `.devorq/state/runs/<run_id>/`.
+- Contratos v1 para loop, story, execution, verification, evidence, failure, lesson e handoff em `schemas/*.v1.schema.json`, validados fail-closed por `lib/contracts.sh`.
+- `scripts/migrate-prd-v1.sh`: adaptação de PRD legado/canônico sem reescrever a entrada.
+- Perfil configurável por capacidades e limites em `config/loop-profiles.json`.
+
+### Changed
+- AUTO agora diferencia `COMPLETED` (0), `FAILED` (1) e `INCOMPLETE` (2), persiste tentativas e bloqueia worktree/index sujos antes de delegar.
+- Code review não gera veredito sem reviewer verificável; aprovação inválida bloqueia.
+
+### Fixed
+- CI preserva `.devorq` em backup temporário externo ao worktree durante a suíte.
+- E2E AUTO cria fixture Git limpa, compatível com o dirty-worktree guard.
+
+### Validation
+- Contratos: 14/14; migração PRD: 7/7; loop implementation: 11/11; AUTO safety: 5/5; review contract: 3/3.
+- Playwright `modes-classic-auto.spec.ts`: 8/8.
+
+### Compatibility
+- `devorq auto`, `DEVORQ_DELEGATE_FN` e adapters existentes permanecem suportados. Outros perfis `loop` continuam bloqueados até terem verificador e gates próprios.
+
 ## [4.0.0] - 2026-07-03
 
 ### Sprint: Elite Hardening — gates fail-closed no nivel de processo

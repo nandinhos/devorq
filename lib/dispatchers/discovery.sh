@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/dispatchers/discovery.sh -- DEVORQ v4.0.0
+# lib/dispatchers/discovery.sh -- DEVORQ v4.1.0
 #
 # Dispatcher: DISCOVERY
 # Responsabilidade unica: descoberta de capacidades (skills, info).

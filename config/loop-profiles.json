@@ -1,0 +1,15 @@
+{
+  "schema_version": "devorq.loop-profiles/v1",
+  "profiles": {
+    "implementation": {
+      "executor_role": "implementer",
+      "verifier_role": "qa",
+      "fallback_role": "fallback-long-context",
+      "limits": {
+        "max_attempts": 1,
+        "max_files_changed": 10,
+        "max_lines_changed": 400
+      }
+    }
+  }
+}

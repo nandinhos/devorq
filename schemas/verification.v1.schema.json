@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DEVORQ Verification v1",
+  "type": "object",
+  "required": ["schema_version", "document_type", "run_id", "id", "story_id", "verifier", "checks", "verdict"],
+  "properties": {
+    "schema_version": { "const": "devorq.verification/v1" },
+    "document_type": { "const": "verification" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "story_id": { "type": "string", "minLength": 1 },
+    "verifier": { "type": "string", "minLength": 1 },
+    "checks": { "type": "array", "minItems": 1 },
+    "verdict": { "enum": ["passed", "failed", "blocked"] }
+  }
+}

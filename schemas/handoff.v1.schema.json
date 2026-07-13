@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DEVORQ Handoff v1",
+  "type": "object",
+  "required": ["schema_version", "document_type", "run_id", "id", "objective", "terminal_state", "evidence_ids", "next_step"],
+  "properties": {
+    "schema_version": { "const": "devorq.handoff/v1" },
+    "document_type": { "const": "handoff" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "terminal_state": { "enum": ["completed", "failed", "blocked", "requires_owner_decision", "max_attempts_reached", "cancelled"] },
+    "evidence_ids": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "next_step": { "type": "string", "minLength": 1 }
+  }
+}

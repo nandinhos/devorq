@@ -33,7 +33,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR="/tmp/devorq-test-commands"
 export DEVORQ_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 export DEVORQ_LIB="$DEVORQ_ROOT/lib"
-export DEVORQ_VERSION="${DEVORQ_VERSION:-4.0.0}"
+export DEVORQ_VERSION="${DEVORQ_VERSION:-4.1.0}"
 LIB_DIR="$DEVORQ_LIB"
 
 setup() {

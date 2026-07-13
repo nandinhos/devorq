@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DEVORQ Loop v1",
+  "type": "object",
+  "required": ["schema_version", "document_type", "run_id", "id", "profile", "objective", "status"],
+  "properties": {
+    "schema_version": { "const": "devorq.loop/v1" },
+    "document_type": { "const": "loop" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["pending", "planning", "running", "verifying", "completed", "failed", "blocked", "requires_owner_decision", "max_attempts_reached", "cancelled"] }
+  }
+}

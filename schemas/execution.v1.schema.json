@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DEVORQ Execution v1",
+  "type": "object",
+  "required": ["schema_version", "document_type", "run_id", "id", "story_id", "attempt", "actor", "status", "exit_code"],
+  "properties": {
+    "schema_version": { "const": "devorq.execution/v1" },
+    "document_type": { "const": "execution" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "story_id": { "type": "string", "minLength": 1 },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "actor": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["running", "succeeded", "failed", "blocked", "cancelled"] },
+    "exit_code": { "type": "integer" }
+  }
+}

@@ -2,7 +2,7 @@
 
 > Guia completo de instalação para Linux, macOS, WSL, e containers Docker.
 
-**Versão:** 4.0.0
+**Versão:** 4.1.0
 
 ---
 
@@ -228,5 +228,5 @@ Manenha apenas `~/projects/devorq/` (ou `~/bin/devorq` com symlink para ela).
 
 ---
 
-**Versão:** 4.0.0
+**Versão:** 4.1.0
 **Repo:** https://github.com/nandinhos/devorq

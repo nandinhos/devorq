@@ -10,6 +10,8 @@ DEVORQ_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TESTS_RUN=0
 TESTS_PASSED=0
 TESTS_FAILED=0
+CI_STATE_BACKUP_DIR=""
+CI_STATE_ORIGINAL=""
 
 # Cores
 RED='\033[0;31m'
@@ -34,22 +36,24 @@ cleanup() {
         rm -f "$DEVORQ_ROOT/.devorq/state/lessons/captured/"*.json 2>/dev/null || true
     fi
 
-    # PASSO 2: restaura estado original do .devorq/ (com lessons reais)
-    # NOTA: este passo NAO deve rodar o rm -f lessons acima, senao
-    # apagaria as lessons reais do backup. Ver story-004-sync-version.
-    if [ -d "$DEVORQ_ROOT/.devorq.bak" ]; then
+    # PASSO 2: restaura estado original em diretório temporário único.
+    # Nunca usa .devorq.bak dentro do repositório: um run interrompido não pode
+    # parecer deleção em massa do estado rastreado.
+    if [ -n "$CI_STATE_ORIGINAL" ] && [ -d "$CI_STATE_ORIGINAL" ]; then
         rm -rf "$DEVORQ_ROOT/.devorq"
-        mv "$DEVORQ_ROOT/.devorq.bak" "$DEVORQ_ROOT/.devorq"
+        mv "$CI_STATE_ORIGINAL" "$DEVORQ_ROOT/.devorq"
     fi
+    [ -z "$CI_STATE_BACKUP_DIR" ] || rmdir "$CI_STATE_BACKUP_DIR" 2>/dev/null || true
 }
 
 # Setup
 trap cleanup EXIT
 mkdir -p "$DEVORQ_ROOT/.devorq/state/lessons/captured"
 
-# Backup estado atual
-rm -rf "$DEVORQ_ROOT/.devorq.bak" 2>/dev/null || true
-[ -d "$DEVORQ_ROOT/.devorq" ] && mv "$DEVORQ_ROOT/.devorq" "$DEVORQ_ROOT/.devorq.bak"
+# Backup estado atual fora do worktree, inclusive se a suite for interrompida.
+CI_STATE_BACKUP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/devorq-ci-state.XXXXXX")"
+CI_STATE_ORIGINAL="$CI_STATE_BACKUP_DIR/original"
+[ -d "$DEVORQ_ROOT/.devorq" ] && mv "$DEVORQ_ROOT/.devorq" "$CI_STATE_ORIGINAL"
 mkdir -p "$DEVORQ_ROOT/.devorq/state/lessons/captured"
 
 export DEVORQ_DIR="$DEVORQ_ROOT"
@@ -309,6 +313,32 @@ if echo "$ddd_val" | grep -q "GATE-0\|Score\|PASS\|FAIL"; then
     pass "ddd-validate-spec.sh"
 else
     fail "ddd-validate-spec.sh — output: $ddd_val"
+fi
+
+# Contratos de segurança terminal (AUTO e code review)
+if bash "$DEVORQ_ROOT/tests/auto/test-loop-terminal-safety.sh" all >/dev/null 2>&1; then
+    pass "AUTO: seguranca terminal"
+else
+    fail "AUTO: seguranca terminal"
+fi
+
+if bash "$DEVORQ_ROOT/tests/review/test-review-contract.sh" all >/dev/null 2>&1; then
+    pass "code-review: contrato fail-closed"
+else
+    fail "code-review: contrato fail-closed"
+fi
+
+if bash "$DEVORQ_ROOT/tests/contracts/test-contracts.sh" all >/dev/null 2>&1 \
+    && bash "$DEVORQ_ROOT/tests/contracts/test-prd-legacy-compatibility.sh" all >/dev/null 2>&1; then
+    pass "Loop Engineering: contratos e migracao PRD"
+else
+    fail "Loop Engineering: contratos e migracao PRD"
+fi
+
+if bash "$DEVORQ_ROOT/tests/loop/test-loop-implementation.sh" all >/dev/null 2>&1; then
+    pass "Loop Engineering: implementation experimental"
+else
+    fail "Loop Engineering: implementation experimental"
 fi
 
 echo ""

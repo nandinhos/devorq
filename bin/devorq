@@ -34,7 +34,7 @@ readonly DEVORQ_ROOT="${DEVORQ_ROOT:-$(cd -P "$(dirname "$__devorq_src")/.." && 
 unset __devorq_src __devorq_dir
 readonly DEVORQ_LIB="${DEVORQ_ROOT}/lib"
 readonly DEVORQ_BIN="${DEVORQ_ROOT}/bin"
-readonly DEVORQ_VERSION="4.0.0"
+readonly DEVORQ_VERSION="4.1.0"
 readonly DEVORQ_DISPATCHERS_DIR="${DEVORQ_LIB}/dispatchers"
 
 # Guard de instalacao incompleta: bin/devorq e apenas o ROUTER e depende de lib/.
@@ -80,7 +80,7 @@ fi
 
 devorq::help() {
     cat << 'HELPEOF'
-DEVORQ v4.0.0 — Framework de Desenvolvimento Sistemático
+DEVORQ v4.1.0 — Framework de Desenvolvimento Sistemático
 
 Uso: devorq <comando> [args...]
 
@@ -115,6 +115,7 @@ Comandos:
   unify         Unificar artefatos
   mode          Selecionar modo (AUTO/CLASSIC)
   auto          Executar modo AUTO (story-by-story)
+  loop          Executar loop especializado experimental
   commit        Commit manual com convenção tipo(escopo):
   verify        Verificação visual / E2E antes do commit
   rules         Regras enforced (list, check, apply, bootstrap)
@@ -151,6 +152,7 @@ main() {
         flow)        devorq::cmd_flow "$@" ;;
         gate)        devorq::cmd_gate "$@" ;;
         auto)        devorq::cmd_auto "$@" ;;
+        loop)        devorq::cmd_loop "$@" ;;
         ddd)         devorq::cmd_ddd "$@" ;;
         scope)       devorq::cmd_scope "$@" ;;
         env)         devorq::cmd_env "$@" ;;

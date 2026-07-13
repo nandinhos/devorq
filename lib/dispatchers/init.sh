@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/dispatchers/init.sh — DEVORQ v4.0.0
+# lib/dispatchers/init.sh — DEVORQ v4.1.0
 #
 # Dispatcher: INIT
 # Responsabilidade unica: bootstrap e configuracao do projeto.

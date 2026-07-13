@@ -10,7 +10,12 @@ O **AUTO Mode** é um loop automatizado story-by-story que:
 1. Seleciona a story de maior prioridade
 2. Delega para sub-agente implementar
 3. Verifica a implementação
-4. Commita se passou
+4. Registra evidência e só marca a story como concluída após verificação
+5. Commita apenas quando `DEVORQ_AUTO_COMMIT=1`
+
+O loop é fail-closed: worktree ou index já sujo bloqueiam a execução; ausência,
+falha ou no-diff do delegate não conclui a story; e o processo retorna sucesso
+somente com o estado terminal `COMPLETED`.
 
 ---
 
@@ -74,6 +79,7 @@ devorq auto --help
 | `.devorq-auto/runs/*.log` | Logs de cada execução |
 | `.devorq-auto/pending/*.json` | Contexto de stories que falharam |
 | `.devorq-auto/.last-branch` | Branch usado no último run |
+| `.devorq-auto/attempts.json` | Contagem persistida de tentativas por story |
 | `progress.txt` | Log de progresso append-only |
 
 ---
@@ -99,8 +105,9 @@ O AUTO mode aceita prd.json com **schema híbrido**:
 ```
 
 **Predicados:**
-- **Incompleta:** `passes != true AND status NOT IN (done, complete)`
+- **Incompleta:** `passes != true AND status NOT IN (done, complete, failed, skipped)`
 - **Completa:** `passes == true OR status IN (done, complete)`
+- **Falha terminal:** `status=failed` e `passes=false`; não é contada como concluída.
 
 ---
 
@@ -111,6 +118,19 @@ O AUTO mode aceita prd.json com **schema híbrido**:
 | `DEVORQ_DELEGATE_FN` | - | Função de delegação (opcional) |
 | `CAPTURE_LESSONS` | `true` | Capturar lições aprendidas |
 | `MAX_DELEGATE_RETRIES` | `1` | Número de retries |
+| `DEVORQ_AUTO_MAX_STORY_FAILURES` | `3` | Máximo persistido de tentativas antes de marcar `failed` |
+| `DEVORQ_AUTO_COMMIT` | `0` | Habilita commit atômico limitado aos arquivos da story |
+
+## Estados terminais e exit codes
+
+| Estado | Exit code | Significado |
+|--------|-----------|-------------|
+| `COMPLETED` | `0` | Todas as stories foram verificadas; não há falhas nem skips. |
+| `FAILED` | `1` | Ao menos uma story falhou ou foi marcada `failed`/`skipped`. |
+| `INCOMPLETE` | `2` | Há stories pendentes após o limite solicitado. |
+
+`SIGINT` e `SIGTERM` interrompem o loop com código `130`; o estado persistido
+permanece disponível para inspeção e retomada explícita.
 
 ---
 

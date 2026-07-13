@@ -92,8 +92,14 @@ parse_args() {
         esac
     done
 
-    [[ -z "$PROJECT_ROOT" ]] && { review::usage; exit 1; }
-    [[ ! -d "$PROJECT_ROOT" ]] && review::die 4 "Diretorio nao existe: $PROJECT_ROOT"
+    if [[ -z "$PROJECT_ROOT" ]]; then
+        review::usage
+        exit 1
+    fi
+
+    if [[ ! -d "$PROJECT_ROOT" ]]; then
+        review::die 4 "Diretorio nao existe: $PROJECT_ROOT"
+    fi
 }
 
 #-----------------------------------------------------------
@@ -202,13 +208,8 @@ phase1_context() {
 #-----------------------------------------------------------
 phase2_review() {
     review::phase "2/7" "Parallel Review (5 agentes)"
-    review::info "Executando 5 reviewers em paralelo via delegate_task"
-    review::info "Dimensoes: compliance | bugs | git history | PR history | code comments"
-
-    echo ""
-    echo "⚡ FASE 2 executada pelo agente via delegate_task"
-    echo "   Resultados populados pelo agent que carregou a skill"
-    echo ""
+    review::fail "Review indisponivel: nenhum reviewer executado com evidencia verificavel"
+    review::die 4 "Review indisponivel — configure reviewers reais antes de emitir veredito"
 }
 
 #-----------------------------------------------------------
@@ -312,7 +313,7 @@ phase6_approval() {
         C|c)   review::info "Details: issue detalhada no report completo";;
         D|d)   review::info "Ignorada — registrada no log";;
         E|e)   review::die 2 "Abortado pelo usuario";;
-        *)     review::warn "Escolha invalida, continuando como [A]";;
+        *)     review::die 2 "Escolha invalida — approval nao concedida";;
     esac
 }
 

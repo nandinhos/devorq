@@ -100,6 +100,15 @@ function jqStoriesMapLength(file: string, jqExpr: string): number {
   return parseInt(String(r.stdout).trim(), 10);
 }
 
+function commitFixture(projectDir: string, files: string[]) {
+  spawnSync('git', ['config', 'user.email', 'e2e@devorq.local'], { cwd: projectDir, encoding: 'utf-8' });
+  spawnSync('git', ['config', 'user.name', 'DEVORQ E2E'], { cwd: projectDir, encoding: 'utf-8' });
+  const add = spawnSync('git', ['add', ...files], { cwd: projectDir, encoding: 'utf-8' });
+  expect(add.status, (add.stderr ?? '') + (add.stdout ?? '')).toBe(0);
+  const commit = spawnSync('git', ['commit', '-m', 'test(auto): fixture auto limpa (E2E-001)'], { cwd: projectDir, encoding: 'utf-8' });
+  expect(commit.status, (commit.stderr ?? '') + (commit.stdout ?? '')).toBe(0);
+}
+
 function assertGateOrder(stdout: string) {
   const labels = ['GATE-0', 'GATE-0.5', 'GATE-1', 'GATE-2', 'GATE-3', 'GATE-4', 'GATE-5', 'GATE-6', 'GATE-7'];
   let last = -1;
@@ -201,6 +210,7 @@ describe('prd.json e Modo AUTO (loop-auto)', () => {
       )
     );
     runCommand('devorq init', projectDir);
+    commitFixture(projectDir, ['SPEC.md', 'prd.json']);
 
     const r = spawnSync('bash', [LOOP_AUTO, projectDir, '1'], {
       cwd: DEVORQ_ROOT,
@@ -211,7 +221,7 @@ describe('prd.json e Modo AUTO (loop-auto)', () => {
     const out = (r.stdout ?? '') + (r.stderr ?? '');
     expect(r.status, out).toBe(0);
     expect(out).not.toMatch(/Nao encontrei SPEC\.md.*\b1\b/);
-    expect(out).toMatch(/stories pendentes|AUTO MODE COMPLETE|processadas/i);
+    expect(out).toMatch(/stories pendentes|AUTO MODE (COMPLETED|FAILED|INCOMPLETE)|processadas/i);
   });
 
   test('devorq auto 1 não trata o número como path do projeto', () => {
@@ -248,7 +258,7 @@ describe('prd.json e Modo AUTO (loop-auto)', () => {
     });
     const out = (r.stdout ?? '') + (r.stderr ?? '');
     expect(out).not.toMatch(/Nao encontrei SPEC\.md.*\b1\b/);
-    expect(out).toMatch(/Executando AUTO mode|stories pendentes|AUTO MODE COMPLETE|processadas/i);
+    expect(out).toMatch(/Executando AUTO mode|stories pendentes|AUTO MODE (COMPLETED|FAILED|INCOMPLETE)|processadas/i);
   });
 });
 

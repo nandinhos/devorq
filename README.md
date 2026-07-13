@@ -4,9 +4,9 @@
 > Captura lições aprendidas, impõe gates bloqueantes, gera handoffs consistentes.
 > **Repo:** [github.com/nandinhos/devorq](https://github.com/nandinhos/devorq) | **Autor:** Fernando Dos Santos (Nando)
 
-**Versão:** 4.0.0
+**Versão:** 4.1.0
 
-> **Última release (2026-07-03):** v4.0.0 — Elite Hardening (breaking). Gates **fail-closed no nível de processo**: `devorq flow` agora retorna exit `!=0` em gate falho (antes: sempre `0`) e `devorq::error` aborta. GATE-2 fail-closed + detecção Node. Convenção de commit unificada em `tipo(escopo)` (o hook rejeita `escopo(fase)`). Modo AUTO robusto (no-diff guard, stop-criteria, flock, headless-safe) + **adapters de delegação multi-runner** (claude/codex/hermes/opencode/agy). Segurança: `jq --arg` no parser de PRD. Migração e detalhes em [`CHANGELOG.md`](CHANGELOG.md), [`docs/REFACTOR-ELITE-PLAN.md`](docs/REFACTOR-ELITE-PLAN.md) e [`docs/CODE_REVIEW_ELITE_2026-07-02.md`](docs/CODE_REVIEW_ELITE_2026-07-02.md).
+> **Última release (2026-07-13):** v4.1.0 — Loop Engineering experimental. Adiciona `devorq loop implementation --experimental`, contratos v1, migração não destrutiva de PRD, evidências por run e promoção por juiz determinístico. AUTO e adapters existentes permanecem compatíveis. Detalhes em [`CHANGELOG.md`](CHANGELOG.md) e [`docs/architecture/LOOP-ENGINEERING.md`](docs/architecture/LOOP-ENGINEERING.md).
 >
 > **Histórico Git (2026-05-23):** `main` reorganizado por release (1 commit/versão). Re-clone recomendado após atualizar.
 
@@ -131,6 +131,21 @@ Fluxo tradicional gates 1-7 manual. Recomendado para tasks pequenas/rápidas.
 
 ### AUTO[N] 🚀 (limitado)
 Executa até N stories, depois pausa para review.
+
+### Loop Engineering experimental
+
+O primeiro perfil especializado está disponível apenas por opt-in explícito:
+
+```bash
+devorq loop implementation --experimental --prd prd.json --story <id> --run-id <id>
+```
+
+Ele adapta o PRD sem reescrevê-lo, reutiliza `DEVORQ_DELEGATE_FN`, exige um
+verificador e só conclui quando o juiz determinístico validar os contratos e a
+evidência. `code-review`, `debugging`, `documentation`, `migration`,
+`import-audit`, `release` e `custom` continuam nos comandos e fluxos já
+existentes; não há aliases `loop` para eles antes de verificadores próprios.
+Veja [a arquitetura de Loop Engineering](docs/architecture/LOOP-ENGINEERING.md).
 
 ---
 

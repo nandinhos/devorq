@@ -149,11 +149,9 @@ echo "[$(date +%H:%M)] ✅ ${STORY_TITLE} — PASSED" >> progress.txt
 
 ```
 ═══════════════════════════════════════
-✅ AUTO MODE COMPLETE
+AUTO MODE COMPLETED
 ═══════════════════════════════════════
-3 stories implemented
-3 verified
-0 failures
+3 stories done, 0 pending, 0 failed, 0 skipped
 
 📝 Commits:
   feat(model): adicionar validacao CPF em User
@@ -165,6 +163,11 @@ echo "[$(date +%H:%M)] ✅ ${STORY_TITLE} — PASSED" >> progress.txt
 ⚠️  Lembre de: E2E antes do PR
 ═══════════════════════════════════════
 ```
+
+O texto `AUTO MODE COMPLETED` e o exit code `0` só são emitidos quando todas as
+stories foram verificadas. `AUTO MODE FAILED` retorna `1`; `AUTO MODE INCOMPLETE`
+retorna `2`. Ausência de delegate, no-diff, worktree sujo ou falha de commit nunca
+podem ser convertidos em conclusão da story.
 
 ## Formato prd.json
 

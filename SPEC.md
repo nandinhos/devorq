@@ -1,9 +1,9 @@
-# DEVORQ v4.0.0 — Specification
+# DEVORQ v4.1.0 — Specification
 
 > **Princípio de auto-construção:** o DEVORQ constrói a si próprio.
 > Sistema operacional → usa-se para construir a si mesmo → refina → cresce.
 
-**Versão:** 4.0.0 | **Atualizado:** 2026-07-03
+**Versão:** 4.1.0 | **Atualizado:** 2026-07-13
 
 ---
 

@@ -1,6 +1,7 @@
 # 📚 Documentação DEVORQ
 
 > Índice centralizado de toda a documentação do projeto.
+> Este índice aponta para a fonte de verdade operacional; a versão atual é **v4.1.0**.
 
 ---
 
@@ -14,6 +15,10 @@
 | `CHANGELOG.md` | Histórico de versões | ✅ ATIVO |
 | `VERSION` | Versão atual do sistema | ✅ ATIVO |
 | `prd.json` | Product Requirements Document | ✅ ATIVO |
+| `STATUS.md` | Estado atual do framework | ✅ ATIVO |
+| `architecture/LOOP-ENGINEERING.md` | Arquitetura do loop experimental | ✅ ATIVO |
+| `adr/ADR-001-loop-engineering-minimo.md` | Decisão arquitetural do loop mínimo | ✅ ATIVO |
+| `releases/4.1.0.md` | Notas de release v4.1.0 | ✅ ATIVO |
 
 ### Guias & Tutoriais
 
@@ -88,4 +93,4 @@
 
 ---
 
-*Última atualização: 2026-06-04 (sprint code-review-2026-06-02: 4 stories + 1 SPEC + 1 codex review)*
+*Última atualização: 2026-07-13 (release v4.1.0 — Loop Engineering experimental).*

@@ -484,14 +484,18 @@ test_auto_mode() {
     fi
 
     local output
-    # AUTO mode pode falhar se não tiver delegate_task, mas deve executar
+    # Sem delegate configurado, AUTO deve falhar de modo explícito: nunca
+    # transforma a indisponibilidade do executor em sucesso.
     if output=$(bash bin/devorq auto 1 2>&1); then
-        pass "devorq auto: executa (mesmo que com warnings)"
+        if echo "$output" | grep -q "AUTO MODE COMPLETED"; then
+            pass "devorq auto: conclui apenas com evidencia"
+        else
+            fail "devorq auto: retorno zero sem estado COMPLETED"
+            echo "$output"
+        fi
     else
-        # Não é falha se o loop-auto.sh não funcionar sem delegate_task real
-        if echo "$output" | grep -qi "delegate_task\|loop-auto"; then
-            warn "auto: delegate_task não disponível (esperado em sandbox)"
-            pass "devorq auto: script executável, delegate_task não disponível"
+        if echo "$output" | grep -qiE "delegate_task|delegate|AUTO MODE (FAILED|INCOMPLETE)|AUTO requer repositorio Git|worktree e index limpos"; then
+            pass "devorq auto: precondicao ou delegate falha de modo fechado"
         else
             fail "devorq auto: erro inesperado"
             echo "$output"

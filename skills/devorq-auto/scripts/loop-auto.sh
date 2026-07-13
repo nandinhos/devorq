@@ -34,7 +34,6 @@ _AUTO_PROJECT_ROOT=""   # capturado p/ trap EXIT (failures.md nunca se perde)
 # Stop-criteria: apos N tentativas, a story e marcada 'failed' e excluida da
 # selecao — impede loop infinito re-selecionando a mesma story falha (overnight).
 DEVORQ_AUTO_MAX_STORY_FAILURES="${DEVORQ_AUTO_MAX_STORY_FAILURES:-2}"
-declare -A _AUTO_STORY_ATTEMPTS=()
 
 # can_prompt: so pergunta se ha terminal E o usuario nao pediu modo nao-interativo.
 # Em run headless (cron, pipe, agente autonomo) os prompts assumem default seguro
@@ -362,11 +361,11 @@ devorq_auto::require_prd() {
 #-----------------------------------------------------------
 # Stories incompletas: aceita prd.json com passes OU status (ex.: status=pending do prd raiz)
 devorq_auto::jq_story_incomplete() {
-    echo 'select((.passes != true) and (.status != "done" and .status != "complete"))'
+    echo 'select((.passes != true) and (.status != "done" and .status != "complete" and .status != "failed" and .status != "skipped"))'
 }
 
 devorq_auto::jq_story_complete() {
-    echo 'select(.passes == true or .status == "done" or .status == "complete")'
+    echo 'select((.status == "done" or .status == "complete") or (.passes == true and .status != "failed" and .status != "skipped"))'
 }
 
 devorq_auto::next_story() {
@@ -395,6 +394,14 @@ devorq_auto::completed_count() {
     jq ".stories | map($cmp) | length" "$prd" 2>/dev/null
 }
 
+devorq_auto::failed_count() {
+    jq '[.stories[] | select(.status == "failed")] | length' "$1/prd.json" 2>/dev/null
+}
+
+devorq_auto::skipped_count() {
+    jq '[.stories[] | select(.status == "skipped")] | length' "$1/prd.json" 2>/dev/null
+}
+
 #-----------------------------------------------------------
 # Atualizar prd.json
 #-----------------------------------------------------------
@@ -414,7 +421,7 @@ with open(prd) as f:
     data = json.load(f)
 for s in data["stories"]:
     if s.get("id") == sid:
-        s["passes"] = True; s["status"] = "failed"; s["failed"] = True; s["fail_reason"] = reason
+        s["passes"] = False; s["status"] = "failed"; s["failed"] = True; s["fail_reason"] = reason
         break
 with open(tmp, "w") as f:
     json.dump(data, f, indent=2)
@@ -424,6 +431,43 @@ with open(tmp, "w") as f:
     else
         rm -f "$tmp"
         devorq_auto::fail "mark_failed: falha ao atualizar story '$story_id'; prd.json preservado"
+        return 1
+    fi
+}
+
+devorq_auto::record_attempt() {
+    local story_id="$2"
+    local attempts_file="$DEVORQ_AUTO_DIR/attempts.json"
+    local tmp attempt
+    tmp=$(mktemp "$DEVORQ_AUTO_DIR/.attempts.XXXXXX")
+
+    attempt=$(DEVORQ_ATTEMPTS_FILE="$attempts_file" DEVORQ_STORY_ID="$story_id" DEVORQ_TMP="$tmp" python3 -c '
+import json, os
+story_id = os.environ["DEVORQ_STORY_ID"]
+tmp = os.environ["DEVORQ_TMP"]
+attempts_file = os.environ["DEVORQ_ATTEMPTS_FILE"]
+try:
+    with open(attempts_file) as f:
+        data = json.load(f)
+except FileNotFoundError:
+    data = {}
+attempt = int(data.get(story_id, 0)) + 1
+data[story_id] = attempt
+print(attempt)
+with open(tmp, "w") as f:
+    json.dump(data, f, indent=2)
+' 2>/dev/null) || {
+        rm -f "$tmp"
+        devorq_auto::fail "record_attempt: falha ao atualizar tentativas de '$story_id'"
+        return 1
+    }
+
+    if [[ -s "$tmp" ]] && jq empty "$tmp" >/dev/null 2>&1; then
+        mv "$tmp" "$attempts_file"
+        printf '%s\n' "$attempt"
+    else
+        rm -f "$tmp"
+        devorq_auto::fail "record_attempt: JSON invalido para tentativas de '$story_id'"
         return 1
     fi
 }
@@ -529,6 +573,36 @@ devorq_auto::ensure_branch() {
     echo "$new_branch" > "$branch_file"
 }
 
+devorq_auto::ensure_clean_worktree() {
+    local project="$1"
+    local dirty
+
+    git -C "$project" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+        || { devorq_auto::fail "AUTO requer repositorio Git: $project"; return 1; }
+
+    dirty=$(git -C "$project" status --porcelain --untracked-files=all -- ':!.devorq-auto' ':!.devorq' ':!progress.txt' 2>/dev/null || true)
+    if [[ -n "$dirty" ]]; then
+        devorq_auto::fail "Worktree dirty ou index com alteracoes — AUTO bloqueado antes de criar branch/delegar"
+        printf '%s\n' "$dirty" | sed 's/^/    /' >&2
+        return 1
+    fi
+}
+
+devorq_auto::commit_paths() {
+    local project="$1"
+    local path
+
+    while IFS= read -r -d '' path; do
+        case "$path" in
+            .devorq-auto|.devorq-auto/*|.devorq|.devorq/*) continue ;;
+        esac
+        printf '%s\0' "$path"
+    done < <(
+        git -C "$project" diff --name-only -z
+        git -C "$project" ls-files --others --exclude-standard -z
+    )
+}
+
 #-----------------------------------------------------------
 # Git commit
 #-----------------------------------------------------------
@@ -537,8 +611,13 @@ devorq_auto::git_commit() {
     local story_id="$2"
     local story_title="$3"
 
-    # porcelain (nao git diff) para enxergar arquivos NOVOS (untracked)
-    if [[ -z "$(git -C "$project" status --porcelain 2>/dev/null)" ]]; then
+    local -a paths=()
+    local path
+    while IFS= read -r -d '' path; do
+        paths+=("$path")
+    done < <(devorq_auto::commit_paths "$project")
+
+    if [[ ${#paths[@]} -eq 0 ]]; then
         devorq_auto::info "Nenhum change para commitar"
         return 0
     fi
@@ -561,8 +640,29 @@ devorq_auto::git_commit() {
         scope="$(devorq::verify::detect_scope "$project" 2>/dev/null || echo "core")"
     fi
     local message="feat(${scope}): ${story_title} (${story_id})"
-    git -C "$project" add -A || { devorq_auto::fail "git add -A falhou"; return 1; }
-    git -C "$project" commit -m "$message" || { devorq_auto::fail "git commit falhou (hook? nada staged?)"; return 1; }
+    git -C "$project" add -- "${paths[@]}" || { devorq_auto::fail "git add dos paths da story falhou"; return 1; }
+    git -C "$project" commit -m "$message" || {
+        git -C "$project" restore --staged -- "${paths[@]}" >/dev/null 2>&1 || true
+        devorq_auto::fail "git commit falhou; index dos paths da story foi restaurado"
+        return 1
+    }
+}
+
+devorq_auto::worktree_signature() {
+    local project="$1"
+    local path
+
+    {
+        git -C "$project" status --porcelain --untracked-files=all 2>/dev/null || true
+        git -C "$project" diff --binary HEAD 2>/dev/null || true
+        while IFS= read -r -d '' path; do
+            case "$path" in
+                .devorq-auto|.devorq-auto/*|.devorq|.devorq/*) continue ;;
+            esac
+            printf 'untracked:%s:' "$path"
+            git -C "$project" hash-object --no-filters -- "$path" 2>/dev/null || true
+        done < <(git -C "$project" ls-files --others --exclude-standard -z)
+    }
 }
 
 #-----------------------------------------------------------
@@ -769,6 +869,9 @@ main() {
 
     project_root=$(devorq_auto::detect_project "$project_root")         || devorq_auto::die 1 "Nao encontrei SPEC.md ou .git a partir de: $project_root"
 
+    devorq_auto::ensure_clean_worktree "$project_root" \
+        || devorq_auto::die 1 "AUTO exige worktree e index limpos"
+
     cd "$project_root"
     mkdir -p "$project_root/.devorq-auto"
     # Lock de run unico: dois runs AUTO simultaneos corromperiam prd.json/estado.
@@ -780,6 +883,7 @@ main() {
     # das falhas nao se perde — justamente quando ele mais importa.
     _AUTO_PROJECT_ROOT="$project_root"
     trap 'devorq_auto::failures_generate "$_AUTO_PROJECT_ROOT" 2>/dev/null || true' EXIT
+    trap 'devorq_auto::fail "Run cancelado por sinal"; exit 130' INT TERM
     devorq_auto::require_prd "$project_root"
 
     # Setup dirs and init
@@ -824,14 +928,17 @@ main() {
         story_desc=$(echo "$story_json" | jq -r '.description')
         story_priority=$(echo "$story_json" | jq -r '.priority')
 
-        # Stop-criteria: cada re-selecao conta uma tentativa. Excedido o limite,
-        # marca failed e exclui da selecao — garante terminacao do overnight.
-        _AUTO_STORY_ATTEMPTS["$story_id"]=$(( ${_AUTO_STORY_ATTEMPTS["$story_id"]:-0} + 1 ))
-        if [[ ${_AUTO_STORY_ATTEMPTS["$story_id"]} -gt $DEVORQ_AUTO_MAX_STORY_FAILURES ]]; then
+        local attempts
+        attempts=$(devorq_auto::record_attempt "$project_root" "$story_id") \
+            || devorq_auto::die 1 "Nao foi possivel persistir tentativa de $story_id"
+        if [[ "$attempts" -gt "$DEVORQ_AUTO_MAX_STORY_FAILURES" ]]; then
             devorq_auto::warn "Story $story_id excedeu $DEVORQ_AUTO_MAX_STORY_FAILURES tentativas — marcando failed e pulando"
-            devorq_auto::mark_failed "$project_root" "$story_id" "max_attempts_${DEVORQ_AUTO_MAX_STORY_FAILURES}" || true
+            devorq_auto::mark_failed "$project_root" "$story_id" "max_attempts_${DEVORQ_AUTO_MAX_STORY_FAILURES}" \
+                || devorq_auto::die 1 "Nao foi possivel marcar $story_id como failed"
             devorq_auto::append_progress "$project_root" "$story_id" "$story_title" "FAILED"
             devorq_auto::log "FAILED (max attempts): $story_id"
+            total_failures=$((total_failures + 1))
+            failure_list+=("$story_id")
             continue
         fi
 
@@ -870,7 +977,7 @@ main() {
         # como "mudanca" e um delegate no-op passaria falsamente. || true: repo sem
         # commits faz git diff HEAD sair 128 e triparia set -e.
         local _pre_sig
-        _pre_sig=$(git -C "$project_root" status --porcelain --untracked-files=all -- ':!.devorq-auto' ':!.devorq' 2>/dev/null; git -C "$project_root" diff HEAD -- ':!.devorq-auto' ':!.devorq' 2>/dev/null || true)
+        _pre_sig=$(devorq_auto::worktree_signature "$project_root")
 
         # DELEGATE with retry
         local delegate_ok=false
@@ -909,12 +1016,11 @@ main() {
 
         # no-diff guard: delegate que nao produziu NENHUMA mudanca nao pode marcar
         # a story done (a suite pre-existente passaria vazia). Compara assinatura
-        # antes/depois. Pula em modo simulate (dry-run intencional nao gera diff).
-        # ponytail: nao detecta edicao apenas em arquivo untracked ja existente —
-        # caso raro; upgrade seria hash de conteudo untracked se necessario.
+        # antes/depois, incluindo hash de arquivos untracked. Pula em modo
+        # simulate porque o dry-run intencional nao gera diff.
         if [[ "${DEVORQ_AUTO_SIMULATE:-0}" != "1" ]]; then
             local _post_sig
-            _post_sig=$(git -C "$project_root" status --porcelain --untracked-files=all -- ':!.devorq-auto' ':!.devorq' 2>/dev/null; git -C "$project_root" diff HEAD -- ':!.devorq-auto' ':!.devorq' 2>/dev/null || true)
+            _post_sig=$(devorq_auto::worktree_signature "$project_root")
             if [[ "$_pre_sig" == "$_post_sig" ]]; then
                 devorq_auto::fail "Delegate nao produziu mudancas (no-diff) — story $story_id NAO sera marcada done"
                 devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "verification" "no_diff_delegate_produziu_nada"
@@ -930,13 +1036,24 @@ main() {
         if "$SKILL_DIR/scripts/check-story.sh" "$project_root"; then
             devorq_auto::success "✅ Verification PASSED — ${story_id}"
 
-            # Commit por story (DQ-006): com DEVORQ_AUTO_COMMIT=1 o loop commita a
-            # story verificada ANTES de marca-la done — ciclo recuperavel
-            # 'delegate -> verify -> commit -> done'. Default permanece manual.
+            local prd_backup=""
             if [[ "${DEVORQ_AUTO_COMMIT:-0}" == "1" ]]; then
+                prd_backup=$(mktemp "$project_root/.devorq-auto/prd-before-commit.XXXXXX") \
+                    || devorq_auto::die 1 "Nao foi possivel criar backup de prd.json"
+                cp "$project_root/prd.json" "$prd_backup"
+                if ! devorq_auto::mark_pass "$project_root" "$story_id"; then
+                    rm -f "$prd_backup"
+                    devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "mark_pass" "prd_update_failed"
+                    total_failures=$((total_failures + 1))
+                    failure_list+=("$story_id")
+                    continue
+                fi
                 if devorq_auto::git_commit "$project_root" "$story_id" "$story_title"; then
+                    rm -f "$prd_backup"
                     devorq_auto::success "Commit por story OK"
                 else
+                    cp "$prd_backup" "$project_root/prd.json"
+                    rm -f "$prd_backup"
                     devorq_auto::warn "git_commit falhou — story NAO sera marcada done"
                     devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "commit" "git_commit_failed"
                     total_failures=$((total_failures + 1))
@@ -952,15 +1069,12 @@ main() {
                 echo "  devorq commit --story ${story_id}"
                 echo "  (formato: escopo(fase): descrição — ver rules/commit-convention.md)"
                 echo ""
-            fi
-
-            # Guarda contra set -e: se mark_pass falhar (prd preservado), trata
-            # como falha da story e segue o lote — sem abortar o run (DQ-004/revisao).
-            if ! devorq_auto::mark_pass "$project_root" "$story_id"; then
-                devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "mark_pass" "prd_update_failed"
-                total_failures=$((total_failures + 1))
-                failure_list+=("$story_id")
-                continue
+                if ! devorq_auto::mark_pass "$project_root" "$story_id"; then
+                    devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "mark_pass" "prd_update_failed"
+                    total_failures=$((total_failures + 1))
+                    failure_list+=("$story_id")
+                    continue
+                fi
             fi
             devorq_auto::append_progress "$project_root" "$story_id" "$story_title" "PASSED"
             devorq_auto::lessons_capture "$project_root" "$story_id" "$story_title" "success" ""
@@ -1008,16 +1122,29 @@ main() {
     devorq_auto::failures_generate "$project_root"
 
     # Summary
-    local done total
+    local done total failed skipped terminal_state terminal_rc
     done=$(devorq_auto::completed_count "$project_root")
     total=$(devorq_auto::total_count "$project_root")
     pending=$(devorq_auto::pending_count "$project_root")
+    failed=$(devorq_auto::failed_count "$project_root")
+    skipped=$(devorq_auto::skipped_count "$project_root")
+
+    if [[ "$done" -eq "$total" && "$failed" -eq 0 && "$skipped" -eq 0 ]]; then
+        terminal_state="COMPLETED"
+        terminal_rc=0
+    elif [[ "$failed" -gt 0 || "$total_failures" -gt 0 || "$skipped" -gt 0 ]]; then
+        terminal_state="FAILED"
+        terminal_rc=1
+    else
+        terminal_state="INCOMPLETE"
+        terminal_rc=2
+    fi
 
     echo ""
     echo "═══════════════════════════════════════"
-    echo "✅ AUTO MODE COMPLETE (v$DEVORQ_AUTO_VERSION)"
+    echo "AUTO MODE $terminal_state (v$DEVORQ_AUTO_VERSION)"
     echo "═══════════════════════════════════════"
-    echo "$done stories done, $pending pending, $total_failures failures"
+    echo "$done stories done, $pending pending, $failed failed, $skipped skipped, $total_failures failures nesta execucao"
     echo ""
     echo "📊 progress:    $project_root/progress.txt"
     echo "📋 prd.json:    $project_root/prd.json"
@@ -1028,7 +1155,8 @@ main() {
     echo "⚠️  Lembre de: E2E antes do PR"
     echo "══════════════════════════════════════="
 
-    devorq_auto::log "=== RUN END: $done done, $pending pending, $total_failures failures ==="
+    devorq_auto::log "=== RUN END: $terminal_state; $done done, $pending pending, $failed failed, $total_failures failures ==="
+    return "$terminal_rc"
 }
 
 main "$@"

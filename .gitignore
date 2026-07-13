@@ -33,6 +33,7 @@ node_modules/
 .devorq/state/context.json
 .devorq/state/handoff.json
 .devorq/state/logs/
+.devorq/state/runs/
 .devorq-auto/.last-branch
 .devorq-auto/.run.lock
 
