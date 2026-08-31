@@ -599,6 +599,9 @@ devorq_auto::commit_paths() {
         printf '%s\0' "$path"
     done < <(
         git -C "$project" diff --name-only -z
+        # Um delegate pode deixar as mudanças STAGED (git add). Ignora-las faria
+        # a story ser marcada done com o código só no index (nunca commitado).
+        git -C "$project" diff --cached --name-only -z
         git -C "$project" ls-files --others --exclude-standard -z
     )
 }
@@ -653,7 +656,12 @@ devorq_auto::worktree_signature() {
     local path
 
     {
-        git -C "$project" status --porcelain --untracked-files=all 2>/dev/null || true
+        # O journal do orquestrador (.devorq-auto/) e o estado .devorq/ nao podem
+        # contar como "mudanca do delegate" — senao um delegate no-op que so
+        # grava o journal passa no guard no-diff e a story e marcada done sem
+        # codigo. Filtra as linhas cujo path pertence ao orquestrador.
+        git -C "$project" status --porcelain --untracked-files=all 2>/dev/null \
+            | grep -vE '^.. \.devorq(-auto)?(/|$)' || true
         git -C "$project" diff --binary HEAD 2>/dev/null || true
         while IFS= read -r -d '' path; do
             case "$path" in
@@ -1014,20 +1022,25 @@ main() {
             esac
         fi
 
+        # Simulate é dry-run PURO: nenhuma story pode ser marcada done nem
+        # commitada (DQ-005). Antes marcava passes=true/status=done e podia até
+        # commitar, reportando COMPLETED sem nenhum código novo.
+        if [[ "${DEVORQ_AUTO_SIMULATE:-0}" == "1" ]]; then
+            devorq_auto::warn "SIMULATED (DEVORQ_AUTO_SIMULATE=1): story $story_id seria implementada/verificada/committada — nada persistido"
+            continue
+        fi
+
         # no-diff guard: delegate que nao produziu NENHUMA mudanca nao pode marcar
         # a story done (a suite pre-existente passaria vazia). Compara assinatura
-        # antes/depois, incluindo hash de arquivos untracked. Pula em modo
-        # simulate porque o dry-run intencional nao gera diff.
-        if [[ "${DEVORQ_AUTO_SIMULATE:-0}" != "1" ]]; then
-            local _post_sig
-            _post_sig=$(devorq_auto::worktree_signature "$project_root")
-            if [[ "$_pre_sig" == "$_post_sig" ]]; then
-                devorq_auto::fail "Delegate nao produziu mudancas (no-diff) — story $story_id NAO sera marcada done"
-                devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "verification" "no_diff_delegate_produziu_nada"
-                total_failures=$((total_failures + 1))
-                failure_list+=("$story_id")
-                continue
-            fi
+        # antes/depois, incluindo hash de arquivos untracked.
+        local _post_sig
+        _post_sig=$(devorq_auto::worktree_signature "$project_root")
+        if [[ "$_pre_sig" == "$_post_sig" ]]; then
+            devorq_auto::fail "Delegate nao produziu mudancas (no-diff) — story $story_id NAO sera marcada done"
+            devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "verification" "no_diff_delegate_produziu_nada"
+            total_failures=$((total_failures + 1))
+            failure_list+=("$story_id")
+            continue
         fi
 
         # Verification gate

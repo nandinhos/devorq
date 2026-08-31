@@ -262,15 +262,39 @@ devorq::auto::git_commit() {
     local project="$1"
     local story_id="$2"
     local story_title="$3"
+    local path
 
-    if git -C "$project" diff --cached --quiet && git -C "$project" diff --quiet; then
+    # Commit por-path (nunca `git add -A`, que commitava mudancas preexistentes)
+    # e fail-closed (sem `--no-verify` e sem `|| true`, que mascaravam falha).
+    # Espelha a logica de devorq_auto::git_commit no loop Ralph.
+    local -a paths=()
+    while IFS= read -r -d '' path; do
+        case "$path" in
+            .devorq-auto|.devorq-auto/*|.devorq|.devorq/*) continue ;;
+        esac
+        paths+=("$path")
+    done < <(
+        git -C "$project" diff --name-only -z
+        git -C "$project" diff --cached --name-only -z
+        git -C "$project" ls-files --others --exclude-standard -z
+    )
+
+    if [[ ${#paths[@]} -eq 0 ]]; then
         devorq::auto::info "Nenhum change para commitar"
         return 0
     fi
 
-    git -C "$project" add -A
     # story_id (ex: sec-001) nao e escopo valido; vai na descricao. Formato tipo(escopo).
-    git -C "$project" commit -m "feat(core): ${story_title} (${story_id})" --no-verify 2>/dev/null || true
+    local message="feat(core): ${story_title} (${story_id})"
+    if ! git -C "$project" add -- "${paths[@]}"; then
+        devorq::auto::fail "git add dos paths da story falhou"
+        return 1
+    fi
+    if ! git -C "$project" commit -m "$message"; then
+        git -C "$project" restore --staged -- "${paths[@]}" >/dev/null 2>&1 || true
+        devorq::auto::fail "git commit falhou; index dos paths da story foi restaurado"
+        return 1
+    fi
 }
 
 devorq::auto::execute_flow() {
