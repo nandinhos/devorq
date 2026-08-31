@@ -15,22 +15,22 @@
 #   export DEVORQ_DELEGATE_FN="$PWD/scripts/adapters/opencode-delegate.sh"
 #   bash skills/devorq-auto/scripts/loop-auto.sh "$PWD" --all
 #
-# Env vars opcionais:
-#   OPENCODE_MODEL      (default: minimax/MiniMax-M3)
+# Env vars opcionais (OPENCODE_* sao alias do contrato DEVORQ_*; o canonico vence):
+#   OPENCODE_MODEL      (default: DEVORQ_MODEL ou minimax/MiniMax-M3)
 #   OPENCODE_EFFORT     variant opencode: max|high|medium|minimal (default: max)
 #   OPENCODE_AGENT      (default: build)
-#   OPENCODE_TIMEOUT    segundos ate matar (default: 1800)
+#   OPENCODE_TIMEOUT    segundos ate matar (default: DEVORQ_DELEGATE_TIMEOUT ou 1800)
 #   OPENCODE_DRY_RUN    se "1", imprime o que faria e retorna 0 sem invocar
 #============================================================
 set -euo pipefail
 
 readonly ADAPTER_NAME="opencode-delegate"
 
-OPENCODE_MODEL="${OPENCODE_MODEL:-minimax/MiniMax-M3}"
+OPENCODE_MODEL="${OPENCODE_MODEL:-${DEVORQ_MODEL:-minimax/MiniMax-M3}}"
 OPENCODE_EFFORT="${OPENCODE_EFFORT:-max}"
 OPENCODE_AGENT="${OPENCODE_AGENT:-build}"
-OPENCODE_TIMEOUT="${OPENCODE_TIMEOUT:-1800}"
-OPENCODE_DRY_RUN="${OPENCODE_DRY_RUN:-0}"
+OPENCODE_TIMEOUT="${OPENCODE_TIMEOUT:-${DEVORQ_DELEGATE_TIMEOUT:-1800}}"
+OPENCODE_DRY_RUN="${OPENCODE_DRY_RUN:-${DEVORQ_DELEGATE_DRY_RUN:-0}}"
 
 adapter::die() { echo "[${ADAPTER_NAME}] ERROR: $*" >&2; exit "${1:-1}"; }
 adapter::info() { echo "[${ADAPTER_NAME}] $*"; }

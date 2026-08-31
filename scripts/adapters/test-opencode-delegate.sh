@@ -68,13 +68,19 @@ cat > "$TESTDIR/prd.json" <<'JSONEOF'
 }
 JSONEOF
 
+# prd.json e o estado de stories versionado — precisa estar limpo no inicio
+# p/ o guard de worktree do loop-auto.sh (DQ-005 / ensure_clean_worktree).
+git -C "$TESTDIR" add prd.json
+git -C "$TESTDIR" commit -q -m "feat(test): prd.json com story pendente"
+
 info "cenario: 1 story pendente (priority 1)"
 
 #----- E2E: roda o loop com adapter em DRY-RUN
 info "executando loop-auto.sh com adapter em OPENCODE_DRY_RUN=1..."
+info "(fail-closed pos-C4: delegate dry-run sem mudancas => no-diff => NAO marca done)"
 
 set +e
-(
+LOOP_OUTPUT=$(
     cd "$TESTDIR"
     export DEVORQ_DELEGATE_FN="$ADAPTER"
     export OPENCODE_DRY_RUN=1
@@ -86,15 +92,24 @@ LOOP_RC=$?
 set -e
 
 info "loop rc=$LOOP_RC"
-[[ $LOOP_RC -eq 0 ]] || fail "loop-auto.sh retornou $LOOP_RC (esperado 0)"
+if [[ $LOOP_RC -eq 0 ]]; then
+    fail "loop-auto.sh retornou 0 — esperado falha (no-diff fail-closed, C4)"
+fi
+if ! grep -qiE "no-diff|nao produziu mudancas" <<<"$LOOP_OUTPUT"; then
+    fail "falha do loop nao foi por no-diff (C4/C3). Saida:"
+    echo "$LOOP_OUTPUT"
+fi
+pass "loop fail-closed por no-diff (rc=$LOOP_RC)"
 
-#----- Verificacoes
-info "verificando prd.json..."
+#----- Verificacoes (fail-closed pos-C4)
+info "verificando prd.json (fail-closed)..."
 PASSES=$(jq -r '.stories[0].passes' "$TESTDIR/prd.json")
 STATUS=$(jq -r '.stories[0].status' "$TESTDIR/prd.json")
-[[ "$PASSES" == "true" ]] || fail "story.passes deveria ser true, veio '$PASSES'"
-[[ "$STATUS" == "done" ]] || fail "story.status deveria ser 'done', veio '$STATUS'"
-pass "prd.json: story marcada como done/passes=true"
+if [[ "$PASSES" != "true" && "$STATUS" != "done" ]]; then
+    pass "story NAO marcada done — fail-closed (delegate dry-run sem no-diff)"
+else
+    fail "story foi marcada done com delegate dry-run (nao deveria: C4/C3)"
+fi
 
 info "verificando journal do adapter..."
 JOURNAL_DIR="$TESTDIR/.devorq-auto/runs"

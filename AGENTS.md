@@ -110,7 +110,8 @@ export DEVORQ_DELEGATE_FN=my_delegate
 ```bash
 bash scripts/adapters/test-opencode-delegate.sh
 # -> roda loop-auto.sh em /tmp com prd.json de 1 story, OPENCODE_DRY_RUN=1,
-#    verifica: story marcada done, journal criado, sem efeito colateral.
+#    verifica: fail-closed (dry-run sem mudancas NAO marca done — C4), journal
+#    criado, sem efeito colateral.
 ```
 
 Flags relacionadas: `DEVORQ_AUTO_COMMIT=1` (commit por story), `DEVORQ_AUTO_ALLOW_NO_RUNNER=1`
