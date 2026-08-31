@@ -386,11 +386,10 @@ devorq::rules::export_essential_rules() {
     local dest_dir="$1"
     mkdir -p "$dest_dir"
     local rule copied=0
-    for rule in commit-convention manual-commit agent-discipline; do
-        if [[ -f "${DEVORQ_ROOT}/rules/${rule}.md" ]]; then
-            cp "${DEVORQ_ROOT}/rules/${rule}.md" "${dest_dir}/${rule}.md"
-            copied=$((copied + 1))
-        fi
+    for rule in "${DEVORQ_ROOT}"/rules/*.md; do
+        [[ -f "$rule" ]] || continue
+        cp "$rule" "${dest_dir}/$(basename "$rule")"
+        copied=$((copied + 1))
     done
     echo "$copied"
 }

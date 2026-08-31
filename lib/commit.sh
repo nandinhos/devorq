@@ -49,8 +49,8 @@ Exemplos:
 
 Escopos válidos:
   core | models | services | livewire | notifications | routes | config |
-  database | migrations | tests | bdd | gates | unify | docs | debug |
-  spec | lessons | compact | vps | hub | context
+  database | tests | bdd | gates | unify | docs | debug | spec | lessons |
+  compact | vps | hub | context | release
 
 Tipos válidos:
   feat | fix | refactor | docs | test | style | perf | chore
@@ -58,7 +58,7 @@ USAGE_EOF
 }
 
 # ============================================================
-# Escopos e fases válidas
+# Escopos e tipos válidos
 # ============================================================
 declare -A VALID_SCOPES
 VALID_SCOPES=(
@@ -70,7 +70,6 @@ VALID_SCOPES=(
     ["routes"]="routes"
     ["config"]="config"
     ["database"]="database"
-    ["migrations"]="migrations"
     ["tests"]="tests"
     ["bdd"]="bdd"
     ["gates"]="gates"
@@ -83,6 +82,7 @@ VALID_SCOPES=(
     ["vps"]="vps"
     ["hub"]="hub"
     ["context"]="context"
+    ["release"]="release"
 )
 
 # Tipos convencionais (Model A: tipo(escopo)). Alinha com CLAUDE.md global e o hook.
