@@ -84,34 +84,35 @@ test_input_sanitize() {
     local tests=0
     local passed=0
 
-    # Testar cada caractere perigoso
+    # Testar cada caractere perigoso: o sanitarizador deve REMOVÊ-LO do resultado.
+    # Antes o assert `[ -n "$result" ]` aceitava qualquer saída não-vazia — falso
+    # sucesso: reportava "caracteres bloqueados" mesmo sem nada bloqueado.
     for char in ';' '&' '|' '`' '$' '(' ')' '{' '}' '[' ']' '<' '>' '!' '\\'; do
         ((tests++)) || true
         local input="test${char}value"
         local result
 
-        # Função deve existir ou fallback inline
-        if declare -f devorq::sanitize_path &>/dev/null; then
-            result=$(devorq::sanitize_path "$input" "/tmp" 2>&1 || echo "BLOCKED")
+        # Sanitarizador de caracteres (NÃO o sanitize_path, que só valida path).
+        if declare -f devorq::sanitize_input &>/dev/null; then
+            result=$(devorq::sanitize_input "$input" 2>/dev/null)
+        elif declare -f sanitize_input &>/dev/null; then
+            result=$(sanitize_input "$input" 2>/dev/null)
         else
-            # Fallback: checar se contém caracteres perigosos
-            if echo "$input" | grep -qE '[;&|`\$\(\)\{\}\[\]< >!\\]'; then
-                result="BLOCKED"
-            else
-                result="ALLOWED"
-            fi
+            # Fallback: mesma regra (remove tudo exceto [a-zA-Z0-9._-]).
+            result=$(printf '%s' "$input" | sed 's/[^a-zA-Z0-9._-]//g')
         fi
 
-        if [ "$result" = "BLOCKED" ] || [ -n "$result" ]; then
+        # O caractere perigoso deve ter sido removido do resultado sanitizado.
+        if [[ -n "$result" ]] && ! printf '%s' "$result" | grep -qF -- "$char"; then
             ((passed++)) || true
         fi
     done
 
     if [ $passed -eq $tests ]; then
-        sec::pass "Input sanitization: $passed/$tests caracteres bloqueados"
+        sec::pass "Input sanitization: $passed/$tests caracteres sanitizados"
         return 0
     else
-        sec::fail "Input sanitization: only $passed/$tests caracteres bloqueados"
+        sec::fail "Input sanitization: only $passed/$tests caracteres sanitizados"
         return 1
     fi
 }
@@ -309,18 +310,27 @@ test_exit_codes() {
     local passed=0
 
     for test in "${tests[@]}"; do
-        IFS='|' read -r cmd expected_code <<< "$test"
+        IFS='|' read -r cmd expected_name <<< "$test"
         ((test_count++)) || true
 
-        local exit_code
+        # expected_name é o NOME de uma variável (ex.: EXIT_INVALID_ARGS);
+        # resolve para o valor numérico antes de comparar. Antes o código
+        # lia `expected_code` e o descartava, aceitando qualquer exit code.
+        local expected_code
+        expected_code="${!expected_name:-}"
+        if [[ -z "$expected_code" ]]; then
+            sec::fail "Variavel de exit-code nao encontrada: ${expected_name}"
+            continue
+        fi
+
+        local exit_code=""
         eval "$cmd" 2>/dev/null || exit_code=$?
 
-        # Verificar se exit code é consistente
-        if [ -n "$exit_code" ]; then
+        if [[ "$exit_code" == "$expected_code" ]]; then
             ((passed++)) || true
-            sec::pass "Exit code $exit_code para: $cmd"
+            sec::pass "Exit code ${exit_code} == ${expected_name} para: $cmd"
         else
-            sec::fail "Comando não retornou exit code: $cmd"
+            sec::fail "Exit code ${exit_code} != ${expected_name}=${expected_code} para: $cmd"
         fi
     done
 
