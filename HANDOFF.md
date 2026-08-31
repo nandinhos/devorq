@@ -2,7 +2,7 @@
 
 > **Para quem pega o trabalho:** este é o ponto de retomada. Leia daqui até o fim
 > **antes** de qualquer edição ou commit.
-> Atualizado em 2026-08-31 (audit de qualidade + fixes C1–C5, M8, T1). Repo: `github.com/nandinhos/devorq` · branch `main`.
+> Atualizado em 2026-08-31 (audit + fixes C1–C5/M8/T1 + **Bloco 3: M4/M5/M9/M10 concluído nesta sessão**). Repo: `github.com/nandinhos/devorq` · branch `main`.
 
 ---
 
@@ -21,7 +21,13 @@
   - `f4fbf0d` **fix(auto): bloqueia falso sucesso terminal no loop AUTO (C1-C4)**
   - `8075ffe` **test(security): corrige asserts de falso sucesso na suite de seguranca (T1)**
   - `d11f286` **feat(dsh): skill devorq canonica + plugin reproduzivel via install-dsh-preset.sh (C5,M8)**
-- **CI / suites verdes** nesta sessão: `unit-tests.sh` 75/75, `security-tests.sh` ALL PASSED, `tests/auto/test-loop-terminal-safety.sh all` 8/8, `tests/loop/test-loop-implementation.sh` pass, `tests/contracts/test-contracts.sh` 14/14. Ver §4.
+  - **Bloco 3 (M4/M5/M9/M10), commits desta sessao:**
+    - `fix(core): alinha mensagens de convencao a tipo(escopo)` → **M4**
+    - `fix(core): help do router lista todos os comandos (M5)` → **M5** (+ teste de cobertura no `unit-tests.sh`)
+    - `docs(core): frontmatter na skill security-hardening (M9)` → **M9**
+    - `fix(core): OPENCODE_* como alias de DEVORQ_* nos adapters (M10)` → **M10** (+ correção do teste E2E do adapter)
+    - `docs(compact): snapshot do handoff pos-Bloque-3` → este arquivo
+- **CI / suites verdes** nesta sessao: `unit-tests.sh` 76/76, `security-tests.sh` ALL PASSED, `tests/auto/test-loop-terminal-safety.sh all` 8/8, `tests/loop/test-loop-implementation.sh` pass, `tests/contracts/test-contracts.sh` 14/14, `scripts/adapters/test-opencode-delegate.sh` TODOS PASSARAM. Ver §4.
 - **Estado do plugin DSH:** skill `devorq` em `~/.dsh/skills/devorq/SKILL.md` (root user-dsh, rank 400 — já no catálogo); preset `~/.dsh/.agent-presets/devorq/` sem `customSkillDirs`. Reproduzível via `bash scripts/install-dsh-preset.sh` (idempotente).
 
 ---
@@ -30,11 +36,11 @@
 
 > Audit somente-leitura em 6 superfícies (metodologia/docs, CLI/bash, pipeline AUTO, skills, testes, integração DSH). Bloco 1 + C5 já tratados. Restam, em ordem de valor:
 
-**🔴 Bloco 3 — consistência de superfície (PRÓXIMO):**
-- **M4** — convenção `escopo(fase)` **stale** no código; a canônica é `tipo(escopo)` (F13/v4.0.0): `lib/visual.sh:402`, `lib/rules.sh:218,232,592,598`, `lib/commit.sh:4`, `lib/dispatchers/delivery.sh:30`, `deliverable.md:88`. (O hook rejeita `escopo(fase)`.)
-- **M5** — help do `bin/devorq` omite 7 comandos implementados (`brainstorm, build, context7, env, grill, spec, uninstall`); header-comment omite `loop`/`verify`; `devorq::cmd_version` é dead code (o router resolve `version` inline em `:187`). Regenerar help do `case`/lista `devorq::cmd_*`; rotear `version`.
-- **M9** — `skills/security-hardening/SKILL.md` **sem frontmatter** (`name`/`description`) → não é skill DSH válida. Adicionar frontmatter.
-- **M10** — drift `delegate.sh` (`DEVORQ_MODEL/TIMEOUT/DRY_RUN`) vs `opencode-delegate.sh` (`OPENCODE_*`); prompt duplicado. Tratar `OPENCODE_*` como alias do contrato `DEVORQ_*`.
+**🔴 Bloco 3 — consistência de superfície (CONCLUÍDO nesta sessão ✅):**
+- **M4** — convenção `escopo(fase)` **stale** no código; a canônica é `tipo(escopo)` (F13/v4.0.0): `lib/visual.sh:402`, `lib/rules.sh:218,232,592,598`, `lib/commit.sh:4`, `lib/dispatchers/delivery.sh:30`, `deliverable.md:88`. (O hook rejeita `escopo(fase)`.) ✅ substituído por `tipo(escopo)`; taxonomia invertida ("Fases válidas") realinhada a "Tipos válidos" nos mesmos blocos de mensagem (`rules.sh`/`commit.sh`).
+- **M5** — help do `bin/devorq` omite 7 comandos implementados (`brainstorm, build, context7, env, grill, spec, uninstall`); header-comment omite `loop`/`verify`; `devorq::cmd_version` é dead code (o router resolve `version` inline em `:187`). Regenerar help do `case`/lista `devorq::cmd_*`; rotear `version`. ✅ help regenerado (33 comandos, case==help verificado), header-comment com `loop`/`verify`, `version` roteado p/ `devorq::cmd_version`; novo teste `test_help_covers_commands`.
+- **M9** — `skills/security-hardening/SKILL.md` **sem frontmatter** (`name`/`description`) → não é skill DSH válida. Adicionar frontmatter. ✅ frontmatter YAML válido (`name`/`description`/`whenToUse`/`metadata`), duplicação removida do corpo.
+- **M10** — drift `delegate.sh` (`DEVORQ_MODEL/TIMEOUT/DRY_RUN`) vs `opencode-delegate.sh` (`OPENCODE_*`); prompt duplicado. Tratar `OPENCODE_*` como alias do contrato `DEVORQ_*`. ✅ `OPENCODE_MODEL/TIMEOUT/DRY_RUN` agora caem para `DEVORQ_MODEL`/`DEVORQ_DELEGATE_TIMEOUT`/`DEVORQ_DELEGATE_DRY_RUN`. Obs.: o teste E2E `test-opencode-delegate.sh` estava quebrado por causa do fail-closed C4 (dry-run sem no-diff não marca done) — foi realinhado (e descrição no `AGENTS.md` atualizada).
 
 **🟠 Bloco 4 — consistência metodológica:**
 - **M1** — versão fragmentada: `VERSION`=4.1.0, mas `rules/commit-convention.md:1`="v3.6.5+", `rules/visual-verification.md`="v3.6.5+", `HANDOFF.md`(antigo)/`e2e-tests/RESULTADOS_TESTES.md`/`CODE_REVIEW_MATURITY_REPORT.md` referenciam v3.x. `.devorq/rules/` tem só 3 de 7 regras e `agent-discipline.md` local = **v4.0.0** (canônica v4.1.0).
@@ -56,17 +62,21 @@
 - **C4 foi defensivo:** `devorq::auto::git_commit` é **dead code** (o fluxo guiado usa `devorq::commit`, que tem guard_secrets+confirmação+hook+rc). Por isso tornei a função fail-closed (por-path, sem `add -A`/`--no-verify`/`|| true`) em vez de apenas mencionar.
 - **C3 é robustez/consistência, não bug hard:** como `mark_pass` sempre altera `prd.json`, o `git_commit` já commitava o index inteiro (incluindo staged). O fix (`commit_paths` incluir `--cached`) é pró-ativo/correto; o teste é asserção do comportamento, não red→green.
 - **Testes C1/C2 são red→green comprovados** (revert e confirmou falha). C3 é asserção positiva.
+- **M4 foi além da substituição literal:** como `enforce_commit` imprimia a taxonomia antiga ("Fases válidas") logo após o formato `tipo(escopo)`, alinhei o mesmo bloco a "Tipos válidos" (feat|fix|refactor|docs|test|style|perf|chore) — senão a mensagem ficaria autocontraditória. `commit.sh` usage() idem. Escopos na tabela foram preservados (não é escopo do Bloco 3).
+- **M5 regenerou o help por completo**, não só adicionou os 7 ausentes (reorganizei por grupo de dispatcher). O teste `test_help_covers_commands` garante que todo comando do `case` está no help (extrai o nome primário de cada padrão do `case` e compara com as linhas de topo do heredoc).
+- **`devorq verify` (sem `--story`) não é a verificação deste repo:** entra em modo auto-debug orientado a story. Para verificar o repo, use as suites da §4 (que é o que a §4 pede).
 
 ---
 
 ## 4. Como VERIFICAR (baseline atual — rode você mesmo, veja sumário inteiro)
 
 ```bash
-bash scripts/unit-tests.sh                  # 75/75
+bash scripts/unit-tests.sh                  # 76/76 (inclui teste M5: help cobre o case)
 bash scripts/security-tests.sh              # ALL PASSED
 bash tests/auto/test-loop-terminal-safety.sh all   # 8/8
 bash tests/loop/test-loop-implementation.sh # pass
 bash tests/contracts/test-contracts.sh      # 14/14
+bash scripts/adapters/test-opencode-delegate.sh   # TODOS PASSARAM (fail-closed pos-C4)
 bash scripts/install-dsh-preset.sh --dry-run # DSH installer (dry-run, no-write)
 ```
 
@@ -77,13 +87,14 @@ bash scripts/install-dsh-preset.sh --dry-run # DSH installer (dry-run, no-write)
 
 ## 5. Próximo passo concreto (sugerido)
 
-**Bloco 3 — M4 + M5** (rápido, alto impacto de consistência):
-1. Substituir as mensagens `escopo(fase)` → `tipo(escopo)` em `lib/visual.sh:402`, `lib/rules.sh:218,232,592,598`, `lib/commit.sh:4`, `lib/dispatchers/delivery.sh:30`, `deliverable.md:88`.
-2. Regenerar `devorq::help` do `bin/devorq` a partir do `case`/lista `devorq::cmd_*`; rotear `version` p/ `devorq::cmd_version` e remover o builtin (ou o inverso). Adicionar um teste garantindo que todo comando do `case` aparece no help.
-3. **M9:** adicionar frontmatter (`name: security-hardening`, `description`, `metadata`) a `skills/security-hardening/SKILL.md` e remover duplicação no corpo.
-4. **M10:** tratar `OPENCODE_*` como alias do contrato `DEVORQ_*` em `delegate.sh`/`opencode-delegate.sh`.
+**✅ Bloco 3 CONCLUÍDO nesta sessão** (M4, M5, M9, M10). Trilha completa em §2.
 
-Commit (convenção): `fix(core): ...` / `docs(core): ...` / `fix(dsh): ...`.
+**Bloco 4 — consistência metodológica (PRÓXIMO):**
+1. **M1 (versão fragmentada):** centralizar a versão. `VERSION`=4.1.0 é fonte, mas `rules/commit-convention.md:1` e `rules/visual-verification.md` ainda dizem "v3.6.5+"; `HANDOFF.md`(antigo)/`e2e-tests/RESULTADOS_TESTES.md`/`CODE_REVIEW_MATURITY_REPORT.md` referenciam v3.x. Sincronizar. Regenerar `.devorq/rules/` com `devorq rules export project` (hoje 3 de 7, `agent-discipline` v4.0.0 vs canônica v4.1.0).
+2. **M2 (Gates na doc):** `commit-convention.md:15` chama G-6 de "manual verification gate"; `AGENTS.md:41`/`agent-discipline.md:76` listam "Gates 1–7" e ignoram G-0/G-0.5/G-5.5 (que existem em `lib/gates.sh`). Alinhar as listas à `lib/gates.sh` (fonte única do gate sequence).
+3. **M3 (manual-commit × AUTO):** `rules/manual-commit.md` ("nunca commitar sem aprovação") contradiz `DEVORQ_AUTO_COMMIT=1` (commit por story). Documentar a exceção AUTO + precedência.
+
+Commit (convenção): `docs(core): ...` / `fix(gates): ...`.
 
 ---
 
@@ -110,7 +121,8 @@ Commit (convenção): `fix(core): ...` / `docs(core): ...` / `fix(dsh): ...`.
 
 - **`aula-devorq.html`** (untracked, 57KB) — pré-existente; **não commitar**.
 - **`.devorq/state/`** tem arquivos gitignored (context/handoff) — são estado local; não commitar.
-- **`.devorq/rules/` desincronizado** (3 de 7 regras, versão v4.0.0 vs canônica v4.1.0) — regenerar com `devorq rules export project`.
+- **`.devorq/rules/` desincronizado** (3 de 7 regras, versão v4.0.0 vs canônica v4.1.0) — regenerar com `devorq rules export project` (Item M1 do Bloco 4).
+- **`test-opencode-delegate.sh`** foi realinhado ao fail-closed C4 (dry-run sem no-diff não marca done) — é o comportamento correto agora; não reverter para "marca done".
 - Em caso de conflito doc vs código, **o código e o hook são a verdade**.
 
 ---
