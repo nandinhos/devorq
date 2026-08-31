@@ -471,5 +471,8 @@ FASE 9  ████████████████████  100%  ✅ 
 | [INSTALL.md](INSTALL.md) | Guia de instalação |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Problemas e soluções |
 | [docs/SYSTEM_LEVANTAMENTO.md](docs/SYSTEM_LEVANTAMENTO.md) | Anexo: levantamento longo (fluxos ASCII, gates, tecnologias) |
+| [docs/ARQUITETURA-AGNOSTICA-LLM.md](docs/ARQUITETURA-AGNOSTICA-LLM.md) | Arquitetura agnóstica LLM + camada DeepSeek Harness (DSH) |
 
 Para diagramas, auditoria do sistema ou integração com outra documentação técnica, use o anexo acima; o README e o SPEC cobrem o uso diário e a versão canônica.
+
+O DEVORQ também roda como **agent preset no DeepSeek Harness (DSH)** — ver `INSTALL.md` → "Integração com DeepSeek Harness (DSH)".
