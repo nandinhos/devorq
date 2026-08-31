@@ -1,189 +1,118 @@
-# HANDOFF — DEVORQ v4.0.0 → continuidade
+# HANDOFF — DEVORQ v4.1.0 → continuidade
 
 > **Para quem pega o trabalho:** este é o ponto de retomada. Leia daqui até o fim
 > **antes** de qualquer edição ou commit.
-> Atualizado em 2026-07-03 (release v4.0.0 — Elite Hardening). Repo: `github.com/nandinhos/devorq` · branch `main`.
+> Atualizado em 2026-08-31 (audit de qualidade + fixes C1–C5, M8, T1). Repo: `github.com/nandinhos/devorq` · branch `main`.
 
 ---
 
 ## 0. Como usar este handoff
 
-1. O Codex carrega `AGENTS.md` automaticamente a cada turno — ele tem os
-   **inegociáveis** (formato de commit, proibições). Este `HANDOFF.md` é o
-   **snapshot de estado**: cole-o como primeiro prompt da sessão Codex.
-2. Rode o Codex em modo que **permita editar** (`--sandbox workspace-write`,
-   approval interativo). O uso anterior do Codex neste repo foi só review
-   (`sandbox=read-only`); para desenvolver isso não basta.
-3. Antes de codar, leia: este arquivo → `AGENTS.md` → `SPEC.md` (escopo) →
-   `docs/auditoria-tecnica-2026-06-26.md` (dívida técnica, por ID `DQ-xxx`).
+1. O próximo agente carrega `AGENTS.md` automaticamente (inegociáveis: formato de commit, proibições) e, no DSH, a skill `devorq`. Este `HANDOFF.md` é o **snapshot de estado** — use como contexto inicial.
+2. Antes de codar, leia: este arquivo → `AGENTS.md` → `SPEC.md` (escopo). A dívida técnica histórica está em `docs/auditoria-tecnica-2026-06-26.md` (IDs `DQ-xxx`); o **novo** roadmap de qualidade desta sessão está em §2.
+3. **Ambiente DSH:** o plugin DEVORQ está instalado em `~/.dsh` (skill em `~/.dsh/skills/devorq/`, preset em `~/.dsh/.agent-presets/devorq/`). A composição do preset **só recarrega em nova sessão DSH** (generation por mtime/size do `agent.cordis.yml`) — abra uma nova sessão neste repo para usar o estado atual.
 
 ---
 
-## 1. TL;DR do estado
+## 1. TL;DR do estado (v4.1.0)
 
-- **DEVORQ é um orquestrador de agentes em Bash** (`bin/devorq` + `lib/` + `scripts/`).
-  Não é app Laravel — apesar da skill `laravel` poluindo o `skills/` (ver §8).
-- **Release v4.0.0 (Elite Hardening) na `main`**: 12 fatias de hardening + F13
-  (convenção `tipo(escopo)`) + adapters de delegação multi-runner. Fonte:
-  `docs/REFACTOR-ELITE-PLAN.md` + `docs/CODE_REVIEW_ELITE_2026-07-02.md`.
-- **Backlog anterior fechado: DQ-001..DQ-030, 30/30** (`docs/auditoria-tecnica-2026-06-26.md`).
-- **CI verde + E2E 77/77 verde e estável** (ver §5). O `main` está estável.
-- **Próximo milestone:** os itens de médio/estratégico prazo do
-  `docs/REFACTOR-ELITE-PLAN.md` (verificação por AC executável, unificação dos 2
-  motores AUTO, rollback por snapshot, sandbox skip-permissions).
-
-**Veredito da auditoria (resumo):** a casca do DEVORQ é boa (router/dispatcher
-real, hardening de input sólido), mas o histórico apontava um núcleo de execução
-"teatro" (verde ≠ verificado). As correções DQ-001..030 atacaram exatamente isso
-(fail-closed no AUTO, fim do wipe de `prd.json`, gates persistidos, observabilidade
-real). Releia o §1 da auditoria para o contexto completo — **não confie em memória,
-leia o arquivo.**
+- **DEVORQ é um orquestrador de agentes em Bash** (`bin/devorq` + `lib/` + `scripts/` + `skills/`). Não é app Laravel.
+- **Foi feito nesta sessão (commits na `main`):**
+  - `f4fbf0d` **fix(auto): bloqueia falso sucesso terminal no loop AUTO (C1-C4)**
+  - `8075ffe` **test(security): corrige asserts de falso sucesso na suite de seguranca (T1)**
+  - `d11f286` **feat(dsh): skill devorq canonica + plugin reproduzivel via install-dsh-preset.sh (C5,M8)**
+- **CI / suites verdes** nesta sessão: `unit-tests.sh` 75/75, `security-tests.sh` ALL PASSED, `tests/auto/test-loop-terminal-safety.sh all` 8/8, `tests/loop/test-loop-implementation.sh` pass, `tests/contracts/test-contracts.sh` 14/14. Ver §4.
+- **Estado do plugin DSH:** skill `devorq` em `~/.dsh/skills/devorq/SKILL.md` (root user-dsh, rank 400 — já no catálogo); preset `~/.dsh/.agent-presets/devorq/` sem `customSkillDirs`. Reproduzível via `bash scripts/install-dsh-preset.sh` (idempotente).
 
 ---
 
-## 2. Duas camadas — o Codex só herda UMA
+## 2. Achados do audit (gaps de qualidade) — roadmap priorizado
 
-| Camada | O quê | Codex usa? |
-|--------|-------|------------|
-| **Portável (CLI Bash)** | `bin/devorq`, `lib/`, `scripts/` | ✅ **Sim — opere por aqui** |
-| **Skills do Claude Code** | `skills/devorq-auto`, `skills/devorq-mode`, etc. (invocadas via *Skill tool*) | ❌ Não — Codex não tem Skill tool |
+> Audit somente-leitura em 6 superfícies (metodologia/docs, CLI/bash, pipeline AUTO, skills, testes, integração DSH). Bloco 1 + C5 já tratados. Restam, em ordem de valor:
 
-➡️ **Dirija tudo via CLI** (`bin/devorq <cmd>`), nunca via skills. As skills são
-adaptadores do Claude Code; a lógica canônica vive em `lib/`/`scripts/`.
+**🔴 Bloco 3 — consistência de superfície (PRÓXIMO):**
+- **M4** — convenção `escopo(fase)` **stale** no código; a canônica é `tipo(escopo)` (F13/v4.0.0): `lib/visual.sh:402`, `lib/rules.sh:218,232,592,598`, `lib/commit.sh:4`, `lib/dispatchers/delivery.sh:30`, `deliverable.md:88`. (O hook rejeita `escopo(fase)`.)
+- **M5** — help do `bin/devorq` omite 7 comandos implementados (`brainstorm, build, context7, env, grill, spec, uninstall`); header-comment omite `loop`/`verify`; `devorq::cmd_version` é dead code (o router resolve `version` inline em `:187`). Regenerar help do `case`/lista `devorq::cmd_*`; rotear `version`.
+- **M9** — `skills/security-hardening/SKILL.md` **sem frontmatter** (`name`/`description`) → não é skill DSH válida. Adicionar frontmatter.
+- **M10** — drift `delegate.sh` (`DEVORQ_MODEL/TIMEOUT/DRY_RUN`) vs `opencode-delegate.sh` (`OPENCODE_*`); prompt duplicado. Tratar `OPENCODE_*` como alias do contrato `DEVORQ_*`.
 
-### Modo AUTO (delegate multi-runner)
-O modo AUTO (story-by-story) depende do contrato `DEVORQ_DELEGATE_FN`. Desde v4.0.0
-há **adapters funcionais para 5 runners**, validados end-to-end (claude, codex,
-hermes, opencode, agy): use o dispatcher `scripts/adapters/delegate.sh` com
-`DEVORQ_RUNNER=<runner>` (ou os wrappers `<runner>-delegate.sh`). Contrato e casos
-de uso: `AGENTS.md` §"Contrato de delegação" + `docs/DELEGATE-ADAPTERS.md`. O loop
-é **fail-closed**: delegate que não produz diff **não** marca a story como done;
-story que falha vira `failed` após `DEVORQ_AUTO_MAX_STORY_FAILURES`; use
-`DEVORQ_AUTO_YES=1` em headless. Para desenvolvimento manual, use o fluxo CLASSIC
-(gates) — ver §4.
+**🟠 Bloco 4 — consistência metodológica:**
+- **M1** — versão fragmentada: `VERSION`=4.1.0, mas `rules/commit-convention.md:1`="v3.6.5+", `rules/visual-verification.md`="v3.6.5+", `HANDOFF.md`(antigo)/`e2e-tests/RESULTADOS_TESTES.md`/`CODE_REVIEW_MATURITY_REPORT.md` referenciam v3.x. `.devorq/rules/` tem só 3 de 7 regras e `agent-discipline.md` local = **v4.0.0** (canônica v4.1.0).
+- **M2** — G-6 existe (Context7, `lib/gates.sh:458`) mas `commit-convention.md:15` o chama de "manual verification gate"; `AGENTS.md:41`/`agent-discipline.md:76` "Gates 1–7" pulam G-6 e ignoram G-0/G-0.5/G-5.5 (que existem em `lib/gates.sh`).
+- **M3** — `rules/manual-commit.md` ("nunca commitar sem aprovação") contradiz o modo AUTO (`DEVORQ_AUTO_COMMIT=1`, commit por story). Falta a exceção AUTO + precedência.
 
----
+**🟡 Bloco 5 — robustez:**
+- **M6** — filosofia "jq opcional" violada: `lib/commands/brainstorm.sh`(11), `grill.sh`(15), `lib/commit.sh`(4), `lib/rules.sh` usam `jq` sem `devorq::contracts::require_jq`.
+- **M7** — portabilidade GNU/BSD/macOS: `timeout` (`delegate.sh:139`, `gates.sh:538`), `realpath -q` (`helpers.sh:45,50`, `vps.sh:61,65`), `readlink -f` (`e2e-test.sh:11`) ausentes no macOS.
+- **M12/M13** — `lib/loop.sh:157-159` valida só `-z "$executor"` (não `-x`); `exit_code` do contrato v1 hardcoded; `mark_skip` (`loop-auto.sh`) faz `mv` sem validar JSON; `MAX_DELEGATE_RETRIES=1` (retry morto); `progress.txt` não excluído do commit.
 
-## 3. Convenções inegociáveis (resumo — fonte: `AGENTS.md`)
-
-- **Commit**: 1ª linha casa `^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):`
-  → `tipo(escopo): descrição` (F13/v4.0.0 — o tipo agora é validado; o antigo
-  `escopo(fase)` é **rejeitado**). Sem espaço antes do `(`. IDs (`DQ-031`) vão no
-  **fim da descrição**. O hook `.git/hooks/commit-msg` **bloqueia** o que fugir.
-- **Sem `Co-Authored-By:`** (hook bloqueia). **Português do Brasil.**
-- **Sem refatoração fora de escopo. Sem features especulativas.**
-- ⚠️ O `CLAUDE.md` global (commit *com* espaço) **não vale aqui** — o hook manda.
+**Baixos (higiene):** references órfãs (`devorq-auto/references/prd-schema.json`, `env-context/references/laravel-filament.md`, `scope-guard/references/laravel-filament-scope.md`); `skills/README.md:27` lista `learned-lesson` inexistente; `devorq-code-review` "8 fases" vs 9 (FASE 8 pós-review); `mode-selector.sh` fora de `scripts/`; versão `devorq-auto` inconsistente (SKILL.md v1.2.0/1.1.0/1.0.0 vs script v1.2.1); mojibake em `rules/brainstorm.md:17` (采纳) e `rules/grill.md:52` ("nãoaceita"); `INSTALL.md` typos (caminho `~/devorq` na desinstalação, "afficher", "Manenha", "|| Sintoma"); `e2e-tests/RESULTADOS_TESTES.md` stale (v3.8.5, "16 arquivos" vs real 7); `unit::skip` chamado mas **não definido** em `unit-tests.sh`; `systematic_debug` é stub (security-tests.sh/pipeline-tests.sh).
 
 ---
 
-## 4. Fluxo de trabalho recomendado (CLASSIC, via CLI)
+## 3. Decisões e porquês (para não re-discutir)
+
+- **Skill do plugin DSH em `~/.dsh/skills/` (user-dsh), NÃO `customSkillDirs` no preset.** O provider `dsh-skill-filesystem` não varre o dir do preset; `customSkillDirs` apontando para `/.agent-presets/<id>/skills` hardcoda o id e **quebra em cópia** do preset (copy é whole-directory). User-dsh (rank 400) é auto-descoberto e robusto. Fonte canônica no repo `skills/devorq/SKILL.md` + installer idempotente.
+- **C4 foi defensivo:** `devorq::auto::git_commit` é **dead code** (o fluxo guiado usa `devorq::commit`, que tem guard_secrets+confirmação+hook+rc). Por isso tornei a função fail-closed (por-path, sem `add -A`/`--no-verify`/`|| true`) em vez de apenas mencionar.
+- **C3 é robustez/consistência, não bug hard:** como `mark_pass` sempre altera `prd.json`, o `git_commit` já commitava o index inteiro (incluindo staged). O fix (`commit_paths` incluir `--cached`) é pró-ativo/correto; o teste é asserção do comportamento, não red→green.
+- **Testes C1/C2 são red→green comprovados** (revert e confirmou falha). C3 é asserção positiva.
+
+---
+
+## 4. Como VERIFICAR (baseline atual — rode você mesmo, veja sumário inteiro)
 
 ```bash
-devorq init                 # bootstrap de regras + hook commit-msg (idempotente)
-# edite .devorq/state/context.json: intent + success_criteria
-devorq scope lite "<intent>"   # contrato mínimo antes de codar
-# ... implemente ...
-devorq flow                 # gates 1–7 (use --resume para retomar)
-devorq verify
-devorq commit               # confirmação [Y/n]; respeita o hook
+bash scripts/unit-tests.sh                  # 75/75
+bash scripts/security-tests.sh              # ALL PASSED
+bash tests/auto/test-loop-terminal-safety.sh all   # 8/8
+bash tests/loop/test-loop-implementation.sh # pass
+bash tests/contracts/test-contracts.sh      # 14/14
+bash scripts/install-dsh-preset.sh --dry-run # DSH installer (dry-run, no-write)
 ```
 
----
-
-## 5. Como VERIFICAR (rode você mesmo — não confie em contagens)
-
-```bash
-bash bin/devorq test            # suíte unit (NÃO use grep para filtrar!)
-bash scripts/ci-test.sh         # espelha o CI; leia o sumário Pass/Fail INTEIRO
-bash scripts/sync-version.sh --check   # drift de versão entre VERSION/CHANGELOG/etc.
-bash scripts/security-tests.sh  # path traversal, SSH, SQLi, sanitize
-```
-
-- **Baseline v4.0.0: 75/75 unit + 36 security + 77/77 E2E** (estável, determinístico).
-  Ainda assim: rode e leia o sumário completo. **Lição da auditoria:** 2 regressões
-  de CI escaparam porque alguém filtrou a saída com `grep`. **Veja Pass/Fail inteiro.**
-- **E2E é VERDE (77/77)** e estável desde o elite-hardening. Vermelho agora é
-  **regressão real** — investigue, não ignore. `e2e.yml` está a caminho de required check.
-
-### ⚠️ Poluição de estado ao rodar suites
-Rodar as suites **suja** `.devorq/state/lessons/captured/` (e pode gerar
-`skills/<algo>/` auto-gerado). **Sempre** restaure depois:
-
-```bash
-git checkout -- .devorq/state/ ; git clean -fdn   # confira o que seria removido
-```
-
-Não commite esse lixo. (É a provável origem do `skills/laravel/` atual — ver §8.)
+> **Lição da auditoria:** não filtre a saída com `grep` para "ver só o Pass" — regressões escaparam assim. Leia Pass/Fail inteiro.
+> Suites herméticas criam repositórios temporários; não poluem o repo. `scripts/ci-test.sh` espelha o CI.
 
 ---
 
-## 6. O que está FEITO
+## 5. Próximo passo concreto (sugerido)
 
-- **v4.0.0 Elite Hardening (12 fatias):** gates fail-closed no nível de processo
-  (`devorq flow` e `devorq::error` saem `!=0`); GATE-2 fail-closed + Node; F13
-  convenção `tipo(escopo)`; AUTO robusto (no-diff guard, stop-criteria, flock,
-  headless-safe); adapters multi-runner (claude/codex/hermes/opencode/agy);
-  `jq --arg` no parser de PRD. Detalhe: `docs/REFACTOR-ELITE-PLAN.md`.
-- Backlog auditoria **DQ-001..DQ-030: 30/30** (Apêndice D da auditoria). Highlights:
-  fim do wipe de `prd.json` (DQ-004), AUTO fail-closed (DQ-005), `gates_completed`
-  persistido + `flow --resume` (DQ-007), trilha JSONL (DQ-018), guard de segredos
-  (DQ-014/015), `DEVORQ_GATE_SEQUENCE` fonte única (DQ-028).
-- `main` com CI verde; `.devorq/version` e `VERSION` em **4.0.0**.
+**Bloco 3 — M4 + M5** (rápido, alto impacto de consistência):
+1. Substituir as mensagens `escopo(fase)` → `tipo(escopo)` em `lib/visual.sh:402`, `lib/rules.sh:218,232,592,598`, `lib/commit.sh:4`, `lib/dispatchers/delivery.sh:30`, `deliverable.md:88`.
+2. Regenerar `devorq::help` do `bin/devorq` a partir do `case`/lista `devorq::cmd_*`; rotear `version` p/ `devorq::cmd_version` e remover o builtin (ou o inverso). Adicionar um teste garantindo que todo comando do `case` aparece no help.
+3. **M9:** adicionar frontmatter (`name: security-hardening`, `description`, `metadata`) a `skills/security-hardening/SKILL.md` e remover duplicação no corpo.
+4. **M10:** tratar `OPENCODE_*` como alias do contrato `DEVORQ_*` em `delegate.sh`/`opencode-delegate.sh`.
+
+Commit (convenção): `fix(core): ...` / `docs(core): ...` / `fix(dsh): ...`.
 
 ---
 
-## 7. O que está EM ABERTO (honesto — defina o milestone)
-
-> DQ-022 (adapter não-Hermes) e o E2E verde+gating **foram entregues** na v4.0.0.
-> O locking concorrente também (flock, F10). Os itens residuais agora são o
-> **roadmap médio/estratégico** do `docs/REFACTOR-ELITE-PLAN.md`, em ordem de valor:
-
-1. **Verificação por AC executável** — o gate `check-story.sh` roda a suite do
-   projeto mas **não valida os acceptanceCriteria** da story; hoje quem garante
-   trabalho real é o no-diff guard. Adicionar validação por critério é a maior
-   alavanca de confiança do AUTO overnight.
-2. **Unificar os 2 motores AUTO** (`lib/auto.sh` vs `skills/devorq-auto/scripts/loop-auto.sh`)
-   — evitar divergência (o loop-auto é o ativo; lib/auto.sh é resíduo).
-3. **Rollback por snapshot git** + **sandbox opt-in** para o delegate
-   skip-permissions (execução de código não confiável com as credenciais do usuário).
-4. **Higiene imediata** (ver §8).
-
-**Pendente do dono:** priorizar entre (1) verificação por AC, (2) unificação AUTO,
-(3) rollback/sandbox, ou nova feature de produto.
-
----
-
-## 8. Higiene imediata (faça antes de começar feature)
-
-- **`skills/laravel/` + `skills/.index.md` (untracked) = CRUFT.** A lição `l1`
-  tem title `"T"`, problema `"p"`, solução `null` — placeholder gerado num test
-  run (05:42). **Não commite.** Remova:
-  ```bash
-  git clean -fdn   # revise
-  git clean -fd skills/laravel skills/.index.md
-  ```
-- **Branches locais `fix/auditoria-*`** já foram integradas na `main` — podem ser
-  podadas (`git branch -d` após confirmar merge).
-
----
-
-## 9. Mapa rápido do código
+## 6. Mapa rápido do código
 
 | Caminho | Papel |
 |---------|-------|
 | `bin/devorq` | Entry point / dispatcher CLI |
-| `lib/commands/`, `lib/dispatchers/` | Roteamento comando→módulo (1 dispatcher por módulo) |
+| `lib/commands/`, `lib/dispatchers/` | Roteamento comando→módulo |
 | `lib/gates.sh` | Gates + `DEVORQ_GATE_SEQUENCE` (fonte única) |
-| `lib/auto.sh`, `skills/devorq-auto/scripts/loop-auto.sh` | Modo AUTO (loop story-by-story) |
-| `lib/context.sh` | Estado em `.devorq/state/context.json` (`gates_completed`, `run_id`) |
+| `lib/auto.sh`, `skills/devorq-auto/scripts/loop-auto.sh` | Modo AUTO (loop story-by-story) — **loop-auto.sh é o ativo**; `lib/auto.sh` é o guiado/resíduo |
 | `lib/commit.sh` | Commit seguro (guard de segredos, confirmação) |
-| `lib/vps.sh`, `scripts/sync-*.py` | VPS/HUB sync (SQL parametrizado, sem root hardcoded) |
-| `lib/context7.sh`, `lib/lessons/` | Validação Context7 + lições aprendidas |
-| `scripts/*-tests.sh`, `scripts/ci-test.sh` | Suítes de teste (ver §5) |
-| `docs/auditoria-tecnica-2026-06-26.md` | **Dívida técnica completa, IDs DQ-xxx / R-xx** |
+| `lib/context.sh` | Estado `.devorq/state/context.json` |
+| `lib/vps.sh`, `scripts/sync-*.py` | VPS/HUB sync |
+| `lib/context7.sh`, `lib/lessons/` | Validação Context7 + lições |
+| `scripts/*-tests.sh`, `scripts/ci-test.sh` | Suítes de teste |
+| `skills/devorq/SKILL.md` | **Skill canônica devorq (repo)** — fonte do `~/.dsh/skills/devorq/` |
+| `config/dsh/devorq/` | **Templates do preset DSH** (fonte do `~/.dsh/.agent-presets/devorq/`) |
+| `scripts/install-dsh-preset.sh` | **Installer idempotente do plugin DSH** |
 
 ---
 
-*Dúvida de priorização: rastreie tudo pelos IDs `DQ-xxx` (§10 da auditoria) e
-`R-xx` (§9 da auditoria). Em caso de conflito entre docs e código, **o código e o
-hook são a verdade** — docs podem estar com drift.*
+## 7. Higiene / notas
+
+- **`aula-devorq.html`** (untracked, 57KB) — pré-existente; **não commitar**.
+- **`.devorq/state/`** tem arquivos gitignored (context/handoff) — são estado local; não commitar.
+- **`.devorq/rules/` desincronizado** (3 de 7 regras, versão v4.0.0 vs canônica v4.1.0) — regenerar com `devorq rules export project`.
+- Em caso de conflito doc vs código, **o código e o hook são a verdade**.
+
+---
+
+*Dúvida de priorização: rastreie pelos IDs (Bloco 3=qualidade de superfície, Bloco 4=metodologia, Bloco 5=robustez) e, para a dívida histórica, pelos IDs `DQ-xxx`/`R-xx` da auditoria `docs/auditoria-tecnica-2026-06-26.md`.*
