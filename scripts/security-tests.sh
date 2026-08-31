@@ -362,20 +362,12 @@ systematic_debug() {
     echo "   Erro: $error_msg"
     echo ""
 
-    echo "2. CAUSA RAIZ"
-    echo "   Analisando código..."
-    echo ""
-
-    echo "3. SOLUÇÃO"
-    echo "   Implementando correção..."
-    echo ""
-
-    echo "4. VALIDAÇÃO (Context7)"
-    echo "   Consultando documentação oficial..."
-    echo ""
-
-    echo "5. DOCUMENTAR"
-    echo "   Criando lesson se necessário..."
+    echo "Fluxo de investigacao (G-7 — investigar ANTES de corrigir):"
+    echo "  2. Rode o teste isolado e leia a saida COMPLETA (sem grep)"
+    echo "  3. Isole a causa raiz antes de propor correcao"
+    echo "  4. Valide a correcao contra docs oficiais (Context7)"
+    echo "  5. Rode a suite inteira de novo"
+    echo "  6. Capture lesson se a descoberta nao for obvia (devorq lessons capture)"
     echo ""
 }
 

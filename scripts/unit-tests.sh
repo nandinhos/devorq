@@ -30,6 +30,7 @@ RESET='\033[0m'
 TESTS_RUN=0
 TESTS_PASSED=0
 TESTS_FAILED=0
+TESTS_SKIPPED=0
 
 # ============================================================
 # Helpers
@@ -38,6 +39,7 @@ TESTS_FAILED=0
 unit::info() { echo -e "${CYAN}[TEST]${RESET} $*"; }
 unit::pass() { echo -e "${GREEN}[PASS]${RESET} $*"; ((TESTS_PASSED++)) || true; }
 unit::fail() { echo -e "${RED}[FAIL]${RESET} $*"; ((TESTS_FAILED++)) || true; }
+unit::skip() { echo -e "${YELLOW}[SKIP]${RESET} $*"; ((TESTS_SKIPPED++)) || true; }
 
 setup_test_env() {
     rm -rf "$TEST_DIR" && mkdir -p "$TEST_DIR/.devorq/state/lessons/captured"
@@ -1327,6 +1329,7 @@ unit::summary() {
     echo -e " Tests run:    ${TESTS_RUN}"
     echo -e " Passed:       ${GREEN}${TESTS_PASSED}${RESET}"
     echo -e " Failed:       ${RED}${TESTS_FAILED}${RESET}"
+    echo -e " Skipped:      ${YELLOW}${TESTS_SKIPPED}${RESET}"
     echo "=========================================="
 
     if [ $TESTS_FAILED -eq 0 ]; then

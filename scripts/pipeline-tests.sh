@@ -146,12 +146,12 @@ systematic_debug() {
 
     echo "3. 🔧 SOLUÇÃO"
     echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "   Implementando correção..."
+    echo "   Planeje a correcao minima; so implemente apos validar a causa raiz"
     echo ""
 
     echo "4. 📚 VALIDAÇÃO OFICIAL (Context7)"
     echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "   Consultando documentação oficial..."
+    echo "   Consulte docs oficiais (Context7) ANTES de corrigir"
     echo "   → Verificar práticas recomendadas"
     echo "   → Verificar security guidelines"
     echo ""
