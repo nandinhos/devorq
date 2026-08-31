@@ -34,6 +34,10 @@
     - `fix(core): guards de jq obrigatorio via require_jq` → **M6**
     - `fix(core): helpers portaveis de realpath, timeout e readlink` → **M7**
     - `fix(loop): endurece loop AUTO (executor/exit_code, mark_skip, retries, progress)` → **M12/M13**
+  - **Higiene (baixos do audit), commits desta sessao:**
+    - `chore(core): remove references orfas de skills` → **3 references órfãos removidos**
+    - `docs(core): corrige typos, mojibake e versoes de skills` → **INSTALL typos, mojibake, RESULTADOS histórico, fases code-review, versão devorq-auto**
+    - `fix(testes): define unit::skip e orienta systematic_debug` → **unit::skip definida + systematic_debug honesto**
 - **CI / suites verdes** nesta sessao: `unit-tests.sh` 76/76, `security-tests.sh` ALL PASSED, `tests/auto/test-loop-terminal-safety.sh all` 8/8, `tests/loop/test-loop-implementation.sh` pass, `tests/contracts/test-contracts.sh` 14/14, `scripts/adapters/test-opencode-delegate.sh` TODOS PASSARAM. Ver §4.
 - **Estado do plugin DSH:** skill `devorq` em `~/.dsh/skills/devorq/SKILL.md` (root user-dsh, rank 400 — já no catálogo); preset `~/.dsh/.agent-presets/devorq/` sem `customSkillDirs`. Reproduzível via `bash scripts/install-dsh-preset.sh` (idempotente).
 
@@ -97,15 +101,15 @@ bash scripts/install-dsh-preset.sh --dry-run # DSH installer (dry-run, no-write)
 
 ## 5. Próximo passo concreto (sugerido)
 
-**✅ Blocos 3, 4 e 5 CONCLUÍDOS nesta sessão** (Bloco 3: M4/M5/M9/M10; Bloco 4: M1/M2/M3 + escopos; Bloco 5: M6/M7/M12/M13). Trilha completa em §2.
+**✅ Blocos 3, 4 e 5 CONCLUÍDOS + higiene do audit aplicada nesta sessão.** Trilha completa em §2.
 
-**Próximo: baixos/higiene (roadmap residual do audit):**
-1. References órfãs (`devorq-auto/references/prd-schema.json`, `env-context/references/laravel-filament.md`, `scope-guard/references/laravel-filament-scope.md`).
-2. `skills/README.md:27` lista `learned-lesson` inexistente; `devorq-code-review` "8 fases" vs 9 (FASE 8 pós-review); versão `devorq-auto` inconsistente (SKILL.md v1.2.0/1.1.0/1.0.0 vs script v1.2.1); `mode-selector.sh` fora de `scripts/`.
-3. Mojibake em `rules/brainstorm.md:17` (采纳) e `rules/grill.md:52` ("nãoaceita"); `INSTALL.md` typos (caminho `~/devorq` na desinstalação, "afficher", "Manenha", "|| Sintoma"); `e2e-tests/RESULTADOS_TESTES.md` stale (v3.8.5, "16 arquivos" vs real 7).
-4. `unit::skip` chamado mas **não definido** em `unit-tests.sh`; `systematic_debug` é stub (security-tests.sh/pipeline-tests.sh).
+**Item avaliado e MANTIDO (decisão):** `mode-selector.sh` permanece em `skills/devorq-mode/` — skill-local é o padrão do repo (idem `devorq-auto/scripts`, `ddd-deep-domain/scripts`), e o `SKILL.md` da skill o referencia localmente. Mover para `scripts/` quebraria a referência sem ganho.
 
-Commit (convenção): `chore(core): ...` / `docs(core): ...`.
+**Frentes futuras possíveis (não priorizadas):**
+- `docs/*` históricos (CHANGELOG, CODE_REVIEW_MATURITY_REPORT, e2e-tests/RESULTADOS_TESTES) referenciam v3.x — **decisão: não alterar** (documentam estados passados; RESULTADOS_TESTES agora tem banner de obsoleto).
+- Features novas / manutenção do orquestrador (ex: `devorq flow` E2E real, VPS sync, context7).
+
+Commit (convenção): `feat(core): ...` / `fix(core): ...`.
 
 ---
 
@@ -135,6 +139,7 @@ Commit (convenção): `chore(core): ...` / `docs(core): ...`.
 - **`.devorq/rules/` sincronizado** (regenerado no Bloco 4 — 7 regras, v4.1.0). Se as regras canônicas mudarem de novo, re-rodar `devorq rules export project`.
 - **Escopos:** a lista é a da canônica (21 escopos, `release` presente, `migrations` ausente). O hook **não** valida a tabela (só `^[a-z]+\([a-z]+\):`); por Opção B, escopos novos recorrentes devem ser adicionados à tabela e a `lib/commit.sh`/`lib/rules.sh`.
 - **`test-opencode-delegate.sh`** foi realinhado ao fail-closed C4 (dry-run sem no-diff não marca done) — é o comportamento correto agora; não reverter para "marca done".
+- **Higiene (esta sessão):** 3 references órfãos de skills removidos (`devorq-auto/references/prd-schema.json`, `env-context/references/laravel-filament.md`, `scope-guard/references/laravel-filament-scope.md`); `unit::skip` definida (com contador Skipped no summary); `systematic_debug` agora imprime orientações G-7 reais (sem placeholders falsos); `RESULTADOS_TESTES.md` marcado como relatório histórico; `devorq-code-review` corrigido para 9 fases; `devorq-auto` alinhado a v1.2.1; mojibake corrigido (e `.devorq/rules/` regenerado).
 - **Loop AUTO (Bloco 5):** `MAX_DELEGATE_RETRIES` agora é 3 (configurável via `DEVORQ_AUTO_DELEGATE_RETRIES`); `progress.txt` e `.devorq-auto/` são excluídos do commit (`commit_paths`); `mark_skip` valida JSON antes de sobrescrever `prd.json`.
 - **Portabilidade (M7):** `devorq::util::realpath` / `run_timeout` / `readlink_f` em `helpers.sh`; se um script standalone precisar, copiar o fallback (padrão `delegate.sh`/`e2e-test.sh`).
 - Em caso de conflito doc vs código, **o código e o hook são a verdade**.
