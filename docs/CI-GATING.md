@@ -31,7 +31,7 @@ Content-Type: application/json
     "strict": true,
     "contexts": ["Playwright E2E"]
   },
-  "enforce_admins": true,
+  "enforce_admins": false,
   "required_pull_request_reviews": null,
   "restrictions": null,
   "required_linear_history": false,
@@ -56,9 +56,11 @@ gh api -X PUT repos/nandinhos/devorq/branches/main/protection \
 **Efeito:**
 - PR para `main` exige `Playwright E2E` passando.
 - `strict: true` → branch do PR precisa estar up-to-date com `main` antes do merge (evita E2E em código desatualizado).
-- `enforce_admins: true` → admins (você) também precisam do check passando.
+- `enforce_admins: false` (atualizado 2026-08-31) → **admins fazem bypass** dos checks no push direto (fluxo de manutenção/qualidade, sem PR); PRs e não-admins continuam exigindo `Playwright E2E`.
 - `allow_force_pushes: false` e `allow_deletions: false` → proteção contra accidents.
 - **Não toquei** em `required_pull_request_reviews` (code review) nem `restrictions` (push allowed) — decisão sua.
+
+> **Atualização (2026-08-31):** `enforce_admins` foi alterado de `true` para `false` (decisão do mantenedor) para permitir push direto do admin em `main` — necessário para a entrega dos Blocos 3–5 + higiene + doc DSH (21 commits). O required check `Playwright E2E` permanece ativo para PRs e colaboradores.
 
 ---
 
@@ -105,7 +107,7 @@ A arquitetura atual (workflows separados, ambos rodando em paralelo no PR) é a 
 1. **Adicionar `CI` (workflow `ci.yml`) também como required check** — atualmente só E2E está gated. Útil se você quiser unit tests + shellcheck blocking antes de merge.
 2. **Adicionar `required_pull_request_reviews`** — forçar N approvals antes do merge.
 3. **Replicar para branch `dev`** se quiser a mesma proteção lá.
-4. **Substituir o push direto para `main` por PR-based workflow** (mais alinhado com o branch protection agora que está ativo).
+4. ~~Substituir o push direto para `main` por PR-based workflow~~ — **descartado (2026-08-31):** mantido o push direto do admin via `enforce_admins: false`; PR permanece o caminho para contribuições que exigem os checks.
 
 ---
 
