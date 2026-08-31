@@ -154,8 +154,18 @@ devorq::loop::run_implementation() {
     verifier="${DEVORQ_LOOP_VERIFIER_FN:-$DEVORQ_ROOT/skills/devorq-auto/scripts/check-story.sh}"
     executor_id="${DEVORQ_LOOP_EXECUTOR_ID:-delegate}"
     verifier_id="${DEVORQ_LOOP_VERIFIER_ID:-check-story}"
-    if [[ -z "$executor" || ! -x "$verifier" ]]; then
+    # Valida executor E verifier (M12): verifier e sempre um script (-x);
+    # executor pode ser funcao (ex: delegate_task), comando no PATH ou script.
+    if [[ -z "$executor" ]]; then
         devorq::loop::stop "$run_dir" blocked "executor_ou_verifier_indisponivel" 3 || return $?
+    fi
+    if [[ ! -x "$verifier" ]]; then
+        devorq::loop::stop "$run_dir" blocked "executor_ou_verifier_indisponivel" 3 || return $?
+    fi
+    if [[ "$executor" == */* ]]; then
+        [[ -x "$executor" ]] || { devorq::loop::stop "$run_dir" blocked "executor_indisponivel" 3 || return $?; }
+    elif ! command -v "$executor" >/dev/null 2>&1 && ! declare -F "$executor" >/dev/null 2>&1; then
+        devorq::loop::stop "$run_dir" blocked "executor_indisponivel" 3 || return $?
     fi
     if [[ "$risk" == "high" || "$risk" == "critical" ]]; then
         if [[ "$executor_id" == "$verifier_id" ]]; then
@@ -170,12 +180,17 @@ devorq::loop::run_implementation() {
     devorq::loop::write_contract loop "$run_dir/loop.json" "$loop" || return 3
     devorq::loop::event "$run_dir" "dispatch" "running" "executor=$executor_id"
     before=$(devorq::loop::worktree_signature "$project")
-    if "$executor" "$story" "$project"; then
+    # M13: grava o exit_code REAL do executor no contrato (antes hardcoded 0/1)
+    "$executor" "$story" "$project"
+    local executor_rc=$?
+    if [[ $executor_rc -eq 0 ]]; then
         execution=$(jq -cn --arg run "$run_id" --arg story "$story_id" --arg actor "$executor_id" \
-            '{schema_version:"devorq.execution/v1",document_type:"execution",run_id:$run,id:("execution-"+$run+"-1"),story_id:$story,attempt:1,actor:$actor,status:"succeeded",exit_code:0}')
+            --argjson exit_code "$executor_rc" \
+            '{schema_version:"devorq.execution/v1",document_type:"execution",run_id:$run,id:("execution-"+$run+"-1"),story_id:$story,attempt:1,actor:$actor,status:"succeeded",exit_code:$exit_code}')
     else
         execution=$(jq -cn --arg run "$run_id" --arg story "$story_id" --arg actor "$executor_id" \
-            '{schema_version:"devorq.execution/v1",document_type:"execution",run_id:$run,id:("execution-"+$run+"-1"),story_id:$story,attempt:1,actor:$actor,status:"failed",exit_code:1}')
+            --argjson exit_code "$executor_rc" \
+            '{schema_version:"devorq.execution/v1",document_type:"execution",run_id:$run,id:("execution-"+$run+"-1"),story_id:$story,attempt:1,actor:$actor,status:"failed",exit_code:$exit_code}')
         devorq::loop::write_contract execution "$run_dir/execution.json" "$execution" || return 3
         devorq::loop::stop "$run_dir" failed "executor_falhou" 1 || return $?
     fi

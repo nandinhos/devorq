@@ -29,7 +29,7 @@ fi
 DEVORQ_AUTO_VERSION="1.2.1"
 FORCE_CONTINUE=false
 CAPTURE_LESSONS=true
-MAX_DELEGATE_RETRIES=1
+MAX_DELEGATE_RETRIES=${DEVORQ_AUTO_DELEGATE_RETRIES:-3}
 _AUTO_PROJECT_ROOT=""   # capturado p/ trap EXIT (failures.md nunca se perde)
 # Stop-criteria: apos N tentativas, a story e marcada 'failed' e excluida da
 # selecao — impede loop infinito re-selecionando a mesma story falha (overnight).
@@ -529,6 +529,12 @@ for s in data['stories']:
 with open(sys.argv[4], 'w') as f:
     json.dump(data, f, indent=2)
 " "$prd" "$story_id" "$reason" "$tmp"
+    # M13: valida que o JSON gerado e valido ANTES de sobrescrever o prd.json
+    if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$tmp" 2>/dev/null; then
+        rm -f "$tmp"
+        devorq_auto::fail "mark_skip: JSON gerado invalido — prd.json NAO alterado"
+        return 1
+    fi
     mv "$tmp" "$prd"
 }
 
@@ -594,7 +600,7 @@ devorq_auto::commit_paths() {
 
     while IFS= read -r -d '' path; do
         case "$path" in
-            .devorq-auto|.devorq-auto/*|.devorq|.devorq/*) continue ;;
+            .devorq-auto|.devorq-auto/*|.devorq|.devorq/*|progress.txt) continue ;;
         esac
         printf '%s\0' "$path"
     done < <(
