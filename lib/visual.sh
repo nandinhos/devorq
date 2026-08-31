@@ -399,7 +399,7 @@ devorq::verify::show_commit_hint() {
     echo ""
     devorq::info "═══ Hint de Commit ═══"
     echo ""
-    echo "  Formato: escopo(fase): descrição (detalhamento)"
+    echo "  Formato: tipo(escopo): descrição (detalhamento)"
     echo ""
     echo "  Sugestão:"
     echo "    feat($scope): $title"

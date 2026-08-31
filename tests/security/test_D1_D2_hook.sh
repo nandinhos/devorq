@@ -77,7 +77,7 @@ else
 fi
 
 # ============================================================================
-# T4: hook valida formato escopo(fase):
+# T4: hook valida formato tipo(escopo):
 # ============================================================================
 echo "teste formato" > "$TEST_FILE"
 git add "$TEST_FILE"
@@ -88,7 +88,7 @@ EOF
 
 OUT=$(git commit -F "$MSG_FILE" 2>&1)
 if echo "$OUT" | grep -qiE "formato|escopo"; then
-    echo "[T4] 🟢 hook valida formato de mensagem (escopo(fase):)"
+    echo "[T4] 🟢 hook valida formato de mensagem (tipo(escopo):)"
 else
     echo "🟡 [T4] hook nao parece validar formato"
 fi

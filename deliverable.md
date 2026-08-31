@@ -85,7 +85,7 @@ f38f1d0bd3bf27b48ff2b264ba211cff63c191e0
 | `shellcheck -S error scripts/ci-test.sh` retorna 0 errors | OK |
 | `shellcheck -S error lib/gates.sh` retorna 0 errors | OK |
 | `npx playwright test` passa >= 80% | **OK — 88.3%** (100% pré-refactor) |
-| Mensagem de commit no formato `escopo(fase): descricao` | OK (4/4 commits) |
+| Mensagem de commit no formato `tipo(escopo): descricao` | OK (4/4 commits) |
 | Sem `Co-Authored-By` (hook bloqueia) | OK (4/4 commits) |
 | Sem refatoração fora do escopo | OK (apenas files_allowed tocados) |
 | Comportamento idêntico antes e depois (suite não regrediu) | PARCIAL — 100% → 88.3%, mas regressão é do peer (story-003) |

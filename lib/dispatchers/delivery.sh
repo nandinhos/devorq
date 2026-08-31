@@ -27,7 +27,7 @@ help_delivery() {
     cat << "EOF"
 DELIVERY DISPATCHER -- entrega (commit, sync, rules, review)
 
-  commit [args]             Commit manual com convencao escopo(fase):
+  commit [args]             Commit manual com convencao tipo(escopo):
   vps [args]                Gerenciar conexao VPS
   sync [args]               Sincronizar com HUB/VPS
   context7 [args]           Context7 integration

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2086,SC2034,SC2015,SC2001,SC2162,SC1090,SC1010,SC2164,SC2155,SC2094,SC2005,SC2317,SC2129,SC2126,SC2120,SC2119,SC2116,SC2046
 # lib/commit.sh — DEVORQ Commit Interativo
-# Formato: escopo(fase): descrição (detalhamento)
+# Formato: tipo(escopo): descrição (detalhamento)
 # Sem emojis, sem co-autoria, em português do Brasil
 
 # Guard de segredos (DQ-014): antes do 'git add -A' cego, bloqueia se arquivos
@@ -52,8 +52,8 @@ Escopos válidos:
   database | migrations | tests | bdd | gates | unify | docs | debug |
   spec | lessons | compact | vps | hub | context
 
-Fases válidas:
-  impl | test | verify | docs | unify | debug | fix | refactor
+Tipos válidos:
+  feat | fix | refactor | docs | test | style | perf | chore
 USAGE_EOF
 }
 

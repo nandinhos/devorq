@@ -215,7 +215,7 @@ devorq::rules::check_commit_convention() {
         local commit_msg
         commit_msg=$(echo "$line" | sed 's/^[a-f0-9]* //')
         
-        # Validar formato: escopo(fase): descrição
+        # Validar formato: tipo(escopo): descrição
         if ! echo "$commit_msg" | grep -qE '^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):'; then
             echo "[FAIL] Commit fora do formato: $commit_msg"
             ((problems++)) || true
@@ -229,7 +229,7 @@ devorq::rules::check_commit_convention() {
         echo "Consulte: rules/commit-convention.md"
         echo ""
         echo "Formato correto:"
-        echo "  escopo(fase): descrição (detalhamento)"
+        echo "  tipo(escopo): descrição (detalhamento)"
         echo ""
         if [ "$strict" = "true" ]; then
             return 1
@@ -589,21 +589,21 @@ devorq::rules::enforce_commit() {
         return 0  # Sem mensagem, deixa git reclamar
     fi
 
-    # Validar formato: escopo(fase): descrição
+    # Validar formato: tipo(escopo): descrição
     if ! echo "$commit_msg" | grep -qE '^(feat|fix|refactor|docs|test|style|perf|chore)\([a-z]+\):'; then
         echo ""
         echo "[DEVORQ RULES] Mensagem de commit fora do formato."
         echo ""
         echo "Formato esperado:"
-        echo "  escopo(fase): descrição (detalhamento)"
+        echo "  tipo(escopo): descrição (detalhamento)"
         echo ""
         echo "Escopos válidos:"
         echo "  core | models | services | livewire | notifications | routes | config |"
         echo "  database | tests | bdd | gates | unify | docs | debug | spec | lessons |"
         echo "  compact | vps | hub | context | release"
         echo ""
-        echo "Fases válidas:"
-        echo "  impl | test | verify | docs | unify | debug | fix | refactor"
+        echo "Tipos válidos:"
+        echo "  feat | fix | refactor | docs | test | style | perf | chore"
         echo ""
         echo "Consulte: rules/commit-convention.md"
         echo ""

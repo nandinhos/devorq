@@ -1080,7 +1080,7 @@ main() {
                 echo ""
                 echo "  Para commitar esta story, execute:"
                 echo "  devorq commit --story ${story_id}"
-                echo "  (formato: escopo(fase): descrição — ver rules/commit-convention.md)"
+                echo "  (formato: tipo(escopo): descrição — ver rules/commit-convention.md)"
                 echo ""
                 if ! devorq_auto::mark_pass "$project_root" "$story_id"; then
                     devorq_auto::handle_failure "$project_root" "$story_json" "$story_id" "$story_title" "mark_pass" "prd_update_failed"
