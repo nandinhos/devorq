@@ -15,7 +15,7 @@ metadata:
 
 ## Visão Geral
 
-Sistema de code review autônomo em 8 fases. Multi-agente paralelo com confiança quantificada. Identifica issues, quantifica certeza, filtra ruído, integra debug quando necessário — mas **nunca publica no PR sem sua aprovação explícita**.
+Sistema de code review autônomo em 9 fases. Multi-agente paralelo com confiança quantificada. Identifica issues, quantifica certeza, filtra ruído, integra debug quando necessário — mas **nunca publica no PR sem sua aprovação explícita**.
 
 Modelo-agnóstico: o agente detecta quais LLMs estão disponíveis (MiniMax, Claude, GPT, Gemini) e escolhe o melhor para cada fase — Haiku-level para eligibility/scoring (barato), Sonnet-level para review profundo.
 
@@ -23,7 +23,7 @@ Modelo-agnóstico: o agente detecta quais LLMs estão disponíveis (MiniMax, Cla
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                    8-FASE REVIEW PIPELINE                         │
+│                    9-FASE REVIEW PIPELINE                         │
 │                                                                   │
 │  [0] ELIGIBILITY    → Haiku-level: para cedo se não precisa      │
 │  [1] CONTEXT        → 2 agentes //: CLAUDE.md + diff summary     │

@@ -222,7 +222,7 @@ rm -rf ~/.devorq        # estado local (lições perdidas)
 rm ~/bin/devorq         # ou ~/.local/bin/devorq
 
 # Remover do PATH (edit ~/.bashrc)
-# Remover linha: export PATH="$HOME/devorq/bin:$PATH"
+# Remover linha: export PATH="$HOME/projects/devorq/bin:$PATH"
 ```
 
 > **Nota:** `devorq uninstall` preserva `.devorq/state/lessons/` antes de remover.
@@ -231,7 +231,7 @@ rm ~/bin/devorq         # ou ~/.local/bin/devorq
 
 ## Troubleshooting de Instalação
 
-|| Sintoma | Solução |
+| Sintoma | Solução |
 |---------|---------|
 | `devorq: command not found` | `export PATH="$HOME/projects/devorq/bin:$PATH"` |
 | `devorq version` mostra versão inesperada | Verifique qual binário está no PATH: `which devorq` |
@@ -242,14 +242,14 @@ rm ~/bin/devorq         # ou ~/.local/bin/devorq
 
 ### Detectando instalações concorrentes
 
-Se `devorq version` afficher `[WARN] multiple installations found`, identifique
+Se `devorq version` exibir `[WARN] multiple installations found`, identifique
 todas as cópias:
 
 ```bash
 find ~ -maxdepth 2 -name "devorq" -type f 2>/dev/null | xargs -I{} sh -c 'echo "=== {} ===" && head -3 {}'
 ```
 
-Manenha apenas `~/projects/devorq/` (ou `~/bin/devorq` com symlink para ela).
+Mantenha apenas `~/projects/devorq/` (ou `~/bin/devorq` com symlink para ela).
 
 ---
 

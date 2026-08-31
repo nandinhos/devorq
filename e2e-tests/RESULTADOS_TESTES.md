@@ -1,5 +1,9 @@
 # Resultados dos Testes E2E - DEVORQ v3.8.5
 
+> ⚠️ **RELATÓRIO HISTÓRICO (2026-06-05, v3.8.5) — DESATUALIZADO.** As suítes
+> atuais e a baseline verde vivem em `scripts/*-tests.sh` (ver §4 do `HANDOFF.md`).
+> Este arquivo é mantido apenas como registro da sprint dogfooding v3.8.5.
+
 > **Data:** 2026-06-05
 > **Versao Testada:** DEVORQ v3.8.5
 > **Ambiente:** WSL Ubuntu 24.04 (sprint dogfooding v3.8.5)

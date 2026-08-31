@@ -49,5 +49,5 @@ devorq grill <topic>
 
 1. **Nenhuma solução é óbvia** — se parece óbvia, questionar mais fundo
 2. **Dados de produção > opinião** — pedir números antes de aceitar
-3. **Se não pode medir, nãoaceita** — métricas concretas ou não passa
+3. **Se não pode medir, não aceita** — métricas concretas ou não passa
 4. **Três sessões de grill no mesmo ponto** → criar regra permanente

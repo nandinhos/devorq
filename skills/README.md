@@ -24,7 +24,6 @@ skills/<nome>/
 | `ddd-deep-domain` | GATE-0: exploração de domínio |
 | `env-context` | GATE-0: detecção de ambiente |
 | `project-foundation` | Geração de 5 foundation docs |
-| `learned-lesson` | Auto-gerada de lições aprovadas |
 | `grill-with-docs` | GATE-0: sparring terminológico |
 | `security-hardening` | Regras de segurança |
 

@@ -1,7 +1,7 @@
 ---
 name: devorq-auto
-description: DEVORQ-AUTO v1.2.0 — Modo autonomo story-by-story do DEVORQ. Implementacao automatica via delegate_task seguindo o padrao Ralph (loop com contexto limpo por iteracao). Gera prd.json do SPEC.md, executa uma story por vez, verifica, commita. NAO depende do Ralph instalado — usa delegate_task nativo.
-version: 1.2.0
+description: DEVORQ-AUTO v1.2.1 — Modo autonomo story-by-story do DEVORQ. Implementacao automatica via delegate_task seguindo o padrao Ralph (loop com contexto limpo por iteracao). Gera prd.json do SPEC.md, executa uma story por vez, verifica, commita. NAO depende do Ralph instalado — usa delegate_task nativo.
+version: 1.2.1
 author: Fernando Dos Santos (Nando)
 license: MIT
 metadata:
@@ -11,7 +11,7 @@ metadata:
     stack: [bash, jq, python3, delegate_task]
 ---
 
-# DEVORQ-AUTO v1.1.0
+# DEVORQ-AUTO v1.2.1
 
 ## Visao Geral
 
