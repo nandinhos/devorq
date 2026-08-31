@@ -52,17 +52,37 @@ MUX_SOCK="${DEVORQ_MUX_SOCK:-/tmp/devorq-ssh-mux-$(id -u)}"
 # Sanitization helpers
 # ============================================================
 
+# M7: realpath portavel (GNU/BSD/macOS). Usa helpers.sh quando carregado;
+# define fallback local p/ uso isolado (vps.sh e autonomo por design).
+if ! declare -f devorq::util::realpath >/dev/null 2>&1; then
+    devorq::util::realpath() {
+        local p="${1:-}"
+        [[ -n "$p" ]] || return 1
+        if command -v realpath >/dev/null 2>&1; then
+            realpath "$p" 2>/dev/null && return 0
+        fi
+        if [[ -d "$p" ]]; then
+            ( cd -P "$p" 2>/dev/null && pwd ) && return 0
+        fi
+        local dir base rdir
+        dir=$(dirname "$p") || return 1
+        base=$(basename "$p") || return 1
+        rdir=$( ( cd -P "$dir" 2>/dev/null && pwd ) ) || return 1
+        printf '%s/%s\n' "$rdir" "$base"
+    }
+fi
+
 devorq::sanitize_path() {
     local path="$1"
     local base_dir="${2:-.}"
 
     # Normaliza e valida que está dentro de base_dir
     local real_path real_base
-    real_path=$(realpath -q "$path" 2>/dev/null) || {
+    real_path=$(devorq::util::realpath "$path") || {
         echo "[ERROR] Path invalido: $path" >&2
         return $EXIT_INVALID_ARGS
     }
-    real_base=$(realpath -q "$base_dir" 2>/dev/null) || {
+    real_base=$(devorq::util::realpath "$base_dir") || {
         echo "[ERROR] Base dir invalido: $base_dir" >&2
         return $EXIT_INVALID_ARGS
     }

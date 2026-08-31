@@ -533,9 +533,9 @@ gate_e2e() {
         }
     fi
 
-    # Roda a suite (com timeout de 5 min)
+    # Roda a suite (com timeout de 5 min; portavel GNU/BSD/macOS — M7)
     local e2e_output
-    e2e_output=$(cd "$e2e_dir" && unset NODE_OPTIONS && timeout 300 npx playwright test --reporter=line 2>&1) || true
+    e2e_output=$(cd "$e2e_dir" && unset NODE_OPTIONS && devorq::util::run_timeout 300 npx playwright test --reporter=line 2>&1) || true
 
     local e2e_passed e2e_failed e2e_total
     e2e_passed=$(echo "$e2e_output" | grep -oE "[0-9]+ passed" | head -1 | grep -oE "[0-9]+" || echo "0")

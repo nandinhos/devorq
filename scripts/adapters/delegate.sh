@@ -135,8 +135,18 @@ adapter::journal "run begin: ${CMD[0]} ..."
 
 # claude/agy/hermes operam no cwd → rodamos dentro do projeto. codex/opencode recebem o dir por flag.
 set +e
-( case "$RUNNER" in claude|agy|hermes) cd "$PROJECT_ROOT" ;; esac
-  timeout "$TIMEOUT" "${CMD[@]}" ) >> "$JOURNAL" 2>&1
+(
+    case "$RUNNER" in claude|agy|hermes) cd "$PROJECT_ROOT" ;; esac
+    # timeout portavel (M7): GNU `timeout`, macOS `gtimeout` (coreutils) ou sem limite
+    if command -v timeout >/dev/null 2>&1; then
+        timeout "$TIMEOUT" "${CMD[@]}"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        gtimeout "$TIMEOUT" "${CMD[@]}"
+    else
+        adapter::warn "timeout indisponivel (GNU coreutils) — executando sem limite de tempo"
+        "${CMD[@]}"
+    fi
+) >> "$JOURNAL" 2>&1
 RC=$?
 set -e
 

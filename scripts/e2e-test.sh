@@ -8,8 +8,25 @@
 
 set -euo pipefail
 
-DEVORQ_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+# readlink -f portavel (M7): GNU e BSD/macOS (fallback com loop de symlink)
+__readlink_f() {
+    local p="$1"
+    if readlink -f "$p" >/dev/null 2>&1; then
+        readlink -f "$p"
+    else
+        local src="$p" dir
+        while [[ -L "$src" ]]; do
+            dir=$(cd -P "$(dirname "$src")" 2>/dev/null && pwd) || return 1
+            src=$(readlink "$src")
+            [[ "$src" != /* ]] && src="${dir}/${src}"
+        done
+        dir=$(cd -P "$(dirname "$src")" 2>/dev/null && pwd) || return 1
+        printf '%s/%s\n' "$dir" "$(basename "$src")"
+    fi
+}
+
+DEVORQ_ROOT="$(cd "$(dirname "$(__readlink_f "${BASH_SOURCE[0]}")")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(__readlink_f "${BASH_SOURCE[0]}")")" && pwd)"
 SANDBOX="/tmp/devorq-e2e-sandbox"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 TESTS_PASSED=0

@@ -42,12 +42,12 @@ validate_path() {
         return $EXIT_INVALID_ARGS
     fi
     local real_path
-    real_path=$(realpath "$path" 2>/dev/null) || {
+    real_path=$(devorq::util::realpath "$path") || {
         echo "Invalid path: $path" >&2
         return $EXIT_ERROR
     }
     local real_base
-    real_base=$(realpath "$base_dir" 2>/dev/null) || {
+    real_base=$(devorq::util::realpath "$base_dir") || {
         echo "Invalid base_dir: $base_dir" >&2
         return $EXIT_ERROR
     }
@@ -115,4 +115,61 @@ devorq::audit_log() {
     fi
     [ -z "${line:-}" ] && line="{\"run_id\":\"${DEVORQ_RUN_ID}\",\"ts\":\"${ts}\",\"agent\":\"${agent}\",\"event\":\"${event}\",\"status\":\"${status}\"}"
     printf '%s\n' "$line" >> "${logs_dir}/run-${DEVORQ_RUN_ID}.jsonl" 2>/dev/null || true
+}
+
+# ============================================================
+# Helpers de portabilidade GNU/BSD/macOS (M7)
+# ============================================================
+
+# realpath portavel: usa `realpath` (GNU) quando existir; senao resolve via
+# `cd -P + pwd` (funciona em BSD/macOS sem coreutils). Retorna 0 + caminho
+# absoluto em stdout, ou !=0 se nao resolver.
+devorq::util::realpath() {
+    local p="${1:-}"
+    [[ -n "$p" ]] || return 1
+    if command -v realpath >/dev/null 2>&1; then
+        realpath "$p" 2>/dev/null && return 0
+    fi
+    if [[ -d "$p" ]]; then
+        ( cd -P "$p" 2>/dev/null && pwd ) && return 0
+    fi
+    local dir base rdir
+    dir=$(dirname "$p") || return 1
+    base=$(basename "$p") || return 1
+    rdir=$( ( cd -P "$dir" 2>/dev/null && pwd ) ) || return 1
+    printf '%s/%s\n' "$rdir" "$base"
+}
+
+# timeout portavel: usa `timeout` (GNU) ou `gtimeout` (macOS coreutils via brew);
+# se nenhum existir, executa sem limite com aviso (fallback seguro).
+devorq::util::run_timeout() {
+    local secs="${1:-0}"
+    shift || true
+    local to
+    to=$(command -v timeout 2>/dev/null || command -v gtimeout 2>/dev/null || true)
+    if [[ -n "$to" ]]; then
+        "$to" "$secs" "$@"
+    else
+        devorq::warn "timeout indisponivel (GNU coreutils) — executando sem limite de tempo"
+        "$@"
+    fi
+}
+
+# readlink -f portavel: resolve symlinks + caminho absoluto em GNU/BSD/macOS.
+devorq::util::readlink_f() {
+    local p="${1:-}"
+    [[ -n "$p" ]] || return 1
+    if command -v readlink >/dev/null 2>&1 && readlink -f "$p" >/dev/null 2>&1; then
+        readlink -f "$p"
+        return 0
+    fi
+    # Fallback: loop de symlink (mesmo padrao do bin/devorq) + cd -P
+    local src="$p" dir
+    while [[ -L "$src" ]]; do
+        dir=$(cd -P "$(dirname "$src")" 2>/dev/null && pwd) || return 1
+        src=$(readlink "$src")
+        [[ "$src" != /* ]] && src="${dir}/${src}"
+    done
+    dir=$(cd -P "$(dirname "$src")" 2>/dev/null && pwd) || return 1
+    printf '%s/%s\n' "$dir" "$(basename "$src")"
 }
