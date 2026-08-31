@@ -59,6 +59,8 @@ source "${DEVORQ_LIB}/gates.sh"
 source "${DEVORQ_LIB}/context.sh"
 # shellcheck source=lib/lessons.sh
 source "${DEVORQ_LIB}/lessons.sh"
+# shellcheck source=lib/contracts.sh
+source "${DEVORQ_LIB}/contracts.sh"
 
 # Carrega dispatchers (dynamic source loop)
 # Cada dispatcher agrupa comandos por afinidade e expoe devorq::cmd_*

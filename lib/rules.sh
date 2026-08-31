@@ -259,6 +259,8 @@ devorq::rules::check_brainstorm() {
     local context_file="${devorq_dir}/state/context.json"
     if [ -f "$context_file" ]; then
         local brainstorm_count
+        # M6: contagem usa jq — obrigatorio quando ha contexto (fail early)
+        devorq::contracts::require_jq || return 1
         brainstorm_count=$(jq -r '.brainstorm_sessions // 0' "$context_file" 2>/dev/null || echo "0")
         echo "[INFO] Sesses de brainstorm registradas: $brainstorm_count"
     fi

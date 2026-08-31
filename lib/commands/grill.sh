@@ -34,6 +34,9 @@ devorq::cmd_grill() {
         return 0
     fi
 
+    # M6: grill persiste sessoes em JSON — jq e obrigatorio (fail early)
+    devorq::contracts::require_jq || return 1
+
     case "$action" in
         start)
             devorq::grill::start "$topic"

@@ -32,6 +32,9 @@ devorq::cmd_brainstorm() {
         return 0
     fi
 
+    # M6: brainstorm persiste sessoes em JSON — jq e obrigatorio (fail early)
+    devorq::contracts::require_jq || return 1
+
     case "$action" in
         start)
             devorq::brainstorm::start "$topic"

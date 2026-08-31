@@ -196,6 +196,8 @@ devorq::commit::interactive() {
     # Se story_id foi passada, carregar dados
     if [[ -n "$story_id" ]]; then
         local story_json
+        # M6: leitura de story usa jq — obrigatorio (fail early)
+        devorq::contracts::require_jq || return 1
         story_json="$(devorq::auto::get_story "$project_root" "$story_id")"
 
         if [[ -z "$story_json" || "$story_json" == "null" ]]; then
@@ -386,6 +388,8 @@ devorq::commit::from_story() {
     local story_id="$2"
 
     local story_json
+    # M6: leitura de story usa jq — obrigatorio (fail early)
+    devorq::contracts::require_jq || return 1
     story_json="$(devorq::auto::get_story "$project_root" "$story_id")"
 
     if [[ -z "$story_json" || "$story_json" == "null" ]]; then
