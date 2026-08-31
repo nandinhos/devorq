@@ -38,7 +38,7 @@ Ou seja: **`tipo(escopo): descrição`** com `tipo` e `escopo` **somente minúsc
 1. `devorq init` — bootstrap de regras + hook commit-msg
 2. Preencher `.devorq/state/context.json` com `intent` e `success_criteria`
 3. `devorq scope lite "<intent>"` — contrato mínimo antes de codar
-4. Gates 1–7 + `devorq verify`
+4. Gates (sequência canônica `DEVORQ_GATE_SEQUENCE`: 0, 0.5, 1–7; inclui G-6 Context7) + `devorq verify`
 5. `devorq commit` — **sem** `Co-Authored-By`
 
 ## Export para ferramentas

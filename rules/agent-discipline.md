@@ -73,7 +73,7 @@ Para tarefas multi-step, plano breve:
 2. [Passo] → verificar: [check]
 ```
 
-**DEVORQ:** Preencher `success_criteria` em `.devorq/state/context.json`. Gates 1–7 + `devorq verify` fecham o loop.
+**DEVORQ:** Preencher `success_criteria` em `.devorq/state/context.json`. Gates (0, 0.5, 1–7, incl. G-6 Context7) + `devorq verify` fecham o loop.
 
 ---
 

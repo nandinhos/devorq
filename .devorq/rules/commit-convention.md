@@ -1,4 +1,4 @@
-# Commit Convention — DEVORQ v3.6.5+
+# Commit Convention — DEVORQ v4.1.0
 
 **Formato (Model A — convencional):**
 ```
@@ -12,7 +12,7 @@ Sem colchetes, sem espaço antes do `(`. O hook `commit-msg` valida exatamente i
 feat(bdd): adiciona validação BDD Given/When/Then (lib/spec.sh migrado)
 fix(livewire): corrige Alpine duplicado em x-data (remove CDN inline)
 refactor(core): extrai devorq::verify para lib/visual.sh
-docs(gates): documenta GATE-6 manual verification gate
+docs(gates): documenta GATE-6 Context7
 ```
 
 **Regras:**
@@ -22,6 +22,12 @@ docs(gates): documenta GATE-6 manual verification gate
 - Tipo deve ser um dos tipos convencionais válidos
 - Escopo deve ser um dos escopos válidos
 - NUNCA usar commits do tipo "WIP", "temp", "debug"
+
+> **Enforcement real (hook `commit-msg`):** o hook valida apenas o **formato**
+> `tipo(escopo):` (regex `^[a-z]+\([a-z]+\):`). Ele **não** rejeita escopo fora da
+> lista abaixo. A tabela lista os escopos **recomendados/principais** do DEVORQ;
+> se um escopo novo se tornar recorrente, adicione-o aqui e em
+> `lib/commit.sh`/`lib/rules.sh` — mas o hook não bloqueia por isso.
 
 **Escopos válidos:**
 
