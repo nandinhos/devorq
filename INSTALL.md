@@ -165,6 +165,31 @@ devorq vps check
 
 ---
 
+## Integração com DeepSeek Harness (DSH)
+
+O DEVORQ também pode rodar como **agent preset** no [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), expondo a metodologia (persona + skill `devorq`) ao agente de código completo.
+
+Instala/repara o plugin (idempotente — o repo é a fonte canônica):
+
+```bash
+bash scripts/install-dsh-preset.sh          # instala/repara
+bash scripts/install-dsh-preset.sh --dry-run # só mostra o que faria
+```
+
+O que o script cria/atualiza em `$DSH_HOME` (default `~/.dsh`):
+
+| Destino | Conteúdo |
+|---------|----------|
+| `~/.dsh/.agent-presets/devorq/agent.cordis.yml` | Preset DEVORQ (persona, gates, ferramentas) — template do repo |
+| `~/.dsh/.agent-presets/devorq/preset.yml` | Metadados do preset |
+| `~/.dsh/skills/devorq/SKILL.md` | Skill `devorq` (root user-dsh, rank 400 — auto-descoberta) |
+
+> **Por que a skill fica em `~/.dsh/skills/` e não no preset:** o provider `dsh-skill-filesystem` não varre o diretório do preset — só roots fixos (projeto, custom, usuário, bundled). Colocá-la no root user-dsh (`<dshHome>/skills/`) é auto-descoberta e **sobrevive a cópia do preset** (um `customSkillDirs` apontando para o preset hardcodaria o id e quebraria).
+
+> **Importante:** após instalar/editar o preset, abra uma **nova sessão** no DEVORQ — a composição do preset é carregada por geração (mtime/size do `agent.cordis.yml`) e a sessão corrente não é recomposta.
+
+---
+
 ## Verificação Final
 
 ```bash
