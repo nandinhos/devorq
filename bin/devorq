@@ -6,10 +6,10 @@
 #
 # Comandos principais:
 #   init, foundation, mode, test
-#   flow, gate, auto, ddd, scope, env, spec, grill, brainstorm
+#   flow, gate, loop, auto, ddd, scope, env, spec, grill, brainstorm
 #   lessons, context, compact, unify, debug
 #   commit, vps, sync, context7, rules, review, version, upgrade, build, uninstall, stats
-#   skills, info
+#   skills, info, verify
 #
 # Este arquivo e apenas o ROUTER. Toda a logica vive em lib/dispatchers/*.sh
 
@@ -87,9 +87,20 @@ Uso: devorq <comando> [args...]
 Comandos:
   init          Inicializar projeto (.devorq/)
   foundation    Criar 5W2H, Premissas, Riscos, Requisitos, Restrições
+  mode          Selecionar modo (AUTO/CLASSIC)
+  test          Executar testes
+
   flow          Executar workflow completo (gates 0→7)
   gate [N]      Executar gate específico (0-7)
-  
+  loop          Executar loop especializado experimental
+  auto          Executar modo AUTO (story-by-story)
+  ddd           Domain-Driven Design (explore|validate)
+  scope         Verificar escopo (validate|template|lite)
+  env           Detectar ambiente
+  spec          Validar/template SPEC.md
+  grill         Questionar soluções (sparring estruturado)
+  brainstorm    Brainstorming estruturado com gates
+
   lessons       Gerenciar lições aprendidas
     capture     Capturar nova lição
     list        Listar lições
@@ -97,37 +108,33 @@ Comandos:
     validate    Validar lições (Context7)
     approve     Aprovar lição
     compile     Compilar lições em skills
-  
+
   context       Gerenciar contexto do projeto
     get         Mostrar contexto atual
     set         Definir campo do contexto
     merge       Mesclar contextos
-  
+
   compact       Gerar handoff (compact)
-  vps           Gerenciar conexão VPS
-  sync          Sincronizar com HUB/VPS
-  skills        Listar skills disponíveis
-  
-  ddd           Domain-Driven Design
-    explore     Explorar domínio
-    validate    Validar SPEC.md
-  scope         Verificar escopo do projeto
-  unify         Unificar artefatos
-  mode          Selecionar modo (AUTO/CLASSIC)
-  auto          Executar modo AUTO (story-by-story)
-  loop          Executar loop especializado experimental
-  commit        Commit manual com convenção tipo(escopo):
-  verify        Verificação visual / E2E antes do commit
-  rules         Regras enforced (list, check, apply, bootstrap)
-  
-  info          Informações do sistema
-  stats         Estatísticas de uso
-  version       Versão do DEVORQ
-  upgrade       Atualizar DEVORQ
-  test          Executar testes
-  
+  unify         Unificar artefatos (feature)
   debug         Debug sistemático
+
+  commit        Commit manual com convenção tipo(escopo):
+  vps           Gerenciar conexão VPS (check)
+  sync          Sincronizar com HUB/VPS (push|pull)
+  context7      Validação Context7 (GATE-6)
+  rules         Regras enforced (list, check, apply, bootstrap)
   review        Code review
+  upgrade       Atualizar DEVORQ
+  build         Self-build (test + gates 1-7)
+  uninstall     Desinstalar DEVORQ
+  stats         Estatísticas de uso
+
+  skills        Listar skills disponíveis
+  info          Informações do sistema
+
+  version       Versão do DEVORQ
+  verify        Verificação visual / E2E antes do commit
+  help          Mostrar esta ajuda
 
 Use: devorq help <comando> para ajuda específica
 HELPEOF
@@ -184,7 +191,7 @@ main() {
         info)        devorq::cmd_info "$@" ;;
 
         # Built-in (sem dispatcher dedicado)
-        version|--version|-v|-V)  echo "DEVORQ v${DEVORQ_VERSION}" ;;
+        version|--version|-v|-V)  devorq::cmd_version ;;
         verify)      devorq::cmd_verify "$@" ;;
 
         help|--help|-h) devorq::help ;;

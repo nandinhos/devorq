@@ -1223,6 +1223,32 @@ test_no_cmd_shadowing() {
     fi
 }
 
+test_help_covers_commands() {
+    unit::info "Test: help do bin/devorq lista todos os comandos do case (M5)"
+    local bin="$DEVORQ_ROOT/bin/devorq"
+    ((TESTS_RUN++)) || true
+
+    # Nome primario de cada padrao do case (desconsidera alias apos '|' e o default '*')
+    local installed
+    installed=$(sed -n '/case "\$cmd" in/,/^[[:space:]]*esac/p' "$bin" \
+        | sed -nE 's/^[[:space:]]*([a-z][a-zA-Z0-9_-]*)(\|[^)]*)?\)[[:space:]].*$/\1/p' \
+        | sort -u)
+
+    # Comandos documentados no help: apenas linhas de topo (2 espacos) do heredoc
+    local documented
+    documented=$(sed -n '/^devorq::help()/,/^}/p' "$bin" \
+        | grep -oE '^  [a-z][a-zA-Z0-9_-]*' | tr -d ' ' | sort -u)
+
+    local missing
+    missing=$(comm -23 <(echo "$installed") <(echo "$documented"))
+
+    if [ -z "$missing" ]; then
+        unit::pass "Todo comando do case aparece no help (M5)"
+    else
+        unit::fail "Comandos ausentes no help: $(echo "$missing" | tr '\n' ' ')"
+    fi
+}
+
 test_check_story_fail_closed() {
     unit::info "Test: check-story.sh fail-closed sem runner (DQ-005)"
     local cs="$DEVORQ_ROOT/skills/devorq-auto/scripts/check-story.sh"
@@ -1354,6 +1380,7 @@ main() {
     test_workflow_init
     test_auto_mark_pass
     test_no_cmd_shadowing
+    test_help_covers_commands
     test_check_story_fail_closed
     test_no_cjk_glyphs
     test_audit_log
