@@ -1,11 +1,14 @@
-# Security Hardening Skill
-
-> **Skill:** security-hardening  
-> **Versão:** 1.0.0  
-> **Data:** 2026-05-13  
-> **Autor:** Code Review - DEVORQ v3.6.0
-
 ---
+name: security-hardening
+description: Padroes de seguranca para scripts bash e Python do DEVORQ — credenciais, SSH, validacao de input, paths, exit codes e checklist pre-commit.
+whenToUse: Ao criar ou modificar scripts do DEVORQ que acessam arquivos, variaveis de ambiente, servicos externos (SSH, PostgreSQL) ou validam input de usuario.
+metadata:
+  version: 1.0.0
+  author: Code Review - DEVORQ
+  source: framework DEVORQ (github.com/nandinhos/devorq)
+---
+
+# Security Hardening Skill
 
 ## Propósito
 
